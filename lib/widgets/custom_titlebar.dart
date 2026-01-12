@@ -49,21 +49,22 @@ class CustomTitleBar extends StatelessWidget {
               onPressed: () => context.read<FileProvider>().saveFile(),
               tooltip: "Save (Ctrl+S)",
             ),
+            // IconButton(
+            //   icon: PhosphorIcon(
+            //     PhosphorIcons.play(),
+            //     size: 18,
+            //     color: Colors.greenAccent,
+            //   ),
+            //   onPressed: () => print("Kodu çalıştır"),
+            // ),
             IconButton(
               icon: PhosphorIcon(
-                PhosphorIcons.play(),
-                size: 18,
-                color: Colors.greenAccent,
-              ),
-              onPressed: () => print("Kodu çalıştır"),
-            ),
-            IconButton(
-              icon: PhosphorIcon(
-                PhosphorIcons.plus(),
+                PhosphorIcons.folderPlus(),
                 size: 18,
                 color: Colors.blueAccent,
               ),
               onPressed: () => context.read<FileProvider>().pickFolder(),
+              tooltip: 'Open Folder (Ctrl+O)',
             ),
 
             if (Platform.isWindows) const SizedBox(width: 140),

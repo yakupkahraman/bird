@@ -67,12 +67,27 @@ class FileProvider extends ChangeNotifier {
   }
 
   Future<void> saveFile() async {
-    if (_selectedFilePath == null) return;
+    if (_selectedFilePath == null) {
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Yeni Dosya Kaydet',
+        fileName: 'new_chick.txt',
+        allowedExtensions: ['txt'],
+        type: FileType.custom,
+      );
+
+      if (outputFile == null) return;
+      _selectedFilePath = outputFile;
+    }
 
     try {
       final file = File(_selectedFilePath!);
       await file.writeAsString(controller.text);
-      print("Dosya başarıyla kaydedildi: $_selectedFilePath");
+
+      if (_rootPath != null) {
+        final dir = Directory(_rootPath!);
+        _files = dir.listSync();
+        _sortFiles(_files);
+      }
 
       notifyListeners();
     } catch (e) {

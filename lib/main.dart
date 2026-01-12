@@ -11,6 +11,7 @@ void main() async {
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
+    title: 'Bird',
     size: Size(800, 600),
     minimumSize: Size(400, 200),
     skipTaskbar: false,

@@ -1,3 +1,4 @@
+import 'package:bird_ce/bindings.dart';
 import 'package:bird_ce/file_provider.dart';
 import 'package:bird_ce/pages/code_page.dart';
 import 'package:bird_ce/pages/languages_page.dart';
@@ -83,90 +84,94 @@ class _ShellPageState extends State<ShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: _isDragging ? SystemMouseCursors.resizeColumn : MouseCursor.defer,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        body: Column(
-          children: [
-            CustomTitleBar(),
-            Divider(height: 1, color: Colors.grey[900]),
-            Expanded(
-              child: Row(
-                children: [
-                  sideBar(context),
-                  VerticalDivider(width: 1, color: Colors.grey[900]),
-                  Consumer<FileProvider>(
-                    builder: (context, fileProvider, child) {
-                      if (fileProvider.rootPath == null && selectedIndex == 0) {
-                        return const SizedBox.shrink();
-                      }
+    return CallbackShortcuts(
+      bindings: getAppShortcuts(context),
+      child: MouseRegion(
+        cursor: _isDragging
+            ? SystemMouseCursors.resizeColumn
+            : MouseCursor.defer,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          body: Column(
+            children: [
+              CustomTitleBar(),
+              Divider(height: 1, color: Colors.grey[900]),
+              Expanded(
+                child: Row(
+                  children: [
+                    sideBar(context),
+                    VerticalDivider(width: 1, color: Colors.grey[900]),
+                    Consumer<FileProvider>(
+                      builder: (context, fileProvider, child) {
+                        if (fileProvider.rootPath == null &&
+                            selectedIndex == 0) {
+                          return const SizedBox.shrink();
+                        }
 
-                      return SizedBox(
-                        width: _explorerWidth,
-                        child: pages[selectedIndex],
-                      );
-                    },
-                  ),
-
-                  MouseRegion(
-                    cursor: SystemMouseCursors.resizeColumn,
-                    child: GestureDetector(
-                      onHorizontalDragStart: (_) {
-                        setState(() {
-                          _isDragging = true;
-                          _dragTargetWidth = _explorerWidth;
-                        });
+                        return SizedBox(
+                          width: _explorerWidth,
+                          child: pages[selectedIndex],
+                        );
                       },
-                      onHorizontalDragUpdate: (details) {
-                        setState(() {
-                          _dragTargetWidth += details.delta.dx;
+                    ),
 
-                          print(
-                            "Target Width: $_dragTargetWidth ${details.delta.dx}",
-                          );
+                    MouseRegion(
+                      cursor: SystemMouseCursors.resizeColumn,
+                      child: GestureDetector(
+                        onHorizontalDragStart: (_) {
+                          setState(() {
+                            _isDragging = true;
+                            _dragTargetWidth = _explorerWidth;
+                          });
+                        },
+                        onHorizontalDragUpdate: (details) {
+                          setState(() {
+                            _dragTargetWidth += details.delta.dx;
 
-                          if (_dragTargetWidth <= _minExplorerWidth / 2) {
-                            if (_explorerWidth > 0) {
-                              _lastWidth = _explorerWidth > _minExplorerWidth
-                                  ? _explorerWidth
-                                  : _lastWidth;
+                            if (_dragTargetWidth <= _minExplorerWidth / 2) {
+                              if (_explorerWidth > 0) {
+                                _lastWidth = _explorerWidth > _minExplorerWidth
+                                    ? _explorerWidth
+                                    : _lastWidth;
+                              }
+                              _explorerWidth = 0;
+                            } else if (_explorerWidth == 0 &&
+                                _dragTargetWidth > _minExplorerWidth / 2) {
+                              _explorerWidth = _minExplorerWidth;
+                            } else if (_dragTargetWidth > _maxExplorerWidth) {
+                              _explorerWidth = _maxExplorerWidth;
+                            } else if (_dragTargetWidth < _minExplorerWidth) {
+                              _explorerWidth = _minExplorerWidth;
+                            } else {
+                              _explorerWidth = _dragTargetWidth;
                             }
-                            _explorerWidth = 0;
-                          } else if (_explorerWidth == 0 &&
-                              _dragTargetWidth > _minExplorerWidth / 2) {
-                            _explorerWidth = _minExplorerWidth;
-                          } else if (_dragTargetWidth > _maxExplorerWidth) {
-                            _explorerWidth = _maxExplorerWidth;
-                          } else if (_dragTargetWidth < _minExplorerWidth) {
-                            _explorerWidth = _minExplorerWidth;
-                          } else {
-                            _explorerWidth = _dragTargetWidth;
-                            print("Set Width: $_explorerWidth");
-                          }
-                        });
-                      },
-                      onHorizontalDragEnd: (_) {
-                        setState(() {
-                          _isDragging = false;
-                        });
-                      },
-                      child: Container(
-                        width: 4,
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        child: Row(
-                          children: [
-                            VerticalDivider(width: 1, color: Colors.grey[900]),
-                          ],
+                          });
+                        },
+                        onHorizontalDragEnd: (_) {
+                          setState(() {
+                            _isDragging = false;
+                          });
+                        },
+                        child: Container(
+                          width: 4,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          child: Row(
+                            children: [
+                              VerticalDivider(
+                                width: 1,
+                                color: Colors.grey[900],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(child: CodePage()),
-                ],
+                    Expanded(child: CodePage()),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

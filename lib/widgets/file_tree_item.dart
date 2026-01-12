@@ -70,10 +70,9 @@ class FileTreeItem extends StatelessWidget {
           ),
         ),
         if (isDirectory && isExpanded)
-          ...Directory(entity.path)
-              .listSync()
-              .map((e) => FileTreeItem(entity: e, depth: depth + 1))
-              .toList(),
+          ...Directory(
+            entity.path,
+          ).listSync().map((e) => FileTreeItem(entity: e, depth: depth + 1)),
       ],
     );
   }
