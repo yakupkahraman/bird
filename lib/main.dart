@@ -1,3 +1,4 @@
+import 'package:bird_ce/file_provider.dart';
 import 'package:bird_ce/pages/shell_page.dart';
 import 'package:bird_ce/theme/theme.dart';
 import 'package:bird_ce/theme/theme_provider.dart';
@@ -22,7 +23,10 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => FileProvider()),
+      ],
       child: const MyApp(),
     ),
   );

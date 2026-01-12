@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:bird_ce/file_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 class CustomTitleBar extends StatelessWidget {
@@ -25,12 +27,12 @@ class CustomTitleBar extends StatelessWidget {
           children: [
             if (Platform.isMacOS) const SizedBox(width: 72),
 
-            const Padding(
-              padding: EdgeInsets.only(left: 12.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0),
               child: Text(
                 'Bird',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: Theme.of(context).colorScheme.primary.withAlpha(200),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -38,7 +40,15 @@ class CustomTitleBar extends StatelessWidget {
             ),
 
             const Spacer(),
-
+            IconButton(
+              icon: PhosphorIcon(
+                PhosphorIcons.floppyDisk(),
+                size: 18,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () => context.read<FileProvider>().saveFile(),
+              tooltip: "Save (Ctrl+S)",
+            ),
             IconButton(
               icon: PhosphorIcon(
                 PhosphorIcons.play(),
@@ -51,9 +61,9 @@ class CustomTitleBar extends StatelessWidget {
               icon: PhosphorIcon(
                 PhosphorIcons.plus(),
                 size: 18,
-                color: Colors.white70,
+                color: Colors.blueAccent,
               ),
-              onPressed: () => print("Paylaş"),
+              onPressed: () => context.read<FileProvider>().pickFolder(),
             ),
 
             if (Platform.isWindows) const SizedBox(width: 140),

@@ -39,6 +39,8 @@ dependencies:
   window_manager: ^0.5.1
   re_highlight: ^0.0.3
   provider: ^6.1.5+1
+  file_picker: ^10.3.8
+  file_icon: ^1.0.0
 
 dev_dependencies:
   flutter_test:

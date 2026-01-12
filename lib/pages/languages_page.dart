@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ExtensionsPage extends StatelessWidget {
-  const ExtensionsPage({super.key});
+class LanguagesPage extends StatelessWidget {
+  const LanguagesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Text(
-        'Bird is trying to settle down...\nExtensions page coming soon!',
+        'The only supported lang is dart for now.\nLanguages page coming soon!',
         style: TextStyle(
           color: Theme.of(context).colorScheme.primary,
           fontSize: 16,
