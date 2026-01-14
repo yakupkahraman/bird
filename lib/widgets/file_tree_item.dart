@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bird_ce/file_provider.dart';
+import 'package:bird_ce/planguage_provider.dart';
 import 'package:bird_ce/theme/theme_provider.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class FileTreeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
     final themeProvider = context.watch<ThemeProvider>();
+    final languageProvider = context.read<PlanguageProvider>();
     final name = entity.path.split(Platform.pathSeparator).last;
     final isDirectory = entity is Directory;
     final isExpanded = fileProvider.isExpanded(entity.path);
@@ -28,6 +30,25 @@ class FileTreeItem extends StatelessWidget {
               fileProvider.toggleExpanded(entity.path);
             } else {
               fileProvider.openFile(entity.path);
+
+              // Otomatik dil algılama
+              final isSupported = languageProvider.trySetLanguageByFilePath(
+                entity.path,
+              );
+              if (!isSupported) {
+                final extension = name.contains('.')
+                    ? name.substring(name.lastIndexOf('.'))
+                    : 'unknown';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Unsupported file type: $extension\nUsing ${languageProvider.currentLanguage.displayName} highlighting.',
+                    ),
+                    duration: const Duration(seconds: 3),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             }
           },
           child: Padding(

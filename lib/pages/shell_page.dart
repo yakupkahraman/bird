@@ -51,11 +51,11 @@ class _ShellPageState extends State<ShellPage> {
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
                   folderName.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
-                    color: Colors.white54,
+                    color: Theme.of(context).colorScheme.primary.withAlpha(180),
                   ),
                 ),
               ),

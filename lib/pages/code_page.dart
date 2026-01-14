@@ -1,4 +1,5 @@
 import 'package:bird_ce/file_provider.dart';
+import 'package:bird_ce/planguage_provider.dart';
 import 'package:bird_ce/theme/theme_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +16,17 @@ class _CodePageState extends State<CodePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer2<ThemeProvider, FileProvider>(
-        builder: (context, themeProvider, fileProvider, child) {
+      body: Consumer3<ThemeProvider, FileProvider, PlanguageProvider>(
+        builder: (context, themeProvider, fileProvider, languageProvider, child) {
           return CodeForge(
-            key: ValueKey(themeProvider.themeName),
+            key: ValueKey(
+              '${themeProvider.themeName}-${languageProvider.currentLanguage.name}',
+            ),
             innerPadding: EdgeInsets.only(top: 8.0),
             editorTheme: themeProvider.editorTheme,
             autoFocus: true,
             controller: fileProvider.controller,
+            language: languageProvider.currentLanguage.mode,
           );
         },
       ),
