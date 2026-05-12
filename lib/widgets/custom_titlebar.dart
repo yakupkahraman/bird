@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:bird_ce/file_provider.dart';
+import 'package:bird_ce/terminal_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -49,14 +51,29 @@ class CustomTitleBar extends StatelessWidget {
               onPressed: () => context.read<FileProvider>().saveFile(),
               tooltip: "Save (Ctrl+S)",
             ),
-            // IconButton(
-            //   icon: PhosphorIcon(
-            //     PhosphorIcons.play(),
-            //     size: 18,
-            //     color: Colors.greenAccent,
-            //   ),
-            //   onPressed: () => print("Kodu çalıştır"),
-            // ),
+            IconButton(
+              icon: PhosphorIcon(
+                PhosphorIcons.play(),
+                size: 18,
+                color: Colors.greenAccent,
+              ),
+              onPressed: () {
+                final fileProvider = context.read<FileProvider>();
+                final terminalProvider = context.read<TerminalProvider>();
+                final path = fileProvider.selectedFilePath;
+
+                if (path != null && path.toLowerCase().endsWith('.c')) {
+                  final exeName = p.basenameWithoutExtension(path);
+                  final exePath = '/tmp/$exeName';
+                  final cmd =
+                      'gcc "${path.replaceAll('"', '\\"')}" -o "${exePath.replaceAll('"', '\\"')}" && "${exePath}"';
+                  terminalProvider.runCommand(cmd);
+                } else {
+                  terminalProvider.runCommand('echo "No C file open to run"');
+                }
+              },
+              tooltip: 'Run (compile+run open .c file)',
+            ),
             IconButton(
               icon: PhosphorIcon(
                 PhosphorIcons.folderPlus(),

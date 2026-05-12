@@ -1,6 +1,7 @@
 import 'package:bird_ce/file_provider.dart';
 import 'package:bird_ce/pages/shell_page.dart';
 import 'package:bird_ce/planguage_provider.dart';
+import 'package:bird_ce/terminal_provider.dart';
 import 'package:bird_ce/theme/theme.dart';
 import 'package:bird_ce/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => FileProvider()),
         ChangeNotifierProvider(create: (_) => PlanguageProvider()),
+        ChangeNotifierProvider(create: (_) => TerminalProvider()),
       ],
       child: const MyApp(),
     ),

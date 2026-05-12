@@ -8,9 +8,11 @@ import 'package:bird_ce/pages/extensions_page.dart';
 import 'package:bird_ce/widgets/file_tree_item.dart';
 import 'package:bird_ce/widgets/my_icon_button.dart';
 import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird_ce/terminal_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:xterm/ui.dart';
 
 class ShellPage extends StatefulWidget {
   const ShellPage({super.key});
@@ -81,6 +83,14 @@ class _ShellPageState extends State<ShellPage> {
     const LanguagesPage(),
     const ThemePickerPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TerminalProvider>().initializePty();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +176,27 @@ class _ShellPageState extends State<ShellPage> {
                         ),
                       ),
                     ),
-                    Expanded(child: CodePage()),
+
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(child: CodePage()),
+                          Consumer<TerminalProvider>(
+                            builder: (context, terminalProvider, child) {
+                              return Container(
+                                height: 200,
+                                width: double.infinity,
+                                color: Theme.of(context).colorScheme.secondary,
+                                child: TerminalView(
+                                  terminalProvider.terminal,
+                                  backgroundOpacity: 0.0,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

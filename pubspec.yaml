@@ -41,6 +41,9 @@ dependencies:
   provider: ^6.1.5+1
   file_picker: ^10.3.8
   file_icon: ^1.0.0
+  xterm: ^4.0.0
+  flutter_pty: ^0.4.2
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
