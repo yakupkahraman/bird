@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bird/file_provider.dart';
 import 'package:bird/planguage_provider.dart';
-import 'package:bird/theme/theme_provider.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,11 +15,11 @@ class FileTreeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
-    final themeProvider = context.watch<ThemeProvider>();
     final languageProvider = context.read<PlanguageProvider>();
     final name = entity.path.split(Platform.pathSeparator).last;
     final isDirectory = entity is Directory;
     final isExpanded = fileProvider.isExpanded(entity.path);
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Column(
       children: [
@@ -29,12 +28,9 @@ class FileTreeItem extends StatelessWidget {
             if (isDirectory) {
               fileProvider.toggleExpanded(entity.path);
             } else {
-              fileProvider.openFile(entity.path);
-
-              // Otomatik dil algılama
-              final isSupported = languageProvider.trySetLanguageByFilePath(
-                entity.path,
-              );
+              fileProvider.openFile(entity.path, languageProvider);
+              final isSupported =
+                  languageProvider.getLanguageNameByFilePath(entity.path) != null;
               if (!isSupported) {
                 final extension = name.contains('.')
                     ? name.substring(name.lastIndexOf('.'))
@@ -67,7 +63,7 @@ class FileTreeItem extends StatelessWidget {
                               ? Icons.keyboard_arrow_down
                               : Icons.keyboard_arrow_right,
                           size: 16,
-                          color: Colors.white54,
+                          color: primary.withValues(alpha: 0.54),
                         )
                       : null,
                 ),
@@ -80,8 +76,7 @@ class FileTreeItem extends StatelessWidget {
                     name,
                     style: TextStyle(
                       fontSize: 13,
-                      color: themeProvider.editorTheme['root']?.color
-                          ?.withAlpha(200),
+                      color: primary.withValues(alpha: 0.85),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

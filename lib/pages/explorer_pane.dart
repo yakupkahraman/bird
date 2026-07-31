@@ -1,13 +1,10 @@
 import 'package:bird/file_provider.dart';
-import 'package:bird/theme/theme_provider.dart';
 import 'package:bird/widgets/file_tree_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ExplorerPane extends StatelessWidget {
-  final double minExplorerWidth;
-
-  const ExplorerPane({super.key, this.minExplorerWidth = 150.0});
+  const ExplorerPane({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,12 +12,10 @@ class ExplorerPane extends StatelessWidget {
       builder: (context, fileProvider, child) {
         if (fileProvider.rootPath == null) {
           return Container(
-            width: minExplorerWidth,
+            width: double.infinity,
+            height: double.infinity,
             decoration: BoxDecoration(
-              color: context.watch<ThemeProvider>().backgroundColor,
-              border: const Border(
-                right: BorderSide(color: Colors.white10, width: 0.5),
-              ),
+              color: Theme.of(context).scaffoldBackgroundColor,
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -39,7 +34,7 @@ class ExplorerPane extends StatelessWidget {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.primary,
-                      side: BorderSide(color: Colors.grey[800]!),
+                      side: BorderSide(color: Theme.of(context).dividerColor),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -64,12 +59,10 @@ class ExplorerPane extends StatelessWidget {
         final folderName = fileProvider.rootPath!.split('/').last;
 
         return Container(
-          width: minExplorerWidth,
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
-            color: context.watch<ThemeProvider>().backgroundColor,
-            border: const Border(
-              right: BorderSide(color: Colors.white10, width: 0.5),
-            ),
+            color: Theme.of(context).scaffoldBackgroundColor,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

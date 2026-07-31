@@ -1,22 +1,32 @@
 import 'dart:io';
+import 'package:bird/planguage_provider.dart';
 import 'package:code_forge/code_forge/controller.dart';
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 
 class FileProvider extends ChangeNotifier {
-  final CodeForgeController controller = CodeForgeController();
-
   String? _rootPath;
   List<FileSystemEntity> _files = [];
+
+  final List<String> _openFilePaths = [];
+  final Map<String, CodeForgeController> _controllers = {};
   String? _selectedFilePath;
-  String _fileContent = "";
 
   final Set<String> _expandedPaths = {};
 
   String? get rootPath => _rootPath;
   List<FileSystemEntity> get files => _files;
+  List<String> get openFilePaths => List.unmodifiable(_openFilePaths);
   String? get selectedFilePath => _selectedFilePath;
-  String get fileContent => _fileContent;
+
+  CodeForgeController get currentController {
+    if (_selectedFilePath != null && _controllers.containsKey(_selectedFilePath)) {
+      return _controllers[_selectedFilePath]!;
+    }
+    return _defaultController;
+  }
+
+  final CodeForgeController _defaultController = CodeForgeController();
 
   bool isExpanded(String path) => _expandedPaths.contains(path);
 
@@ -37,7 +47,6 @@ class FileProvider extends ChangeNotifier {
 
       final dir = Directory(selectedDirectory);
       _files = dir.listSync();
-
       _sortFiles(_files);
 
       notifyListeners();
@@ -52,17 +61,49 @@ class FileProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> openFile(String path) async {
+  Future<void> openFile(String path, [PlanguageProvider? languageProvider]) async {
     try {
-      final file = File(path);
-      _fileContent = await file.readAsString();
+      if (!_openFilePaths.contains(path)) {
+        final file = File(path);
+        final content = await file.readAsString();
+        final controller = CodeForgeController();
+        controller.text = content;
+        _controllers[path] = controller;
+        _openFilePaths.add(path);
+      }
 
       _selectedFilePath = path;
-      controller.text = _fileContent;
-
+      languageProvider?.trySetLanguageByFilePath(path);
       notifyListeners();
     } catch (e) {
       debugPrint("Dosya okuma hatası: $e");
+    }
+  }
+
+  void selectTab(String path, [PlanguageProvider? languageProvider]) {
+    if (_openFilePaths.contains(path)) {
+      _selectedFilePath = path;
+      languageProvider?.trySetLanguageByFilePath(path);
+      notifyListeners();
+    }
+  }
+
+  void closeTab(String path) {
+    final index = _openFilePaths.indexOf(path);
+    if (index != -1) {
+      _openFilePaths.removeAt(index);
+      final controller = _controllers.remove(path);
+      controller?.dispose();
+
+      if (_selectedFilePath == path) {
+        if (_openFilePaths.isNotEmpty) {
+          final newIndex = index.clamp(0, _openFilePaths.length - 1);
+          _selectedFilePath = _openFilePaths[newIndex];
+        } else {
+          _selectedFilePath = null;
+        }
+      }
+      notifyListeners();
     }
   }
 
@@ -77,10 +118,13 @@ class FileProvider extends ChangeNotifier {
 
       if (outputFile == null) return;
       _selectedFilePath = outputFile;
+      _openFilePaths.add(outputFile);
+      _controllers[outputFile] = CodeForgeController();
     }
 
     try {
       final file = File(_selectedFilePath!);
+      final controller = currentController;
       await file.writeAsString(controller.text);
 
       if (_rootPath != null) {
@@ -93,5 +137,14 @@ class FileProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint("Dosya kaydetme hatası: $e");
     }
+  }
+
+  @override
+  void dispose() {
+    for (final ctrl in _controllers.values) {
+      ctrl.dispose();
+    }
+    _defaultController.dispose();
+    super.dispose();
   }
 }
