@@ -1,9 +1,8 @@
 import 'dart:io';
-import 'package:bird_ce/file_provider.dart';
-import 'package:bird_ce/terminal_provider.dart';
+import 'package:bird/file_provider.dart';
+import 'package:bird/terminal_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -43,8 +42,8 @@ class CustomTitleBar extends StatelessWidget {
 
             const Spacer(),
             IconButton(
-              icon: PhosphorIcon(
-                PhosphorIcons.floppyDisk(),
+              icon: const Icon(
+                Icons.save_outlined,
                 size: 18,
                 color: Colors.orangeAccent,
               ),
@@ -52,8 +51,8 @@ class CustomTitleBar extends StatelessWidget {
               tooltip: "Save (Ctrl+S)",
             ),
             IconButton(
-              icon: PhosphorIcon(
-                PhosphorIcons.play(),
+              icon: const Icon(
+                Icons.play_arrow_outlined,
                 size: 18,
                 color: Colors.greenAccent,
               ),
@@ -75,8 +74,8 @@ class CustomTitleBar extends StatelessWidget {
               tooltip: 'Run (compile+run open .c file)',
             ),
             IconButton(
-              icon: PhosphorIcon(
-                PhosphorIcons.folderPlus(),
+              icon: const Icon(
+                Icons.create_new_folder_outlined,
                 size: 18,
                 color: Colors.blueAccent,
               ),

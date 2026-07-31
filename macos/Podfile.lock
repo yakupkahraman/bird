@@ -1,4 +1,6 @@
 PODS:
+  - code_forge (10.0.0):
+    - FlutterMacOS
   - file_picker (0.0.1):
     - FlutterMacOS
   - flutter_pty (0.0.1):
@@ -12,6 +14,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - code_forge (from `Flutter/ephemeral/.symlinks/plugins/code_forge/macos`)
   - file_picker (from `Flutter/ephemeral/.symlinks/plugins/file_picker/macos`)
   - flutter_pty (from `Flutter/ephemeral/.symlinks/plugins/flutter_pty/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
@@ -20,6 +23,8 @@ DEPENDENCIES:
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 EXTERNAL SOURCES:
+  code_forge:
+    :path: Flutter/ephemeral/.symlinks/plugins/code_forge/macos
   file_picker:
     :path: Flutter/ephemeral/.symlinks/plugins/file_picker/macos
   flutter_pty:
@@ -34,6 +39,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
+  code_forge: 98e13c7eb9501d37ca00128ef243a822a00efc7d
   file_picker: 7584aae6fa07a041af2b36a2655122d42f578c1a
   flutter_pty: 1e360feaf8b1a213d2d50da3c076005b8eef1eee
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
@@ -43,4 +49,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0

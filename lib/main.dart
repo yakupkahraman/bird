@@ -1,9 +1,10 @@
-import 'package:bird_ce/file_provider.dart';
-import 'package:bird_ce/pages/shell_page.dart';
-import 'package:bird_ce/planguage_provider.dart';
-import 'package:bird_ce/terminal_provider.dart';
-import 'package:bird_ce/theme/theme.dart';
-import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird/file_provider.dart';
+import 'package:bird/pages/shell_page.dart';
+import 'package:bird/planguage_provider.dart';
+import 'package:bird/terminal_provider.dart';
+import 'package:bird/theme/theme.dart';
+import 'package:bird/theme/theme_provider.dart';
+import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -11,6 +12,7 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+  await RustLib.init();
 
   WindowOptions windowOptions = WindowOptions(
     title: 'Bird',
@@ -18,8 +20,14 @@ void main() async {
     minimumSize: Size(400, 200),
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.hidden,
+    windowButtonVisibility: true,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setTitleBarStyle(
+      TitleBarStyle.hidden,
+      windowButtonVisibility: true,
+    );
+
     await windowManager.show();
     await windowManager.focus();
   });

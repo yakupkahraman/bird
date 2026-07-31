@@ -1,18 +1,18 @@
-import 'package:bird_ce/file_provider.dart';
-import 'package:bird_ce/planguage_provider.dart';
-import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird/file_provider.dart';
+import 'package:bird/planguage_provider.dart';
+import 'package:bird/theme/theme_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CodePage extends StatefulWidget {
-  const CodePage({super.key});
+class CodePane extends StatefulWidget {
+  const CodePane({super.key});
 
   @override
-  State<CodePage> createState() => _CodePageState();
+  State<CodePane> createState() => _CodePaneState();
 }
 
-class _CodePageState extends State<CodePage> {
+class _CodePaneState extends State<CodePane> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

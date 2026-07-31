@@ -1,4 +1,4 @@
-import 'package:bird_ce/file_provider.dart';
+import 'package:bird/file_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';

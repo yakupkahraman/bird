@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class MyIconButton extends StatelessWidget {
   const MyIconButton({super.key, this.onPressed, required this.icon});
@@ -21,7 +20,7 @@ class MyIconButton extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(6.0),
-          child: PhosphorIcon(
+          child: Icon(
             icon,
             size: 24,
             color: Theme.of(context).colorScheme.primary,

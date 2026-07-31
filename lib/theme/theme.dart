@@ -1,4 +1,4 @@
-import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 
 ThemeData appTheme(ThemeProvider themeProvider) {

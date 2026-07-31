@@ -1,10 +1,10 @@
-import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:re_highlight/styles/all.dart';
 
-class ThemePickerPage extends StatelessWidget {
-  const ThemePickerPage({super.key});
+class ThemePickerPane extends StatelessWidget {
+  const ThemePickerPane({super.key});
 
   @override
   Widget build(BuildContext context) {

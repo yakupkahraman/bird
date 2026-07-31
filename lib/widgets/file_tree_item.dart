@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:bird_ce/file_provider.dart';
-import 'package:bird_ce/planguage_provider.dart';
-import 'package:bird_ce/theme/theme_provider.dart';
+import 'package:bird/file_provider.dart';
+import 'package:bird/planguage_provider.dart';
+import 'package:bird/theme/theme_provider.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

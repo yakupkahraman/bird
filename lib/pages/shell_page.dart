@@ -1,18 +1,14 @@
-import 'package:bird_ce/bindings.dart';
-import 'package:bird_ce/file_provider.dart';
-import 'package:bird_ce/pages/code_page.dart';
-import 'package:bird_ce/pages/languages_page.dart';
-import 'package:bird_ce/pages/theme_picker_page.dart';
-import 'package:bird_ce/widgets/custom_titlebar.dart';
-import 'package:bird_ce/pages/extensions_page.dart';
-import 'package:bird_ce/widgets/file_tree_item.dart';
-import 'package:bird_ce/widgets/my_icon_button.dart';
-import 'package:bird_ce/theme/theme_provider.dart';
-import 'package:bird_ce/terminal_provider.dart';
+import 'package:bird/bindings.dart';
+import 'package:bird/pages/code_pane.dart';
+import 'package:bird/pages/explorer_pane.dart';
+import 'package:bird/pages/theme_picker_pane.dart';
+import 'package:bird/pages/terminal_pane.dart';
+import 'package:bird/widgets/custom_titlebar.dart';
+import 'package:bird/pages/extensions_pane.dart';
+import 'package:bird/widgets/my_icon_button.dart';
+import 'package:bird/terminal_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:xterm/ui.dart';
 
 class ShellPage extends StatefulWidget {
   const ShellPage({super.key});
@@ -32,56 +28,9 @@ class _ShellPageState extends State<ShellPage> {
   static const double _maxExplorerWidth = 500.0;
 
   final pages = <Widget>[
-    Consumer<FileProvider>(
-      builder: (context, fileProvider, child) {
-        if (fileProvider.rootPath == null) return const SizedBox.shrink();
-
-        final folderName = fileProvider.rootPath!.split('/').last;
-
-        return Container(
-          width: _minExplorerWidth,
-          decoration: BoxDecoration(
-            color: context.watch<ThemeProvider>().backgroundColor,
-            border: const Border(
-              right: BorderSide(color: Colors.white10, width: 0.5),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  folderName.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: Theme.of(context).colorScheme.primary.withAlpha(180),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Consumer<FileProvider>(
-                    builder: (context, fileProvider, child) {
-                      return Column(
-                        children: fileProvider.files
-                            .map((e) => FileTreeItem(entity: e))
-                            .toList(),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    ),
-    const ExtensionsPage(),
-    const LanguagesPage(),
-    const ThemePickerPage(),
+    const ExplorerPane(),
+    const ExtensionsPane(),
+    const ThemePickerPane(),
   ];
 
   @override
@@ -111,18 +60,9 @@ class _ShellPageState extends State<ShellPage> {
                   children: [
                     sideBar(context),
                     VerticalDivider(width: 1, color: Colors.grey[900]),
-                    Consumer<FileProvider>(
-                      builder: (context, fileProvider, child) {
-                        if (fileProvider.rootPath == null &&
-                            selectedIndex == 0) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return SizedBox(
-                          width: _explorerWidth,
-                          child: pages[selectedIndex],
-                        );
-                      },
+                    SizedBox(
+                      width: _explorerWidth,
+                      child: pages[selectedIndex],
                     ),
 
                     MouseRegion(
@@ -180,20 +120,8 @@ class _ShellPageState extends State<ShellPage> {
                     Expanded(
                       child: Column(
                         children: [
-                          Expanded(child: CodePage()),
-                          Consumer<TerminalProvider>(
-                            builder: (context, terminalProvider, child) {
-                              return Container(
-                                height: 200,
-                                width: double.infinity,
-                                color: Theme.of(context).colorScheme.secondary,
-                                child: TerminalView(
-                                  terminalProvider.terminal,
-                                  backgroundOpacity: 0.0,
-                                ),
-                              );
-                            },
-                          ),
+                          Expanded(child: CodePane()),
+                          const TerminalPane(),
                         ],
                       ),
                     ),
@@ -230,7 +158,7 @@ class _ShellPageState extends State<ShellPage> {
                     }
                   });
                 },
-                icon: PhosphorIcons.bird(PhosphorIconsStyle.thin),
+                icon: Icons.folder_outlined,
               ),
               MyIconButton(
                 onPressed: () {
@@ -246,7 +174,7 @@ class _ShellPageState extends State<ShellPage> {
                     }
                   });
                 },
-                icon: PhosphorIcons.feather(PhosphorIconsStyle.thin),
+                icon: Icons.extension_outlined,
               ),
             ],
           ),
@@ -254,7 +182,7 @@ class _ShellPageState extends State<ShellPage> {
             spacing: 4,
             children: [
               MyIconButton(
-                icon: PhosphorIcons.code(PhosphorIconsStyle.thin),
+                icon: Icons.palette_outlined,
                 onPressed: () {
                   setState(() {
                     if (selectedIndex == 2 && _explorerWidth > 0) {
@@ -262,22 +190,6 @@ class _ShellPageState extends State<ShellPage> {
                       _explorerWidth = 0;
                     } else {
                       selectedIndex = 2;
-                      if (_explorerWidth == 0) {
-                        _explorerWidth = _lastWidth;
-                      }
-                    }
-                  });
-                },
-              ),
-              MyIconButton(
-                icon: PhosphorIcons.palette(PhosphorIconsStyle.thin),
-                onPressed: () {
-                  setState(() {
-                    if (selectedIndex == 3 && _explorerWidth > 0) {
-                      _lastWidth = _explorerWidth;
-                      _explorerWidth = 0;
-                    } else {
-                      selectedIndex = 3;
                       if (_explorerWidth == 0) {
                         _explorerWidth = _lastWidth;
                       }
