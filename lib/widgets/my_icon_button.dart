@@ -1,10 +1,11 @@
+import 'package:bird/widgets/re_icon.dart';
 import 'package:flutter/material.dart';
 
 class MyIconButton extends StatelessWidget {
   const MyIconButton({super.key, this.onPressed, required this.icon});
 
   final VoidCallback? onPressed;
-  final IconData icon;
+  final String icon;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class MyIconButton extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(6.0),
-          child: Icon(
+          child: ReIcon(
             icon,
             size: 24,
             color: Theme.of(context).colorScheme.primary,
@@ -30,3 +31,4 @@ class MyIconButton extends StatelessWidget {
     );
   }
 }
+

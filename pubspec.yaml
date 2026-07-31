@@ -22,6 +22,8 @@ dependencies:
   flutter_pty: ^0.4.2
   path: ^1.9.1
   panes: ^1.3.0
+  reicon_flutter: ^1.0.1
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:

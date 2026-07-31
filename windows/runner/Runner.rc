@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "bird_ce" "\0"
+            VALUE "CompanyName", "com.yakupkahraman" "\0"
+            VALUE "FileDescription", "Bird Code Editor" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "bird_ce" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "bird_ce.exe" "\0"
-            VALUE "ProductName", "bird_ce" "\0"
+            VALUE "InternalName", "bird" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.yakupkahraman. All rights reserved." "\0"
+            VALUE "OriginalFilename", "bird.exe" "\0"
+            VALUE "ProductName", "Bird" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

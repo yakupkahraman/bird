@@ -1,10 +1,12 @@
 import 'dart:io';
 
-import 'package:bird/file_provider.dart';
-import 'package:bird/planguage_provider.dart';
+import 'package:bird/providers/file_provider.dart';
+import 'package:bird/providers/prog_lang_provider.dart';
+import 'package:bird/widgets/re_icon.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reicon_flutter/reicon_flutter.dart';
 
 class FileTreeItem extends StatelessWidget {
   final FileSystemEntity entity;
@@ -15,7 +17,7 @@ class FileTreeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
-    final languageProvider = context.read<PlanguageProvider>();
+    final languageProvider = context.read<ProgLangProvider>();
     final name = entity.path.split(Platform.pathSeparator).last;
     final isDirectory = entity is Directory;
     final isExpanded = fileProvider.isExpanded(entity.path);
@@ -30,7 +32,8 @@ class FileTreeItem extends StatelessWidget {
             } else {
               fileProvider.openFile(entity.path, languageProvider);
               final isSupported =
-                  languageProvider.getLanguageNameByFilePath(entity.path) != null;
+                  languageProvider.getLanguageNameByFilePath(entity.path) !=
+                  null;
               if (!isSupported) {
                 final extension = name.contains('.')
                     ? name.substring(name.lastIndexOf('.'))
@@ -58,17 +61,21 @@ class FileTreeItem extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   child: isDirectory
-                      ? Icon(
+                      ? ReIcon(
                           isExpanded
-                              ? Icons.keyboard_arrow_down
-                              : Icons.keyboard_arrow_right,
+                              ? Reicon.outline.chevronDown
+                              : Reicon.outline.chevronRight,
                           size: 16,
                           color: primary.withValues(alpha: 0.54),
                         )
                       : null,
                 ),
                 isDirectory
-                    ? Icon(Icons.folder, size: 18, color: Colors.amber[700])
+                    ? ReIcon(
+                        Reicon.filled.folder,
+                        size: 18,
+                        color: Colors.amber[700],
+                      )
                     : FileIcon(name, size: 18),
                 const SizedBox(width: 6),
                 Expanded(
