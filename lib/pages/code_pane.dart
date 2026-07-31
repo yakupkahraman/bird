@@ -96,15 +96,23 @@ class _CodePaneState extends State<CodePane> {
 
           // Code Editor Area
           Expanded(
-            child: CodeForge(
-              key: ValueKey(
-                '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}',
+            child: ScrollbarTheme(
+              data: ScrollbarThemeData(
+                thumbColor: WidgetStateProperty.all(Colors.transparent),
+                trackColor: WidgetStateProperty.all(Colors.transparent),
+                trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+                thickness: WidgetStateProperty.all(0),
               ),
-              innerPadding: const EdgeInsets.only(top: 8.0),
-              editorTheme: themeProvider.editorTheme,
-              autoFocus: true,
-              controller: fileProvider.currentController,
-              language: languageProvider.currentLanguage.mode,
+              child: CodeForge(
+                key: ValueKey(
+                  '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}',
+                ),
+                innerPadding: const EdgeInsets.only(top: 8.0),
+                editorTheme: themeProvider.editorTheme,
+                autoFocus: true,
+                controller: fileProvider.currentController,
+                language: languageProvider.currentLanguage.mode,
+              ),
             ),
           ),
         ],

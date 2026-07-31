@@ -20,7 +20,8 @@ class FileProvider extends ChangeNotifier {
   String? get selectedFilePath => _selectedFilePath;
 
   CodeForgeController get currentController {
-    if (_selectedFilePath != null && _controllers.containsKey(_selectedFilePath)) {
+    if (_selectedFilePath != null &&
+        _controllers.containsKey(_selectedFilePath)) {
       return _controllers[_selectedFilePath]!;
     }
     return _defaultController;
@@ -61,7 +62,10 @@ class FileProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> openFile(String path, [PlanguageProvider? languageProvider]) async {
+  Future<void> openFile(
+    String path, [
+    PlanguageProvider? languageProvider,
+  ]) async {
     try {
       if (!_openFilePaths.contains(path)) {
         final file = File(path);
