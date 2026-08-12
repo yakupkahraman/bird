@@ -1,28 +1,39 @@
 name: bird
-description: "A new Flutter project."
-publish_to: 'none'
+description: "An IDE for Flutter written in Flutter"
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  code_forge: ^10.9.0
-  window_manager: ^0.5.1
+  #Editor Core
+  code_forge: ^10.11.0
   re_highlight: ^0.0.3
-  provider: ^6.1.5+1
-  file_picker: ^10.3.8
-  file_icon: ^1.0.0
+
+  #Terminal
   xterm: ^4.0.0
   flutter_pty: ^0.4.2
-  path: ^1.9.1
+
+  #State Management
+  provider: ^6.1.5+1
+
+  #File System
+  file_picker: ^10.3.8
+  file_icon: ^1.0.0
+
+  #UI
+  window_manager: ^0.5.2
   panes: ^1.3.0
   reicon_flutter: ^1.0.1
+
+  #Utils
+  path: ^1.9.1
   flutter_svg: ^2.3.0
 
 dev_dependencies:
