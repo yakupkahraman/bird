@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
 import 'package:bird/theme/theme_provider.dart';
 import 'package:bird/widgets/re_icon.dart';
@@ -22,6 +23,7 @@ class _CodePaneState extends State<CodePane> {
     final fileProvider = context.watch<FileProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final languageProvider = context.watch<ProgLangProvider>();
+    final lspProvider = context.watch<LspProvider>();
 
     final openPaths = fileProvider.openFilePaths;
     final selectedPath = fileProvider.selectedFilePath;
@@ -106,14 +108,80 @@ class _CodePaneState extends State<CodePane> {
                 thickness: WidgetStateProperty.all(0),
               ),
               child: CodeForge(
+                // The LSP config is part of the key because CodeForge captures
+                // its controller in initState and ignores later swaps.
                 key: ValueKey(
-                  '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}',
+                  '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}-${identityHashCode(lspProvider.dartLspConfig)}',
                 ),
+                filePath: selectedPath,
                 innerPadding: const EdgeInsets.only(top: 8.0),
                 editorTheme: themeProvider.editorTheme,
                 autoFocus: true,
                 controller: fileProvider.currentController,
                 language: languageProvider.currentLanguage.mode,
+                tabSize: 2,
+                useSpaceAsTab: true,
+                enableGuideLines: true,
+                textStyle: const TextStyle(
+                  fontFamily: 'FiraCode',
+                  fontFamilyFallback: [
+                    'Menlo',
+                    'Consolas',
+                    'Courier New',
+                    'monospace',
+                  ],
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+                hoverDetailsStyle: HoverDetailsStyle(
+                  elevation: 6.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    side: const BorderSide(color: Color(0xFF454545), width: 1),
+                  ),
+                  backgroundColor: const Color(0xFF252526),
+                  focusColor: const Color(0xFF04395E),
+                  hoverColor: const Color(0xFF2A2D2E),
+                  splashColor: Colors.transparent,
+                  textStyle: const TextStyle(
+                    color: Color(0xFFCCCCCC),
+                    fontSize: 12,
+                  ),
+                ),
+                suggestionStyle: SuggestionStyle(
+                  elevation: 6.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    side: const BorderSide(color: Color(0xFF454545), width: 1),
+                  ),
+                  backgroundColor: const Color(0xFF252526),
+                  selectedBackgroundColor: const Color(0xFF04395E),
+                  focusColor: const Color(0xFF04395E),
+                  hoverColor: const Color(0xFF2A2D2E),
+                  splashColor: Colors.transparent,
+                  borderColor: const Color(0xFF454545),
+                  textStyle: const TextStyle(
+                    color: Color(0xFFCCCCCC),
+                    fontSize: 12,
+                  ),
+                  labelTextStyle: const TextStyle(
+                    color: Color(0xFFCCCCCC),
+                    fontSize: 12,
+                  ),
+                  detailTextStyle: const TextStyle(
+                    color: Color(0xFF858585),
+                    fontSize: 11,
+                  ),
+                  typeTextStyle: const TextStyle(
+                    color: Color(0xFF4EC9B0),
+                    fontSize: 11,
+                  ),
+                  methodIconColor: const Color(0xFFB180D7),
+                  propertyIconColor: const Color(0xFF75BEFF),
+                  classIconColor: const Color(0xFF4EC9B0),
+                  variableIconColor: const Color(0xFF75BEFF),
+                  keywordIconColor: const Color(0xFF569CD6),
+                ),
               ),
             ),
           ),

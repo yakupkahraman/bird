@@ -16,7 +16,7 @@
   </p>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-^3.10.4-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-%3E%3D3.44.0-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -35,7 +35,8 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 ## ✨ Key Features
 
 - 🏎️ **100% Native Performance**: Built natively with Flutter desktop without Electron, WebViews, or DOM overhead.
-- 📝 **Advanced Code Editor**: Powered by [`code_forge`](https://pub.dev/packages/code_forge) and [`re_highlight`](https://pub.dev/packages/re_highlight) for rich syntax highlighting and code editing.
+- ⚡ **Dart Language Server Protocol (LSP)**: Full integration with `dart language-server` for real-time code completion, signature help, hover documentation popups, and diagnostics.
+- 📝 **Advanced Code Editor**: Powered by [`code_forge`](https://pub.dev/packages/code_forge) and [`re_highlight`](https://pub.dev/packages/re_highlight) with Fira Code font, VSCode Dark+ theme.
 - 🗂️ **Multi-Tab Workspace**: Effortlessly open, manage, and switch between multiple source files with real-time state synchronization.
 - 💻 **Integrated Terminal**: Embedded PTY terminal (`xterm` + `flutter_pty`) allowing native shell execution, running `flutter run`, and executing CLI commands directly inside the IDE.
 - 📁 **Interactive File Explorer**: Full directory navigation, dynamic file type icons, and intuitive workspace management.
@@ -49,11 +50,13 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 
 | Component            | Technology / Library                                                                                                                                                  |
 | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Framework**        | [Flutter Desktop](https://flutter.dev)                                                                                                                                |
-| **Language**         | [Dart](https://dart.dev)                                                                                                                                              |
+| **Framework**        | [Flutter Desktop](https://flutter.dev) (`>=3.44.0`)                                                                                                                   |
+| **Language**         | [Dart](https://dart.dev) (`^3.12.0`)                                                                                                                                  |
+| **Language Server**  | [Dart LSP](https://dart.dev) (`dart language-server`) via `LspStdioConfig`                                                                                            |
 | **Editor Core**      | [`code_forge`](https://pub.dev/packages/code_forge) & [`re_highlight`](https://pub.dev/packages/re_highlight)                                                         |
+| **Typography**       | [Fira Code](https://github.com/tonsky/FiraCode)                                                                                                                       |
 | **Terminal**         | [`xterm`](https://pub.dev/packages/xterm) & [`flutter_pty`](https://pub.dev/packages/flutter_pty)                                                                     |
-| **State Management** | [`provider`](https://pub.dev/packages/provider)                                                                                                                       |
+| **State Management** | [`provider`](https://pub.dev/packages/provider) (`ChangeNotifierProxyProvider`)                                                                                       |
 | **Window & Layout**  | [`window_manager`](https://pub.dev/packages/window_manager) & [`panes`](https://pub.dev/packages/panes)                                                               |
 | **Icons & Media**    | [`reicon_flutter`](https://pub.dev/packages/reicon_flutter), [`file_icon`](https://pub.dev/packages/file_icon), [`flutter_svg`](https://pub.dev/packages/flutter_svg) |
 
@@ -65,7 +68,7 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 
 Ensure you have the following installed on your machine:
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (`^3.10.4` or later)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (`>=3.44.0` / Dart `^3.12.0`)
 - Desktop build tools (Xcode for macOS, Visual Studio C++ for Windows, or build essentials / `clang` / `cmake` for Linux)
 
 ### Installation & Execution
@@ -100,7 +103,7 @@ Ensure you have the following installed on your machine:
 
 ## 🗺️ Roadmap
 
-- [ ] **Flutter LSP Integration**: Full Language Server Protocol support for Dart/Flutter auto-complete & diagnostics.
+- [x] **Flutter LSP Integration**: Full Language Server Protocol support for Dart/Flutter auto-complete, signature help, hover documentation & diagnostics.
 - [ ] **pub.dev Integration**: In-editor package search, version inspection, and one-click dependency management for `pubspec.yaml`.
 - [ ] **Debugger Suite**: Built-in breakpoints, call stack inspection, and Dart DevTools integration.
 - [ ] **Bundled Flutter SDK Management**: Built-in Flutter SDK version management, channel switching, and automated SDK setup.

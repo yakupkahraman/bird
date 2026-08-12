@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
-import 'package:code_forge/code_forge/controller.dart';
+import 'package:code_forge/code_forge.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,8 @@ class FileProvider extends ChangeNotifier {
   String? _selectedFilePath;
 
   final Set<String> _expandedPaths = {};
+
+  LspProvider? _lsp;
 
   String? get rootPath => _rootPath;
   List<FileSystemEntity> get files => _files;
@@ -29,6 +32,33 @@ class FileProvider extends ChangeNotifier {
 
   final CodeForgeController _defaultController = CodeForgeController();
 
+  /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
+  /// idempotent.
+  void attachLsp(LspProvider lsp) {
+    if (identical(_lsp, lsp)) return;
+    _lsp?.removeListener(_rebindControllers);
+    _lsp = lsp;
+    lsp.addListener(_rebindControllers);
+  }
+
+  /// Re-creates controllers so files opened before the language server was
+  /// ready still get it. `lspConfig` is final on the controller, so there is no
+  /// way to swap it in place; the text is carried over.
+  void _rebindControllers() {
+    var changed = false;
+    for (final path in _openFilePaths) {
+      final config = _lsp?.getLspConfigForFile(path);
+      final current = _controllers[path]!;
+      if (identical(current.lspConfig, config)) continue;
+
+      final text = current.text;
+      current.dispose();
+      _controllers[path] = CodeForgeController(lspConfig: config)..text = text;
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
+
   bool isExpanded(String path) => _expandedPaths.contains(path);
 
   void toggleExpanded(String path) {
@@ -41,17 +71,31 @@ class FileProvider extends ChangeNotifier {
   }
 
   Future<void> pickFolder() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    if (selectedDirectory != null) {
-      _rootPath = selectedDirectory;
-      _expandedPaths.clear();
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    if (selectedDirectory == null) return;
 
-      final dir = Directory(selectedDirectory);
-      _files = dir.listSync();
-      _sortFiles(_files);
-
-      notifyListeners();
+    if (selectedDirectory != _rootPath) {
+      // Tabs belong to the old workspace, and their controllers would keep
+      // talking to a language server we are about to kill.
+      for (final controller in _controllers.values) {
+        controller.dispose();
+      }
+      _controllers.clear();
+      _openFilePaths.clear();
+      _selectedFilePath = null;
     }
+
+    _rootPath = selectedDirectory;
+    _expandedPaths.clear();
+
+    final dir = Directory(selectedDirectory);
+    _files = dir.listSync();
+    _sortFiles(_files);
+
+    // Show the tree right away; let the language server boot in background.
+    notifyListeners();
+
+    await _lsp?.updateWorkspace(selectedDirectory);
   }
 
   void _sortFiles(List<FileSystemEntity> fileList) {
@@ -68,12 +112,15 @@ class FileProvider extends ChangeNotifier {
   ]) async {
     try {
       if (!_openFilePaths.contains(path)) {
-        final file = File(path);
-        final content = await file.readAsString();
-        final controller = CodeForgeController();
-        controller.text = content;
-        _controllers[path] = controller;
-        _openFilePaths.add(path);
+        final content = await File(path).readAsString();
+
+        // The file may have been clicked again while we were reading it.
+        if (!_openFilePaths.contains(path)) {
+          _controllers[path] = CodeForgeController(
+            lspConfig: _lsp?.getLspConfigForFile(path),
+          )..text = content;
+          _openFilePaths.add(path);
+        }
       }
 
       _selectedFilePath = path;
@@ -97,7 +144,12 @@ class FileProvider extends ChangeNotifier {
     if (index != -1) {
       _openFilePaths.removeAt(index);
       final controller = _controllers.remove(path);
-      controller?.dispose();
+      if (controller != null) {
+        // dispose() does not send didClose, so the server would keep the file
+        // and its unsaved edits in its analysis set.
+        controller.lspConfig?.closeDocument(path);
+        controller.dispose();
+      }
 
       if (_selectedFilePath == path) {
         if (_openFilePaths.isNotEmpty) {
@@ -145,6 +197,7 @@ class FileProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _lsp?.removeListener(_rebindControllers);
     for (final ctrl in _controllers.values) {
       ctrl.dispose();
     }

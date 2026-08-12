@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:re_highlight/styles/all.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  String _themeName = 'obsidian'; // Mevcut tema adı
-  Map<String, TextStyle> _editorTheme = builtinAllThemes['obsidian']!;
+  String _themeName = 'vs2015'; // VSCode Dark+ tema adı
+  Map<String, TextStyle> _editorTheme =
+      builtinAllThemes['vs2015'] ?? builtinAllThemes['obsidian']!;
 
   Map<String, TextStyle> get editorTheme => _editorTheme;
-  String get themeName => _themeName; // Dışarıya açtık
+  String get themeName => _themeName;
 
   void setTheme(String themeName) {
     if (builtinAllThemes.containsKey(themeName)) {

@@ -44,3 +44,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: FiraCode
+      fonts:
+        - asset: assets/fonts/Fira_Code/static/FiraCode-Regular.ttf
+        - asset: assets/fonts/Fira_Code/static/FiraCode-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Fira_Code/static/FiraCode-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Fira_Code/static/FiraCode-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Fira_Code/static/FiraCode-Bold.ttf
+          weight: 700

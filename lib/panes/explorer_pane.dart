@@ -47,7 +47,8 @@ class ExplorerPane extends StatelessWidget {
                         vertical: 8,
                       ),
                     ),
-                    onPressed: () => context.read<FileProvider>().pickFolder(),
+                    onPressed: () =>
+                        context.read<FileProvider>().pickFolder(),
                     icon: ReIcon(Reicon.outline.folderPlus, size: 16),
                     label: const Text(
                       'Open Folder',

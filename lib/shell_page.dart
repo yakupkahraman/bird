@@ -4,6 +4,7 @@ import 'package:bird/panes/explorer_pane.dart';
 import 'package:bird/panes/extensions_pane.dart';
 import 'package:bird/panes/terminal_pane.dart';
 import 'package:bird/panes/theme_picker_pane.dart';
+import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/terminal_provider.dart';
 import 'package:bird/widgets/custom_titlebar.dart';
 import 'package:bird/widgets/my_icon_button.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:panes/panes.dart';
 import 'package:provider/provider.dart';
 import 'package:reicon_flutter/reicon_flutter.dart';
+import 'package:window_manager/window_manager.dart';
 
 class ShellPage extends StatefulWidget {
   const ShellPage({super.key});
@@ -19,7 +21,7 @@ class ShellPage extends StatefulWidget {
   State<ShellPage> createState() => _ShellPageState();
 }
 
-class _ShellPageState extends State<ShellPage> {
+class _ShellPageState extends State<ShellPage> with WindowListener {
   int _selectedIndex = 0;
   late final IdeController _ideController;
 
@@ -43,13 +45,30 @@ class _ShellPageState extends State<ShellPage> {
       bottomVisible: true,
     );
 
+    // Provider dispose does not run reliably on desktop shutdown, so the
+    // language server process has to be killed from the close handler.
+    windowManager.addListener(this);
+    windowManager.setPreventClose(true);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TerminalProvider>().initializePty();
     });
   }
 
   @override
+  void onWindowClose() async {
+    try {
+      context.read<LspProvider>().stopServer();
+    } finally {
+      // Must always run, or setPreventClose(true) leaves the app unclosable.
+      await windowManager.setPreventClose(false);
+      await windowManager.destroy();
+    }
+  }
+
+  @override
   void dispose() {
+    windowManager.removeListener(this);
     _ideController.dispose();
     super.dispose();
   }

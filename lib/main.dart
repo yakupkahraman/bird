@@ -1,4 +1,5 @@
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/shell_page.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
 import 'package:bird/providers/terminal_provider.dart';
@@ -36,7 +37,11 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => FileProvider()),
+        ChangeNotifierProvider(create: (_) => LspProvider()),
+        ChangeNotifierProxyProvider<LspProvider, FileProvider>(
+          create: (_) => FileProvider(),
+          update: (_, lsp, fileProvider) => fileProvider!..attachLsp(lsp),
+        ),
         ChangeNotifierProvider(create: (_) => ProgLangProvider()),
         ChangeNotifierProvider(create: (_) => TerminalProvider()),
       ],
