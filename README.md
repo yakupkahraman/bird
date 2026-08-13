@@ -1,5 +1,7 @@
 <div align="center">
 
+  <img src="assets/images/bird-logo.png" alt="Bird IDE logo" width="160">
+
   <h1>Bird IDE</h1>
 
   <p><b>A community-driven, fully native, cross-platform IDE for Flutter development — written in Flutter itself.</b></p>
