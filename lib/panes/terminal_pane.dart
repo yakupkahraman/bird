@@ -13,10 +13,15 @@ class TerminalPane extends StatelessWidget {
         return Container(
           width: double.infinity,
           height: double.infinity,
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: TerminalView(
             terminalProvider.terminal,
             backgroundOpacity: 0.0,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+            textStyle: const TerminalStyle(
+              fontFamily: 'FiraCode',
+              fontSize: 13,
+            ),
           ),
         );
       },

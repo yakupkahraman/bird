@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
-import 'package:bird/widgets/re_icon.dart';
-import 'package:file_icon/file_icon.dart';
+import 'package:bird/widgets/file_icon.dart';
+import 'package:bird/widgets/nf_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reicon_flutter/reicon_flutter.dart';
 
 class FileTreeItem extends StatelessWidget {
   final FileSystemEntity entity;
@@ -61,22 +60,22 @@ class FileTreeItem extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   child: isDirectory
-                      ? ReIcon(
+                      ? Icon(
                           isExpanded
-                              ? Reicon.outline.chevronDown
-                              : Reicon.outline.chevronRight,
-                          size: 16,
+                              ? NfIcons.chevronDown
+                              : NfIcons.chevronRight,
+                          size: 14,
                           color: primary.withValues(alpha: 0.54),
                         )
                       : null,
                 ),
                 isDirectory
-                    ? ReIcon(
-                        Reicon.filled.folder,
-                        size: 18,
+                    ? Icon(
+                        isExpanded ? NfIcons.folderOpen : NfIcons.folder,
+                        size: 16,
                         color: Colors.amber[700],
                       )
-                    : FileIcon(name, size: 18),
+                    : FileIcon(name, size: 16),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(

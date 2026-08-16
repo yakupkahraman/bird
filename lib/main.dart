@@ -1,6 +1,7 @@
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/shell_page.dart';
+import 'package:bird/providers/panes_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
 import 'package:bird/providers/terminal_provider.dart';
 import 'package:bird/theme/theme.dart';
@@ -24,11 +25,6 @@ void main() async {
     windowButtonVisibility: true,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setTitleBarStyle(
-      TitleBarStyle.hidden,
-      windowButtonVisibility: true,
-    );
-
     await windowManager.show();
     await windowManager.focus();
   });
@@ -44,6 +40,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => ProgLangProvider()),
         ChangeNotifierProvider(create: (_) => TerminalProvider()),
+        ChangeNotifierProvider(create: (_) => PanesProvider()),
       ],
       child: const MyApp(),
     ),

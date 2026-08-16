@@ -5,13 +5,14 @@ import 'package:bird/panes/extensions_pane.dart';
 import 'package:bird/panes/terminal_pane.dart';
 import 'package:bird/panes/theme_picker_pane.dart';
 import 'package:bird/providers/lsp_provider.dart';
+import 'package:bird/providers/panes_provider.dart';
 import 'package:bird/providers/terminal_provider.dart';
-import 'package:bird/widgets/custom_titlebar.dart';
 import 'package:bird/widgets/my_icon_button.dart';
+import 'package:bird/widgets/nf_icons.dart';
+import 'package:bird/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:panes/panes.dart';
 import 'package:provider/provider.dart';
-import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
 class ShellPage extends StatefulWidget {
@@ -22,9 +23,6 @@ class ShellPage extends StatefulWidget {
 }
 
 class _ShellPageState extends State<ShellPage> with WindowListener {
-  int _selectedIndex = 0;
-  late final IdeController _ideController;
-
   final List<Widget> _panes = const [
     ExplorerPane(),
     ExtensionsPane(),
@@ -34,19 +32,6 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
   @override
   void initState() {
     super.initState();
-    _ideController = IdeController(
-      leftSize: PaneSize.pixel(200),
-      leftMinSize: PaneSize.pixel(120),
-      leftMaxSize: PaneSize.pixel(500),
-      leftVisible: true,
-      bottomSize: PaneSize.pixel(200),
-      bottomMinSize: PaneSize.pixel(80),
-      bottomMaxSize: PaneSize.pixel(500),
-      bottomVisible: true,
-    );
-
-    // Provider dispose does not run reliably on desktop shutdown, so the
-    // language server process has to be killed from the close handler.
     windowManager.addListener(this);
     windowManager.setPreventClose(true);
 
@@ -69,39 +54,24 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
-    _ideController.dispose();
     super.dispose();
-  }
-
-  void _onSidebarTabPressed(int index) {
-    final isLeftVisible = _ideController.rootController.isVisible(
-      IdePane.left.id,
-    );
-    setState(() {
-      if (_selectedIndex == index && isLeftVisible) {
-        _ideController.rootController.hide(IdePane.left.id);
-      } else {
-        _selectedIndex = index;
-        if (!isLeftVisible) {
-          _ideController.rootController.show(IdePane.left.id);
-        }
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final panesProvider = context.watch<PanesProvider>();
+
     return CallbackShortcuts(
       bindings: getAppShortcuts(context),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.secondary,
         body: Column(
           children: [
-            const CustomTitleBar(),
+            const TopBar(),
             Expanded(
               child: Row(
                 children: [
-                  _sideBar(context),
+                  _sideBar(context, panesProvider),
                   Expanded(
                     child: PaneTheme(
                       data: PaneThemeData(
@@ -113,13 +83,16 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
                         resizerHitTestThickness: 8.0,
                       ),
                       child: IdeLayout(
-                        controller: _ideController,
+                        controller: panesProvider.ideController,
+                        onPaneStateChanged:
+                            panesProvider.onPaneVisibilityChanged,
                         leftPanelBuilder: (context, animationProgress) =>
                             Padding(
                               padding: const EdgeInsets.all(2.0),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: _panes[_selectedIndex],
+                                child:
+                                    _panes[panesProvider.selectedSidebarIndex],
                               ),
                             ),
                         centerBuilder: (context, animationProgress) => Padding(
@@ -137,6 +110,32 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
                                 child: const TerminalPane(),
                               ),
                             ),
+                        rightPanelBuilder: (context, animationProgress) =>
+                            Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  color: Theme.of(
+                                    context,
+                                  ).scaffoldBackgroundColor,
+                                  child: Center(
+                                    child: Text(
+                                      'Right Panel',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -149,9 +148,9 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
     );
   }
 
-  Widget _sideBar(BuildContext context) {
+  Widget _sideBar(BuildContext context, PanesProvider panesProvider) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -159,12 +158,20 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
             spacing: 4,
             children: [
               MyIconButton(
-                onPressed: () => _onSidebarTabPressed(0),
-                icon: Reicon.outline.folder,
+                onPressed: () => panesProvider.onSidebarTabPressed(0),
+                icon: NfIcons.folder,
+                isSelected:
+                    panesProvider.isLeftVisible &&
+                    panesProvider.selectedSidebarIndex == 0,
+                tooltip: 'Explorer',
               ),
               MyIconButton(
-                onPressed: () => _onSidebarTabPressed(1),
-                icon: Reicon.outline.puzzle,
+                onPressed: () => panesProvider.onSidebarTabPressed(1),
+                icon: NfIcons.extensions,
+                isSelected:
+                    panesProvider.isLeftVisible &&
+                    panesProvider.selectedSidebarIndex == 1,
+                tooltip: 'Extensions',
               ),
             ],
           ),
@@ -172,8 +179,12 @@ class _ShellPageState extends State<ShellPage> with WindowListener {
             spacing: 4,
             children: [
               MyIconButton(
-                onPressed: () => _onSidebarTabPressed(2),
-                icon: Reicon.outline.palette,
+                onPressed: () => panesProvider.onSidebarTabPressed(2),
+                icon: NfIcons.palette,
+                isSelected:
+                    panesProvider.isLeftVisible &&
+                    panesProvider.selectedSidebarIndex == 2,
+                tooltip: 'Themes',
               ),
             ],
           ),

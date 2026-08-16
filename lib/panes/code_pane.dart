@@ -3,12 +3,13 @@ import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
 import 'package:bird/theme/theme_provider.dart';
-import 'package:bird/widgets/re_icon.dart';
+import 'package:bird/widgets/file_icon.dart';
+import 'package:bird/widgets/my_button.dart';
+import 'package:bird/widgets/nf_icons.dart';
 import 'package:code_forge/code_forge.dart';
-import 'package:file_icon/file_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:reicon_flutter/reicon_flutter.dart';
 
 class CodePane extends StatefulWidget {
   const CodePane({super.key});
@@ -29,36 +30,50 @@ class _CodePaneState extends State<CodePane> {
     final selectedPath = fileProvider.selectedFilePath;
 
     if (openPaths.isEmpty || selectedPath == null) {
+      final primary = Theme.of(context).colorScheme.primary;
+
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ReIcon(
-                Reicon.outline.fileText,
-                size: 48,
-                color: Theme.of(context).colorScheme.primary.withAlpha(90),
+              SvgPicture.asset(
+                'assets/images/bird-mono.svg',
+                width: 52,
+                height: 52,
+                colorFilter: ColorFilter.mode(
+                  primary.withValues(alpha: 0.75),
+                  BlendMode.srcIn,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
-                'No File Open',
+                fileProvider.rootPath == null ? 'Bird IDE' : 'No File Open',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary.withAlpha(180),
+                  color: primary.withValues(alpha: 0.85),
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                'Select a file from the explorer to start editing',
+                fileProvider.rootPath == null
+                    ? 'Open a folder to start editing'
+                    : 'Select a file from the explorer to start editing',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.4),
+                  color: primary.withValues(alpha: 0.45),
                 ),
               ),
+              if (fileProvider.rootPath == null) ...[
+                const SizedBox(height: 20),
+                MyButton(
+                  label: 'Open Folder',
+                  icon: NfIcons.folder,
+                  onPressed: () => context.read<FileProvider>().pickFolder(),
+                ),
+              ],
             ],
           ),
         ),
@@ -280,9 +295,9 @@ class _TabItemState extends State<_TabItem> {
                             : Colors.transparent,
                         shape: BoxShape.circle,
                       ),
-                      child: ReIcon(
-                        Reicon.outline.x,
-                        size: 14,
+                      child: Icon(
+                        NfIcons.close,
+                        size: 13,
                         color: widget.isSelected
                             ? primary.withValues(alpha: 0.8)
                             : primary.withValues(alpha: 0.38),
