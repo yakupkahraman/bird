@@ -37,7 +37,8 @@ flutter run -d macos   # or -d linux / -d windows
    dart format lib test
    flutter test
    ```
-   Then run the app and confirm the change works for real.
+   Then run the app and confirm the change works for real. CI runs these same
+   checks on every PR, plus a debug build on macOS, Linux and Windows.
 5. **Commit** with conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`,
    `test:`, `chore:`.
 6. **Open a PR** describing what changed and why. Add a screenshot or short clip
