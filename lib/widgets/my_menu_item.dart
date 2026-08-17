@@ -57,7 +57,9 @@ class _MyMenuItemState extends State<MyMenuItem> {
                 child: Text(
                   widget.title,
                   style: TextStyle(
-                    color: _isHovered ? primary : primary.withValues(alpha: 0.88),
+                    color: _isHovered
+                        ? primary
+                        : primary.withValues(alpha: 0.88),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),

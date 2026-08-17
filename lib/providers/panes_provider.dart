@@ -41,7 +41,9 @@ class PanesProvider extends ChangeNotifier {
 
   void toggleBottom() {
     ideController.toggleBottom();
-    _isBottomVisible = ideController.centerController.isVisible(IdePane.bottom.id);
+    _isBottomVisible = ideController.centerController.isVisible(
+      IdePane.bottom.id,
+    );
     notifyListeners();
   }
 

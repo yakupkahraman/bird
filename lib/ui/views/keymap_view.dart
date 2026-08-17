@@ -14,16 +14,52 @@ class _KeymapViewState extends State<KeymapView> {
 
   final List<Map<String, String>> _shortcuts = const [
     {'command': 'Save File', 'keys': 'Ctrl+S / Cmd+S', 'category': 'File'},
-    {'command': 'Open Folder / Project', 'keys': 'Ctrl+O / Cmd+O', 'category': 'File'},
-    {'command': 'Toggle Left Sidebar (Explorer)', 'keys': 'Ctrl+B', 'category': 'View'},
-    {'command': 'Toggle Bottom Panel (Terminal)', 'keys': 'Ctrl+J', 'category': 'View'},
-    {'command': 'Toggle Right Sidebar', 'keys': 'Ctrl+Alt+B', 'category': 'View'},
-    {'command': 'Close Active Editor Tab', 'keys': 'Ctrl+W / Cmd+W', 'category': 'Editor'},
+    {
+      'command': 'Open Folder / Project',
+      'keys': 'Ctrl+O / Cmd+O',
+      'category': 'File',
+    },
+    {
+      'command': 'Toggle Left Sidebar (Explorer)',
+      'keys': 'Ctrl+B',
+      'category': 'View',
+    },
+    {
+      'command': 'Toggle Bottom Panel (Terminal)',
+      'keys': 'Ctrl+J',
+      'category': 'View',
+    },
+    {
+      'command': 'Toggle Right Sidebar',
+      'keys': 'Ctrl+Alt+B',
+      'category': 'View',
+    },
+    {
+      'command': 'Close Active Editor Tab',
+      'keys': 'Ctrl+W / Cmd+W',
+      'category': 'Editor',
+    },
     {'command': 'Format Document', 'keys': 'Shift+Alt+F', 'category': 'Editor'},
-    {'command': 'Quick Open / Find File', 'keys': 'Ctrl+P / Cmd+P', 'category': 'Navigation'},
-    {'command': 'Command Palette', 'keys': 'Ctrl+Shift+P / Cmd+Shift+P', 'category': 'General'},
-    {'command': 'New Integrated Terminal', 'keys': 'Ctrl+Shift+`', 'category': 'Terminal'},
-    {'command': 'Zoom In / Out Editor', 'keys': 'Ctrl+= / Ctrl+-', 'category': 'View'},
+    {
+      'command': 'Quick Open / Find File',
+      'keys': 'Ctrl+P / Cmd+P',
+      'category': 'Navigation',
+    },
+    {
+      'command': 'Command Palette',
+      'keys': 'Ctrl+Shift+P / Cmd+Shift+P',
+      'category': 'General',
+    },
+    {
+      'command': 'New Integrated Terminal',
+      'keys': 'Ctrl+Shift+`',
+      'category': 'Terminal',
+    },
+    {
+      'command': 'Zoom In / Out Editor',
+      'keys': 'Ctrl+= / Ctrl+-',
+      'category': 'View',
+    },
   ];
 
   @override
@@ -53,22 +89,27 @@ class _KeymapViewState extends State<KeymapView> {
           MySearch(
             controller: _searchController,
             hintText: 'Type to search keyboard shortcuts...',
-            onChanged: (val) => setState(() => _filter = val.trim().toLowerCase()),
+            onChanged: (val) =>
+                setState(() => _filter = val.trim().toLowerCase()),
           ),
 
           // Shortcut Table
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-              itemCount: filteredList.length,
-              separatorBuilder: (_, _) => Divider(
-                color: primary.withValues(alpha: 0.06),
-                height: 1,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32.0,
+                vertical: 16.0,
               ),
+              itemCount: filteredList.length,
+              separatorBuilder: (_, _) =>
+                  Divider(color: primary.withValues(alpha: 0.06), height: 1),
               itemBuilder: (context, index) {
                 final item = filteredList[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 8.0,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -83,7 +124,10 @@ class _KeymapViewState extends State<KeymapView> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
                         decoration: BoxDecoration(
                           color: secondary.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(4.0),

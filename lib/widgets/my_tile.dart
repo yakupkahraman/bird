@@ -43,13 +43,15 @@ class _MyTileState extends State<MyTile> {
     final isClickable = widget.onTap != null;
 
     final defaultBg = secondary.withValues(alpha: 0.3);
-    final bg = widget.backgroundColor ??
+    final bg =
+        widget.backgroundColor ??
         (isClickable && _isHovered
             ? primary.withValues(alpha: 0.08)
             : defaultBg);
 
     final border = Border.all(
-      color: widget.borderColor ??
+      color:
+          widget.borderColor ??
           (isClickable && _isHovered
               ? primary.withValues(alpha: 0.25)
               : primary.withValues(alpha: 0.08)),
@@ -62,11 +64,7 @@ class _MyTileState extends State<MyTile> {
           widget.leading!,
           const SizedBox(width: 14),
         ] else if (widget.icon != null) ...[
-          Icon(
-            widget.icon,
-            size: 18,
-            color: primary.withValues(alpha: 0.8),
-          ),
+          Icon(widget.icon, size: 18, color: primary.withValues(alpha: 0.8)),
           const SizedBox(width: 14),
         ],
         Expanded(

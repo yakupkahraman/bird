@@ -43,9 +43,7 @@ class MySwitch extends StatelessWidget {
             color: value ? activeBg : inactiveBg,
             borderRadius: BorderRadius.circular(height / 2),
             border: Border.all(
-              color: value
-                  ? activeBg
-                  : primary.withValues(alpha: 0.22),
+              color: value ? activeBg : primary.withValues(alpha: 0.22),
               width: 1.0,
             ),
           ),

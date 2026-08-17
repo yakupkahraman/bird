@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum MyButtonVariant {
-  primary,
-  secondary,
-  outline,
-}
+enum MyButtonVariant { primary, secondary, outline }
 
 class MyButton extends StatefulWidget {
   final String label;
@@ -97,10 +93,9 @@ class _MyButtonState extends State<MyButton> {
         break;
 
       case MyButtonVariant.secondary:
-        final base = widget.backgroundColor ?? primaryColor.withValues(alpha: 0.10);
-        bg = _isHovered
-            ? primaryColor.withValues(alpha: 0.16)
-            : base;
+        final base =
+            widget.backgroundColor ?? primaryColor.withValues(alpha: 0.10);
+        bg = _isHovered ? primaryColor.withValues(alpha: 0.16) : base;
         fg = widget.foregroundColor ?? primaryColor;
         break;
 
@@ -147,8 +142,7 @@ class _MyButtonState extends State<MyButton> {
         child: Container(
           width: widget.width,
           height: widget.height,
-          padding: widget.padding ??
-              const EdgeInsets.symmetric(horizontal: 16),
+          padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: bg,
@@ -161,10 +155,7 @@ class _MyButtonState extends State<MyButton> {
     );
 
     if (widget.tooltip != null) {
-      return Tooltip(
-        message: widget.tooltip!,
-        child: button,
-      );
+      return Tooltip(message: widget.tooltip!, child: button);
     }
 
     return button;

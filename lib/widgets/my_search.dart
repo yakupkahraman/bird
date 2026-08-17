@@ -96,10 +96,7 @@ class _MySearchState extends State<MySearch> {
       decoration: BoxDecoration(
         color: secondary.withValues(alpha: 0.3),
         border: Border(
-          bottom: BorderSide(
-            color: primary.withValues(alpha: 0.1),
-            width: 1.0,
-          ),
+          bottom: BorderSide(color: primary.withValues(alpha: 0.1), width: 1.0),
         ),
       ),
       child: Row(
@@ -129,10 +126,7 @@ class _MySearchState extends State<MySearch> {
                       controller: _effectiveController,
                       autofocus: widget.autoFocus,
                       onChanged: widget.onChanged,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: primary,
-                      ),
+                      style: TextStyle(fontSize: 13, color: primary),
                       decoration: InputDecoration(
                         hintText: widget.hintText,
                         hintStyle: TextStyle(

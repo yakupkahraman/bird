@@ -43,7 +43,8 @@ class _ThemesViewState extends State<ThemesView> {
           MySearch(
             controller: _searchController,
             hintText: 'Search color themes...',
-            onChanged: (val) => setState(() => _filter = val.trim().toLowerCase()),
+            onChanged: (val) =>
+                setState(() => _filter = val.trim().toLowerCase()),
           ),
 
           // Themes Grid / List
@@ -65,7 +66,10 @@ class _ThemesViewState extends State<ThemesView> {
                   onTap: () => context.read<ThemeProvider>().setTheme(name),
                   borderRadius: BorderRadius.circular(8.0),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? primary.withValues(alpha: 0.12)
@@ -83,7 +87,9 @@ class _ThemesViewState extends State<ThemesView> {
                         Icon(
                           NfIcons.palette,
                           size: 16,
-                          color: isSelected ? primary : primary.withValues(alpha: 0.65),
+                          color: isSelected
+                              ? primary
+                              : primary.withValues(alpha: 0.65),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -93,17 +99,17 @@ class _ThemesViewState extends State<ThemesView> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                              color: isSelected ? primary : primary.withValues(alpha: 0.85),
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: isSelected
+                                  ? primary
+                                  : primary.withValues(alpha: 0.85),
                             ),
                           ),
                         ),
                         if (isSelected)
-                          Icon(
-                            NfIcons.check,
-                            size: 14,
-                            color: primary,
-                          ),
+                          Icon(NfIcons.check, size: 14, color: primary),
                       ],
                     ),
                   ),

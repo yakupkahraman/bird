@@ -41,18 +41,23 @@ class _SettingsViewState extends State<SettingsView> {
           MySearch(
             controller: _searchController,
             hintText: 'Search settings...',
-            onChanged: (val) => setState(() => _filter = val.trim().toLowerCase()),
+            onChanged: (val) =>
+                setState(() => _filter = val.trim().toLowerCase()),
           ),
 
           // Settings list
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 40.0,
+                vertical: 24.0,
+              ),
               children: [
                 _buildSectionHeader('Editor: Formatting & Behavior', primary),
                 _buildSettingTile(
                   title: 'Editor: Format On Save',
-                  description: 'Automatically format files on save using Dart/Flutter formatter.',
+                  description:
+                      'Automatically format files on save using Dart/Flutter formatter.',
                   trailing: MySwitch(
                     value: _formatOnSave,
                     onChanged: (val) => setState(() => _formatOnSave = val),
@@ -60,7 +65,8 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 _buildSettingTile(
                   title: 'Editor: Word Wrap',
-                  description: 'Controls how lines should wrap in the code editor.',
+                  description:
+                      'Controls how lines should wrap in the code editor.',
                   trailing: MySwitch(
                     value: _wordWrap,
                     onChanged: (val) => setState(() => _wordWrap = val),
@@ -68,7 +74,8 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 _buildSettingTile(
                   title: 'Editor: Line Numbers',
-                  description: 'Controls the display of line numbers in the editor margin.',
+                  description:
+                      'Controls the display of line numbers in the editor margin.',
                   trailing: MySwitch(
                     value: _lineNumbers,
                     onChanged: (val) => setState(() => _lineNumbers = val),
@@ -76,7 +83,8 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 _buildSettingTile(
                   title: 'Editor: Minimap',
-                  description: 'Controls whether the editor minimap is shown on the right side.',
+                  description:
+                      'Controls whether the editor minimap is shown on the right side.',
                   trailing: MySwitch(
                     value: _minimap,
                     onChanged: (val) => setState(() => _minimap = val),
@@ -87,7 +95,8 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildSectionHeader('Files & Autosave', primary),
                 _buildSettingTile(
                   title: 'Files: Auto Save',
-                  description: 'Automatically save dirty editors after a brief delay or when switching tabs.',
+                  description:
+                      'Automatically save dirty editors after a brief delay or when switching tabs.',
                   trailing: MySwitch(
                     value: _autoSave,
                     onChanged: (val) => setState(() => _autoSave = val),
@@ -98,10 +107,15 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildSectionHeader('Font & Typography', primary),
                 _buildSettingTile(
                   title: 'Editor: Font Size',
-                  description: 'Controls the font size in pixels for the code editor area.',
+                  description:
+                      'Controls the font size in pixels for the code editor area.',
                   trailing: Text(
                     '${_fontSize.toInt()} px',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: primary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: primary,
+                    ),
                   ),
                 ),
                 _buildSettingTile(
@@ -109,7 +123,11 @@ class _SettingsViewState extends State<SettingsView> {
                   description: 'The number of spaces a tab is equal to.',
                   trailing: Text(
                     '$_tabSize spaces',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: primary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: primary,
+                    ),
                   ),
                 ),
               ],
@@ -145,10 +163,6 @@ class _SettingsViewState extends State<SettingsView> {
       return const SizedBox.shrink();
     }
 
-    return MyTile(
-      title: title,
-      subtitle: description,
-      trailing: trailing,
-    );
+    return MyTile(title: title, subtitle: description, trailing: trailing);
   }
 }
