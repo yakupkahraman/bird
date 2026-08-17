@@ -3,8 +3,8 @@ import 'package:bird/widgets/file_tree_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ExplorerPane extends StatelessWidget {
-  const ExplorerPane({super.key});
+class ExplorerPanel extends StatelessWidget {
+  const ExplorerPanel({super.key});
 
   @override
   Widget build(BuildContext context) {

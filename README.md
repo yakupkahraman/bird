@@ -106,10 +106,11 @@ Ensure you have the following installed on your machine:
 ## 🗺️ Roadmap
 
 - [x] **Flutter LSP Integration**: Full Language Server Protocol support for Dart/Flutter auto-complete, signature help, hover documentation & diagnostics.
+- [ ] **Bundled Flutter SDK Management**: Built-in Flutter SDK version management, channel switching, and automated SDK setup.
 - [ ] **pub.dev Integration**: In-editor package search, version inspection, and one-click dependency management for `pubspec.yaml`.
 - [ ] **Debugger Suite**: Built-in breakpoints, call stack inspection, and Dart DevTools integration.
-- [ ] **Bundled Flutter SDK Management**: Built-in Flutter SDK version management, channel switching, and automated SDK setup.
 - [ ] **Git Version Control Pane**: Visual diff viewer, branch switcher, and inline git status markers.
+- [ ] **Device & Emulator Management**: In-editor device selector, emulator/simulator launching, and wireless debugging support.
 - [ ] **Extension Marketplace**: Community plugin system for custom themes, keybindings, and extensions.
 
 ---

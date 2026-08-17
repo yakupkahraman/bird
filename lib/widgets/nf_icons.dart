@@ -55,7 +55,7 @@ class NfIcons {
   static const IconData play = IconData(0xeb2c, fontFamily: _fontFamily);
 
   /// Stop / square icon
-  static const IconData stop = IconData(0xeb58, fontFamily: _fontFamily);
+  static const IconData stop = IconData(0xf467, fontFamily: _fontFamily);
 
   /// Refresh / reload icon
   static const IconData refresh = IconData(0xeb37, fontFamily: _fontFamily);
@@ -72,14 +72,34 @@ class NfIcons {
   /// Search / magnifying glass
   static const IconData search = IconData(0xea6d, fontFamily: _fontFamily);
 
-  /// Settings / gear
-  static const IconData settings = IconData(0xea74, fontFamily: _fontFamily);
+  /// Settings / gear icon
+  static const IconData settings = IconData(0xeaf8, fontFamily: _fontFamily);
+  static const IconData gear = IconData(0xeaf8, fontFamily: _fontFamily);
 
   /// Extensions
   static const IconData extensions = IconData(0xeae6, fontFamily: _fontFamily);
 
   /// Theme / color palette / color mode (FontAwesome palette)
   static const IconData palette = IconData(0xf0e0c, fontFamily: _fontFamily);
+
+  /// Profile / user account icon (FontAwesome user-circle)
+  static const IconData profile = IconData(0xf2be, fontFamily: _fontFamily);
+
+  /// GitHub brand icon
+  static const IconData github = IconData(0xea84, fontFamily: _fontFamily);
+
+  /// Dart programming language logo icon
+  static const IconData dart = IconData(0xe64c, fontFamily: _fontFamily);
+
+  /// Dot / status point icon
+  static const IconData dot = IconData(0xf444, fontFamily: _fontFamily);
+
+  /// Keymap / keyboard icon
+  static const IconData keyboard = IconData(0xf11c, fontFamily: _fontFamily);
+
+  /// Help Bird / heart icon
+  static const IconData heart = IconData(0xeb05, fontFamily: _fontFamily);
+  static const IconData help = IconData(0xeb05, fontFamily: _fontFamily);
 
   /// Terminal prompt icon
   static const IconData terminal = IconData(0xeb8d, fontFamily: _fontFamily);
@@ -134,6 +154,9 @@ class NfIcons {
 
   /// Info / circle info
   static const IconData info = IconData(0xea7a, fontFamily: _fontFamily);
+
+  /// Restart / reload / sync
+  static const IconData restart = IconData(0xea77, fontFamily: _fontFamily);
 
   // --- FontAwesome Fallback Alternatives (Thin / Crisp) ---
   static const IconData faFolder = IconData(0xf07b, fontFamily: _fontFamily);

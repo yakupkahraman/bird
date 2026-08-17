@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:xterm/ui.dart';
 
-class TerminalPane extends StatelessWidget {
-  const TerminalPane({super.key});
+class TerminalPanel extends StatelessWidget {
+  const TerminalPanel({super.key});
 
   @override
   Widget build(BuildContext context) {

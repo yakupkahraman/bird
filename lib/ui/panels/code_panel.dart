@@ -1,4 +1,8 @@
 import 'dart:io';
+import 'package:bird/ui/views/account_view.dart';
+import 'package:bird/ui/views/keymap_view.dart';
+import 'package:bird/ui/views/settings_view.dart';
+import 'package:bird/ui/views/themes_view.dart';
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
@@ -11,14 +15,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class CodePane extends StatefulWidget {
-  const CodePane({super.key});
+class CodePanel extends StatefulWidget {
+  const CodePanel({super.key});
 
   @override
-  State<CodePane> createState() => _CodePaneState();
+  State<CodePanel> createState() => _CodePanelState();
 }
 
-class _CodePaneState extends State<CodePane> {
+class _CodePanelState extends State<CodePanel> {
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
@@ -113,93 +117,108 @@ class _CodePaneState extends State<CodePane> {
             ),
           ),
 
-          // Code Editor Area
-          Expanded(
-            child: ScrollbarTheme(
-              data: ScrollbarThemeData(
-                thumbColor: WidgetStateProperty.all(Colors.transparent),
-                trackColor: WidgetStateProperty.all(Colors.transparent),
-                trackBorderColor: WidgetStateProperty.all(Colors.transparent),
-                thickness: WidgetStateProperty.all(0),
-              ),
-              child: CodeForge(
-                // The LSP config is part of the key because CodeForge captures
-                // its controller in initState and ignores later swaps.
-                key: ValueKey(
-                  '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}-${identityHashCode(lspProvider.dartLspConfig)}',
+          // Content Area: Special custom tab or CodeForge editor Area
+          if (selectedPath == 'bird://account')
+            const Expanded(child: AccountView())
+          else if (selectedPath == 'bird://settings')
+            const Expanded(child: SettingsView())
+          else if (selectedPath == 'bird://keymap')
+            const Expanded(child: KeymapView())
+          else if (selectedPath == 'bird://themes')
+            const Expanded(child: ThemesView())
+          else
+            Expanded(
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbColor: WidgetStateProperty.all(Colors.transparent),
+                  trackColor: WidgetStateProperty.all(Colors.transparent),
+                  trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+                  thickness: WidgetStateProperty.all(0),
                 ),
-                filePath: selectedPath,
-                innerPadding: const EdgeInsets.only(top: 8.0),
-                editorTheme: themeProvider.editorTheme,
-                autoFocus: true,
-                controller: fileProvider.currentController,
-                language: languageProvider.currentLanguage.mode,
-                tabSize: 2,
-                useSpaceAsTab: true,
-                enableGuideLines: true,
-                textStyle: const TextStyle(
-                  fontFamily: 'FiraCode',
-                  fontFamilyFallback: [
-                    'Menlo',
-                    'Consolas',
-                    'Courier New',
-                    'monospace',
-                  ],
-                  fontSize: 13,
-                  height: 1.4,
-                ),
-                hoverDetailsStyle: HoverDetailsStyle(
-                  elevation: 6.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    side: const BorderSide(color: Color(0xFF454545), width: 1),
+                child: CodeForge(
+                  // The LSP config is part of the key because CodeForge captures
+                  // its controller in initState and ignores later swaps.
+                  key: ValueKey(
+                    '${themeProvider.themeName}-$selectedPath-${languageProvider.currentLanguage.name}-${identityHashCode(lspProvider.dartLspConfig)}',
                   ),
-                  backgroundColor: const Color(0xFF252526),
-                  focusColor: const Color(0xFF04395E),
-                  hoverColor: const Color(0xFF2A2D2E),
-                  splashColor: Colors.transparent,
+                  filePath: selectedPath,
+                  innerPadding: const EdgeInsets.only(top: 8.0),
+                  editorTheme: themeProvider.editorTheme,
+                  autoFocus: true,
+                  controller: fileProvider.currentController,
+                  language: languageProvider.currentLanguage.mode,
+                  tabSize: 2,
+                  useSpaceAsTab: true,
+                  enableGuideLines: true,
                   textStyle: const TextStyle(
-                    color: Color(0xFFCCCCCC),
-                    fontSize: 12,
+                    fontFamily: 'FiraCode',
+                    fontFamilyFallback: [
+                      'Menlo',
+                      'Consolas',
+                      'Courier New',
+                      'monospace',
+                    ],
+                    fontSize: 13,
+                    height: 1.4,
                   ),
-                ),
-                suggestionStyle: SuggestionStyle(
-                  elevation: 6.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    side: const BorderSide(color: Color(0xFF454545), width: 1),
+                  hoverDetailsStyle: HoverDetailsStyle(
+                    elevation: 6.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      side: const BorderSide(
+                        color: Color(0xFF454545),
+                        width: 1,
+                      ),
+                    ),
+                    backgroundColor: const Color(0xFF252526),
+                    focusColor: const Color(0xFF04395E),
+                    hoverColor: const Color(0xFF2A2D2E),
+                    splashColor: Colors.transparent,
+                    textStyle: const TextStyle(
+                      color: Color(0xFFCCCCCC),
+                      fontSize: 12,
+                    ),
                   ),
-                  backgroundColor: const Color(0xFF252526),
-                  selectedBackgroundColor: const Color(0xFF04395E),
-                  focusColor: const Color(0xFF04395E),
-                  hoverColor: const Color(0xFF2A2D2E),
-                  splashColor: Colors.transparent,
-                  borderColor: const Color(0xFF454545),
-                  textStyle: const TextStyle(
-                    color: Color(0xFFCCCCCC),
-                    fontSize: 12,
+                  suggestionStyle: SuggestionStyle(
+                    elevation: 6.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      side: const BorderSide(
+                        color: Color(0xFF454545),
+                        width: 1,
+                      ),
+                    ),
+                    backgroundColor: const Color(0xFF252526),
+                    selectedBackgroundColor: const Color(0xFF04395E),
+                    focusColor: const Color(0xFF04395E),
+                    hoverColor: const Color(0xFF2A2D2E),
+                    splashColor: Colors.transparent,
+                    borderColor: const Color(0xFF454545),
+                    textStyle: const TextStyle(
+                      color: Color(0xFFCCCCCC),
+                      fontSize: 12,
+                    ),
+                    labelTextStyle: const TextStyle(
+                      color: Color(0xFFCCCCCC),
+                      fontSize: 12,
+                    ),
+                    detailTextStyle: const TextStyle(
+                      color: Color(0xFF858585),
+                      fontSize: 11,
+                    ),
+                    typeTextStyle: const TextStyle(
+                      color: Color(0xFF4EC9B0),
+                      fontSize: 11,
+                    ),
+                    methodIconColor: const Color(0xFFB180D7),
+                    propertyIconColor: const Color(0xFF75BEFF),
+                    classIconColor: const Color(0xFF4EC9B0),
+                    variableIconColor: const Color(0xFF75BEFF),
+                    keywordIconColor: const Color(0xFF569CD6),
                   ),
-                  labelTextStyle: const TextStyle(
-                    color: Color(0xFFCCCCCC),
-                    fontSize: 12,
-                  ),
-                  detailTextStyle: const TextStyle(
-                    color: Color(0xFF858585),
-                    fontSize: 11,
-                  ),
-                  typeTextStyle: const TextStyle(
-                    color: Color(0xFF4EC9B0),
-                    fontSize: 11,
-                  ),
-                  methodIconColor: const Color(0xFFB180D7),
-                  propertyIconColor: const Color(0xFF75BEFF),
-                  classIconColor: const Color(0xFF4EC9B0),
-                  variableIconColor: const Color(0xFF75BEFF),
-                  keywordIconColor: const Color(0xFF569CD6),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -231,7 +250,25 @@ class _TabItemState extends State<_TabItem> {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
-    final fileName = widget.path.split(Platform.pathSeparator).last;
+
+    String title;
+    IconData? specialIcon;
+
+    if (widget.path == 'bird://account') {
+      title = 'Account';
+      specialIcon = NfIcons.profile;
+    } else if (widget.path == 'bird://settings') {
+      title = 'Settings';
+      specialIcon = NfIcons.settings;
+    } else if (widget.path == 'bird://keymap') {
+      title = 'Keymap';
+      specialIcon = NfIcons.keyboard;
+    } else if (widget.path == 'bird://themes') {
+      title = 'Themes';
+      specialIcon = NfIcons.palette;
+    } else {
+      title = widget.path.split(Platform.pathSeparator).last;
+    }
 
     Color bg;
     if (widget.isSelected) {
@@ -267,10 +304,18 @@ class _TabItemState extends State<_TabItem> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FileIcon(fileName, size: 14),
+                specialIcon != null
+                    ? Icon(
+                        specialIcon,
+                        size: 14,
+                        color: widget.isSelected
+                            ? primary
+                            : primary.withValues(alpha: 0.65),
+                      )
+                    : FileIcon(title, size: 14),
                 const SizedBox(width: 6),
                 Text(
-                  fileName,
+                  title,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.normal,

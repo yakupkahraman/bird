@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/panes_provider.dart';
+import 'package:bird/widgets/mini_button.dart';
+import 'package:bird/widgets/my_menu_item.dart';
 import 'package:bird/widgets/nf_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +52,7 @@ class TopBar extends StatelessWidget {
             ),
           ),
 
-          _TopBarButton(
+          MiniButton(
             icon: NfIcons.save,
             tooltip: "Save (Ctrl+S)",
             onPressed: () => context.read<FileProvider>().saveFile(),
@@ -63,23 +65,33 @@ class TopBar extends StatelessWidget {
             color: primary.withValues(alpha: 0.18),
           ),
 
-          _TopBarButton(
+          MiniButton(
             icon: NfIcons.layoutSidebarLeft,
             tooltip: 'Toggle Left Panel (Ctrl+B)',
             isSelected: panesProvider.isLeftVisible,
             onPressed: () => panesProvider.toggleLeft(),
           ),
-          _TopBarButton(
+          MiniButton(
             icon: NfIcons.layoutPanelBottom,
             tooltip: 'Toggle Bottom Panel (Ctrl+J)',
             isSelected: panesProvider.isBottomVisible,
             onPressed: () => panesProvider.toggleBottom(),
           ),
-          _TopBarButton(
+          MiniButton(
             icon: NfIcons.layoutSidebarRight,
             tooltip: 'Toggle Right Panel',
             isSelected: panesProvider.isRightVisible,
             onPressed: () => panesProvider.toggleRight(),
+          ),
+          Builder(
+            builder: (btnContext) {
+              return MiniButton(
+                icon: NfIcons.profile,
+                trailingIcon: NfIcons.chevronDown,
+                tooltip: 'Menu',
+                onPressed: () => _showProfileMenu(btnContext),
+              );
+            },
           ),
 
           const SizedBox(width: 4),
@@ -90,87 +102,106 @@ class TopBar extends StatelessWidget {
       ),
     );
   }
-}
 
-class _TopBarButton extends StatefulWidget {
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onPressed;
-  final bool isSelected;
+  void _showProfileMenu(BuildContext buttonContext) {
+    final RenderBox? button = buttonContext.findRenderObject() as RenderBox?;
+    if (button == null) return;
 
-  const _TopBarButton({
-    required this.icon,
-    required this.tooltip,
-    this.onPressed,
-    this.isSelected = false,
-  });
-
-  @override
-  State<_TopBarButton> createState() => _TopBarButtonState();
-}
-
-class _TopBarButtonState extends State<_TopBarButton> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final Offset buttonOffset = button.localToGlobal(Offset.zero);
+    final Size buttonSize = button.size;
+    final theme = Theme.of(buttonContext);
     final primary = theme.colorScheme.primary;
+    const double menuWidth = 160.0;
 
-    Color backgroundColor;
-    if (widget.isSelected) {
-      backgroundColor = primary.withValues(alpha: 0.15);
-    } else if (_isHovered) {
-      backgroundColor = primary.withValues(alpha: 0.08);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
+    final double top = buttonOffset.dy + buttonSize.height + 4;
+    final double left = buttonOffset.dx + buttonSize.width - menuWidth;
 
-    Color iconColor;
-    if (widget.isSelected) {
-      iconColor = primary;
-    } else if (_isHovered) {
-      iconColor = primary.withValues(alpha: 0.95);
-    } else {
-      iconColor = primary.withValues(alpha: 0.65);
-    }
-
-    return Tooltip(
-      message: widget.tooltip,
-      waitDuration: const Duration(milliseconds: 300),
-      preferBelow: true,
-      verticalOffset: 14,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border.all(color: primary.withValues(alpha: 0.22), width: 0.8),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      textStyle: TextStyle(
-        color: primary.withValues(alpha: 0.9),
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-      ),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.basic,
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTap: widget.onPressed,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: 24,
-            height: 24,
-            margin: const EdgeInsets.symmetric(horizontal: 1.0),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(4),
+    showGeneralDialog(
+      context: buttonContext,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss Profile Menu',
+      barrierColor: Colors.transparent,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, _) {
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: top,
+              width: menuWidth,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: primary.withValues(alpha: 0.18),
+                      width: 0.8,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyMenuItem(
+                        title: 'Account',
+                        icon: NfIcons.profile,
+                        onTap: () {
+                          buttonContext.read<FileProvider>().openCustomTab(
+                            'bird://account',
+                          );
+                        },
+                      ),
+                      const MyMenuDivider(),
+                      MyMenuItem(
+                        title: 'Settings',
+                        icon: NfIcons.settings,
+                        onTap: () {
+                          buttonContext.read<FileProvider>().openCustomTab(
+                            'bird://settings',
+                          );
+                        },
+                      ),
+                      MyMenuItem(
+                        title: 'Keymap',
+                        icon: NfIcons.keyboard,
+                        onTap: () {
+                          buttonContext.read<FileProvider>().openCustomTab(
+                            'bird://keymap',
+                          );
+                        },
+                      ),
+                      MyMenuItem(
+                        title: 'Themes',
+                        icon: NfIcons.palette,
+                        onTap: () {
+                          buttonContext.read<FileProvider>().openCustomTab(
+                            'bird://themes',
+                          );
+                        },
+                      ),
+                      const MyMenuDivider(),
+                      MyMenuItem(
+                        title: 'Help Bird',
+                        icon: NfIcons.help,
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            child: Icon(widget.icon, size: 15, color: iconColor),
-          ),
-        ),
-      ),
+          ],
+        );
+      },
     );
   }
 }

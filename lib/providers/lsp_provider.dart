@@ -17,6 +17,7 @@ class LspProvider extends ChangeNotifier {
 
   String? get currentWorkspacePath => _currentWorkspacePath;
   LspConfig? get dartLspConfig => _dartLspConfig;
+  bool get isRunning => _dartLspConfig != null;
 
   /// Starts a server for [workspacePath], replacing any running one. Passing
   /// the current workspace again is a no-op unless the last start failed.
@@ -52,6 +53,22 @@ class LspProvider extends ChangeNotifier {
     _notify();
   }
 
+  /// Restarts the LSP server for the current workspace.
+  Future<void> restartServer() async {
+    final path = _currentWorkspacePath;
+    stopServer();
+    if (path != null) {
+      await updateWorkspace(path);
+    }
+  }
+
+  /// Starts the LSP server if not currently running.
+  Future<void> startServer() async {
+    if (_currentWorkspacePath != null && _dartLspConfig == null) {
+      await updateWorkspace(_currentWorkspacePath);
+    }
+  }
+
   LspConfig? getLspConfigForFile(String path) =>
       path.endsWith('.dart') ? _dartLspConfig : null;
 
@@ -61,6 +78,7 @@ class LspProvider extends ChangeNotifier {
   void stopServer() {
     _dartLspConfig?.dispose();
     _dartLspConfig = null;
+    _notify();
   }
 
   void _notify() {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ExtensionsPane extends StatelessWidget {
-  const ExtensionsPane({super.key});
+class ExtensionsPanel extends StatelessWidget {
+  const ExtensionsPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +15,7 @@ class ExtensionsPane extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
-            color: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
           ),
         ),
       ),

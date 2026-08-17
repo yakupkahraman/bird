@@ -131,10 +131,20 @@ class FileProvider extends ChangeNotifier {
     }
   }
 
+  void openCustomTab(String path) {
+    if (!_openFilePaths.contains(path)) {
+      _openFilePaths.add(path);
+    }
+    _selectedFilePath = path;
+    notifyListeners();
+  }
+
   void selectTab(String path, [ProgLangProvider? languageProvider]) {
     if (_openFilePaths.contains(path)) {
       _selectedFilePath = path;
-      languageProvider?.trySetLanguageByFilePath(path);
+      if (!path.startsWith('bird://')) {
+        languageProvider?.trySetLanguageByFilePath(path);
+      }
       notifyListeners();
     }
   }
@@ -164,6 +174,10 @@ class FileProvider extends ChangeNotifier {
   }
 
   Future<void> saveFile() async {
+    if (_selectedFilePath != null && _selectedFilePath!.startsWith('bird://')) {
+      return;
+    }
+
     if (_selectedFilePath == null) {
       String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Yeni Dosya Kaydet',
