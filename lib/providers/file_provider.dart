@@ -127,7 +127,7 @@ class FileProvider extends ChangeNotifier {
       languageProvider?.trySetLanguageByFilePath(path);
       notifyListeners();
     } catch (e) {
-      debugPrint("Dosya okuma hatası: $e");
+      debugPrint("Failed to read file: $e");
     }
   }
 
@@ -180,7 +180,7 @@ class FileProvider extends ChangeNotifier {
 
     if (_selectedFilePath == null) {
       String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Yeni Dosya Kaydet',
+        dialogTitle: 'Save New File',
         fileName: 'new_chick.txt',
         allowedExtensions: ['txt'],
         type: FileType.custom,
@@ -205,7 +205,7 @@ class FileProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint("Dosya kaydetme hatası: $e");
+      debugPrint("Failed to save file: $e");
     }
   }
 

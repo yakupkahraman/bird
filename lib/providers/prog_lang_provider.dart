@@ -188,8 +188,8 @@ class ProgLangProvider extends ChangeNotifier {
     setLanguage(language);
   }
 
-  /// Dosya uzantısına göre dili ayarlamaya çalışır.
-  /// Eğer dil destekleniyorsa true, desteklenmiyorsa false döner.
+  /// Tries to set the language from the file extension.
+  /// Returns true if the language is supported, false otherwise.
   bool trySetLanguageByFilePath(String filePath) {
     if (filePath.isEmpty) return false;
 
@@ -209,7 +209,7 @@ class ProgLangProvider extends ChangeNotifier {
     return false;
   }
 
-  /// Dosya uzantısından dil adını döndürür (desteklenmiyorsa null)
+  /// Returns the language name for a file extension (null if unsupported).
   String? getLanguageNameByFilePath(String filePath) {
     if (filePath.isEmpty) return null;
 

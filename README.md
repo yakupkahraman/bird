@@ -26,6 +26,18 @@
 
 ---
 
+## 🚧 Status
+
+**Bird IDE is under active development.** It is not stable yet — features are
+incomplete, APIs move, and things break. Try it, but do not rely on it for daily
+work.
+
+**Want to help?** Read **[CONTRIBUTING.md](CONTRIBUTING.md)** — it covers setup,
+workflow, and good first issues. The project conventions live in
+[AGENTS.md](AGENTS.md).
+
+---
+
 ## 🚀 Overview
 
 **Bird IDE** is a modern, lightweight, and blazingly fast Integrated Development Environment designed specifically for Flutter developers.
@@ -117,13 +129,12 @@ Ensure you have the following installed on your machine:
 
 ## 🤝 Contributing
 
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
+Bird is community-driven and early — this is the best time to shape it. Bug
+reports, fixes, features, docs and design are all **greatly appreciated**.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Start with **[CONTRIBUTING.md](CONTRIBUTING.md)** for setup, workflow and good
+first issues, and see **[AGENTS.md](AGENTS.md)** for the code conventions that
+keep the project readable.
 
 ---
 
