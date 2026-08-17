@@ -146,4 +146,6 @@ Distributed under the **GNU General Public License v3.0**. See [`LICENSE`](LICEN
 
 <div align="center">
   <sub>Built with ❤️ by Yakup Kahraman and the Flutter Community.</sub>
+  <br>
+  <sub>Bird logo designed by me btw :)</sub>
 </div>
