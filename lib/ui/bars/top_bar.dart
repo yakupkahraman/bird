@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/panes_provider.dart';
+import 'package:bird/ui/views/internal_views.dart';
 import 'package:bird/widgets/mini_button.dart';
 import 'package:bird/widgets/my_menu_item.dart';
 import 'package:bird/widgets/nf_icons.dart';
@@ -151,44 +152,19 @@ class TopBar extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      MyMenuItem(
-                        title: 'Account',
-                        icon: NfIcons.profile,
-                        onTap: () {
-                          buttonContext.read<FileProvider>().openCustomTab(
-                            'bird://account',
-                          );
-                        },
-                      ),
-                      const MyMenuDivider(),
-                      MyMenuItem(
-                        title: 'Settings',
-                        icon: NfIcons.settings,
-                        onTap: () {
-                          buttonContext.read<FileProvider>().openCustomTab(
-                            'bird://settings',
-                          );
-                        },
-                      ),
-                      MyMenuItem(
-                        title: 'Keymap',
-                        icon: NfIcons.keyboard,
-                        onTap: () {
-                          buttonContext.read<FileProvider>().openCustomTab(
-                            'bird://keymap',
-                          );
-                        },
-                      ),
-                      MyMenuItem(
-                        title: 'Themes',
-                        icon: NfIcons.palette,
-                        onTap: () {
-                          buttonContext.read<FileProvider>().openCustomTab(
-                            'bird://themes',
-                          );
-                        },
-                      ),
-                      const MyMenuDivider(),
+                      for (final group in InternalViews.menuGroups) ...[
+                        for (final view in group)
+                          MyMenuItem(
+                            title: view.title,
+                            icon: view.icon,
+                            onTap: () {
+                              buttonContext.read<FileProvider>().openCustomTab(
+                                view.path,
+                              );
+                            },
+                          ),
+                        const MyMenuDivider(),
+                      ],
                       MyMenuItem(
                         title: 'Help Bird',
                         icon: NfIcons.help,

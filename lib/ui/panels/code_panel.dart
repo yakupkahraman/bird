@@ -1,8 +1,5 @@
 import 'dart:io';
-import 'package:bird/ui/views/account_view.dart';
-import 'package:bird/ui/views/keymap_view.dart';
-import 'package:bird/ui/views/settings_view.dart';
-import 'package:bird/ui/views/themes_view.dart';
+import 'package:bird/ui/views/internal_views.dart';
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/prog_lang_provider.dart';
@@ -118,14 +115,8 @@ class _CodePanelState extends State<CodePanel> {
           ),
 
           // Content Area: Special custom tab or CodeForge editor Area
-          if (selectedPath == 'bird://account')
-            const Expanded(child: AccountView())
-          else if (selectedPath == 'bird://settings')
-            const Expanded(child: SettingsView())
-          else if (selectedPath == 'bird://keymap')
-            const Expanded(child: KeymapView())
-          else if (selectedPath == 'bird://themes')
-            const Expanded(child: ThemesView())
+          if (InternalViews.of(selectedPath) case final internalView?)
+            Expanded(child: internalView.view)
           else
             Expanded(
               child: ScrollbarTheme(
@@ -251,24 +242,10 @@ class _TabItemState extends State<_TabItem> {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
 
-    String title;
-    IconData? specialIcon;
-
-    if (widget.path == 'bird://account') {
-      title = 'Account';
-      specialIcon = NfIcons.profile;
-    } else if (widget.path == 'bird://settings') {
-      title = 'Settings';
-      specialIcon = NfIcons.settings;
-    } else if (widget.path == 'bird://keymap') {
-      title = 'Keymap';
-      specialIcon = NfIcons.keyboard;
-    } else if (widget.path == 'bird://themes') {
-      title = 'Themes';
-      specialIcon = NfIcons.palette;
-    } else {
-      title = widget.path.split(Platform.pathSeparator).last;
-    }
+    final internalView = InternalViews.of(widget.path);
+    final title =
+        internalView?.title ?? widget.path.split(Platform.pathSeparator).last;
+    final specialIcon = internalView?.icon;
 
     Color bg;
     if (widget.isSelected) {

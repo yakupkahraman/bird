@@ -2,6 +2,7 @@ import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/widgets/file_icon.dart';
 import 'package:bird/widgets/mini_button.dart';
+import 'package:bird/ui/views/internal_views.dart';
 import 'package:bird/widgets/my_menu_item.dart';
 import 'package:bird/widgets/nf_icons.dart';
 import 'package:flutter/material.dart';
@@ -160,28 +161,10 @@ class BottomBar extends StatelessWidget {
     String displayPath = path;
 
     if (path.startsWith('bird://')) {
-      final name = path.replaceFirst('bird://', '');
-      switch (name) {
-        case 'account':
-          specialIcon = NfIcons.profile;
-          displayPath = 'Bird > Account';
-          break;
-        case 'settings':
-          specialIcon = NfIcons.settings;
-          displayPath = 'Bird > Settings';
-          break;
-        case 'keymap':
-          specialIcon = NfIcons.keyboard;
-          displayPath = 'Bird > Keymap';
-          break;
-        case 'themes':
-          specialIcon = NfIcons.palette;
-          displayPath = 'Bird > Themes';
-          break;
-        default:
-          specialIcon = NfIcons.info;
-          displayPath = 'Bird > $name';
-      }
+      final internalView = InternalViews.of(path);
+      specialIcon = internalView?.icon ?? NfIcons.info;
+      displayPath =
+          'Bird > ${internalView?.title ?? path.replaceFirst('bird://', '')}';
     }
 
     return Row(
