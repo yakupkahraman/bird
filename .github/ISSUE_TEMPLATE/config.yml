@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/yakupkahraman/bird/blob/main/CONTRIBUTING.md
+    about: Setup, workflow and good first contributions.
