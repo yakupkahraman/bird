@@ -30,7 +30,11 @@ class FileProvider extends ChangeNotifier {
     return _defaultController;
   }
 
-  final CodeForgeController _defaultController = CodeForgeController();
+  /// Built on first use: creating a controller initializes code_forge's native
+  /// library, which a session that never opens an editor must not require.
+  CodeForgeController? _defaultControllerInstance;
+  CodeForgeController get _defaultController =>
+      _defaultControllerInstance ??= CodeForgeController();
 
   /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
   /// idempotent.
@@ -215,7 +219,7 @@ class FileProvider extends ChangeNotifier {
     for (final ctrl in _controllers.values) {
       ctrl.dispose();
     }
-    _defaultController.dispose();
+    _defaultControllerInstance?.dispose();
     super.dispose();
   }
 }

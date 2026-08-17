@@ -119,12 +119,18 @@ class _MyButtonState extends State<MyButton> {
           Icon(widget.icon, size: widget.iconSize, color: fg),
           const SizedBox(width: 8),
         ],
-        Text(
-          widget.label,
-          style: TextStyle(
-            color: fg,
-            fontSize: widget.fontSize,
-            fontWeight: FontWeight.w500,
+        // Flexible: the button has a fixed width, so a label that does not fit
+        // must ellipsize rather than overflow.
+        Flexible(
+          child: Text(
+            widget.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: fg,
+              fontSize: widget.fontSize,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
