@@ -56,16 +56,27 @@ class ExplorerPanel extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Consumer<FileProvider>(
-                    builder: (context, fileProvider, child) {
-                      return Column(
-                        children: fileProvider.files
-                            .map((e) => FileTreeItem(entity: e))
-                            .toList(),
-                      );
-                    },
-                  ),
+                // Only the rows on screen are built. The tree used to be a
+                // Column of recursive widgets, which built every row in the
+                // whole expanded tree — and read the disk for each folder —
+                // on every rebuild.
+                child: Builder(
+                  builder: (context) {
+                    final rows = fileProvider.visibleRows;
+                    return ListView.builder(
+                      itemCount: rows.length,
+                      itemExtent: FileTreeItem.height,
+                      itemBuilder: (context, index) {
+                        final row = rows[index];
+                        return FileTreeItem(
+                          row: row,
+                          onTap: () => row.isDirectory
+                              ? fileProvider.toggleExpanded(row.path)
+                              : fileProvider.openFile(row.path),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ],
