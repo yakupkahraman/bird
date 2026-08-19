@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:re_highlight/languages/dart.dart';
 import 'package:re_highlight/languages/python.dart';
 import 'package:re_highlight/languages/javascript.dart';
@@ -35,8 +34,13 @@ class ProgrammingLanguage {
   });
 }
 
-class ProgLangProvider extends ChangeNotifier {
-  static final List<ProgrammingLanguage> _availableLanguages = [
+/// The languages `re_highlight` is registered for.
+///
+/// Not a provider: there is no state here to change and nothing to listen to.
+/// Which language a file uses belongs to that file, on its `EditorDocument`.
+/// Adding one is an import above plus an entry in this list.
+abstract final class Languages {
+  static final List<ProgrammingLanguage> _all = [
     ProgrammingLanguage(
       name: 'dart',
       displayName: 'Dart',
@@ -159,81 +163,17 @@ class ProgLangProvider extends ChangeNotifier {
     ),
   ];
 
-  ProgrammingLanguage _currentLanguage =
-      _availableLanguages[0]; // Dart by default
-
-  ProgrammingLanguage get currentLanguage => _currentLanguage;
-  List<ProgrammingLanguage> get availableLanguages => _availableLanguages;
-
-  void setLanguage(ProgrammingLanguage language) {
-    if (_currentLanguage != language) {
-      _currentLanguage = language;
-      notifyListeners();
-    }
-  }
-
-  void setLanguageByName(String name) {
-    final language = _availableLanguages.firstWhere(
-      (lang) => lang.name == name,
-      orElse: () => _availableLanguages[0],
-    );
-    setLanguage(language);
-  }
-
-  void setLanguageByExtension(String extension) {
-    final language = _availableLanguages.firstWhere(
-      (lang) => lang.extensions.contains(extension.toLowerCase()),
-      orElse: () => _availableLanguages[0],
-    );
-    setLanguage(language);
-  }
-
-  /// Tries to set the language from the file extension.
-  /// Returns true if the language is supported, false otherwise.
-  bool trySetLanguageByFilePath(String filePath) {
-    if (filePath.isEmpty) return false;
-
+  /// The language for a file, or null when its extension is not one Bird
+  /// knows. Null means plain text, not "highlight it as the last file" — a
+  /// single current language used to live in a provider, and that is exactly
+  /// how a .txt file ended up coloured as Dart.
+  static ProgrammingLanguage? forPath(String filePath) {
     final dotIndex = filePath.lastIndexOf('.');
-    if (dotIndex == -1) return false;
+    if (dotIndex == -1) return null;
 
     final extension = filePath.substring(dotIndex).toLowerCase();
-
-    final language = _availableLanguages
-        .where((lang) => lang.extensions.contains(extension))
+    return _all
+        .where((language) => language.extensions.contains(extension))
         .firstOrNull;
-
-    if (language != null) {
-      setLanguage(language);
-      return true;
-    }
-    return false;
-  }
-
-  /// Returns the language name for a file extension (null if unsupported).
-  String? getLanguageNameByFilePath(String filePath) {
-    if (filePath.isEmpty) return null;
-
-    final dotIndex = filePath.lastIndexOf('.');
-    if (dotIndex == -1) return null;
-
-    final extension = filePath.substring(dotIndex).toLowerCase();
-
-    return _availableLanguages
-        .where((lang) => lang.extensions.contains(extension))
-        .firstOrNull
-        ?.displayName;
-  }
-
-  ProgrammingLanguage? detectLanguageFromFilePath(String? filePath) {
-    if (filePath == null || filePath.isEmpty) return null;
-
-    final dotIndex = filePath.lastIndexOf('.');
-    if (dotIndex == -1) return null;
-
-    final extension = filePath.substring(dotIndex);
-    return _availableLanguages.firstWhere(
-      (lang) => lang.extensions.contains(extension.toLowerCase()),
-      orElse: () => _availableLanguages[0],
-    );
   }
 }
