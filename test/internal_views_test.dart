@@ -1,12 +1,15 @@
+import 'dart:io';
+
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
-import 'package:bird/providers/prog_lang_provider.dart';
+import 'package:bird/providers/settings_provider.dart';
 import 'package:bird/theme/theme_provider.dart';
 import 'package:bird/ui/bars/bottom_bar.dart';
 import 'package:bird/ui/panels/code_panel.dart';
 import 'package:bird/ui/views/internal_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
 /// Renders [child] with the providers the IDE chrome reads, with [openPath]
@@ -19,12 +22,22 @@ Future<void> pumpWithTab(
   final fileProvider = FileProvider()..openCustomTab(openPath);
   addTearDown(fileProvider.dispose);
 
+  // A throwaway path, so a test run never reads or writes the real config.
+  final directory = Directory.systemTemp.createTempSync('bird_views_test');
+  addTearDown(() => directory.deleteSync(recursive: true));
+  final settings = SettingsProvider(
+    userFile: p.join(directory.path, SettingsProvider.fileName),
+  );
+  addTearDown(settings.dispose);
+
   await tester.pumpWidget(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider.value(value: settings),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider()..attachSettings(settings),
+        ),
         ChangeNotifierProvider(create: (_) => LspProvider()),
-        ChangeNotifierProvider(create: (_) => ProgLangProvider()),
         ChangeNotifierProvider.value(value: fileProvider),
       ],
       child: MaterialApp(home: Scaffold(body: child)),

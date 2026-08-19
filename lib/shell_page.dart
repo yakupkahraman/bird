@@ -1,4 +1,4 @@
-import 'package:bird/bindings.dart';
+import 'package:bird/core/bindings.dart';
 import 'package:bird/ui/panels/code_panel.dart';
 import 'package:bird/ui/panels/explorer_panel.dart';
 import 'package:bird/ui/panels/extensions_panel.dart';

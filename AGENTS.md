@@ -14,8 +14,9 @@ change would pull in a web shell or an embedded browser, it does not belong here
 ```
 lib/
   main.dart            App entry: window setup, provider tree.
-  bindings.dart        Global keyboard shortcuts.
   shell_page.dart      Root layout: bars + panes.
+  core/                App-wide tables and wiring, owned by no single feature.
+                       bindings.dart (shortcuts), languages.dart (highlighters).
   providers/           State (ChangeNotifier). No widgets here.
   theme/               ThemeProvider + ThemeData factory.
   ui/bars/             Top, left and bottom chrome.

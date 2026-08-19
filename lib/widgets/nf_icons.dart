@@ -66,6 +66,9 @@ class NfIcons {
   /// Plus / add icon
   static const IconData add = IconData(0xea60, fontFamily: _fontFamily);
 
+  /// Minus / remove icon
+  static const IconData minus = IconData(0xeb3b, fontFamily: _fontFamily);
+
   /// Trash / delete icon
   static const IconData trash = IconData(0xea81, fontFamily: _fontFamily);
 
