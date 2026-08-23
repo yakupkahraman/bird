@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bird/providers/file_provider.dart';
 import 'package:bird/providers/panes_provider.dart';
 import 'package:bird/ui/views/internal_views.dart';
+import 'package:bird/ui/views/settings_view.dart';
 import 'package:bird/widgets/mini_button.dart';
 import 'package:bird/widgets/my_menu_item.dart';
 import 'package:bird/widgets/nf_icons.dart';
@@ -104,7 +105,7 @@ class TopBar extends StatelessWidget {
     );
   }
 
-  void _showProfileMenu(BuildContext buttonContext) {
+  void _showProfileMenu(BuildContext buttonContext) async {
     final RenderBox? button = buttonContext.findRenderObject() as RenderBox?;
     if (button == null) return;
 
@@ -117,13 +118,13 @@ class TopBar extends StatelessWidget {
     final double top = buttonOffset.dy + buttonSize.height + 4;
     final double left = buttonOffset.dx + buttonSize.width - menuWidth;
 
-    showGeneralDialog(
+    final selectedPath = await showGeneralDialog<String>(
       context: buttonContext,
       barrierDismissible: true,
       barrierLabel: 'Dismiss Profile Menu',
       barrierColor: Colors.transparent,
       transitionDuration: Duration.zero,
-      pageBuilder: (dialogContext, _, _) {
+      pageBuilder: (_, _, _) {
         return Stack(
           children: [
             Positioned(
@@ -157,18 +158,14 @@ class TopBar extends StatelessWidget {
                           MyMenuItem(
                             title: view.title,
                             icon: view.icon,
-                            onTap: () {
-                              buttonContext.read<FileProvider>().openCustomTab(
-                                view.path,
-                              );
-                            },
+                            result: view.path,
                           ),
                         const MyMenuDivider(),
                       ],
                       MyMenuItem(
                         title: 'Help Bird',
                         icon: NfIcons.help,
-                        onTap: () {},
+                        result: 'bird://help',
                       ),
                     ],
                   ),
@@ -179,6 +176,14 @@ class TopBar extends StatelessWidget {
         );
       },
     );
+
+    if (selectedPath == null || !buttonContext.mounted) return;
+
+    if (selectedPath == 'bird://settings') {
+      SettingsView.show(buttonContext);
+    } else if (selectedPath != 'bird://help') {
+      buttonContext.read<FileProvider>().openCustomTab(selectedPath);
+    }
   }
 }
 

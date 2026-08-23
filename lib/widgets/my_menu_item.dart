@@ -6,12 +6,16 @@ class MyMenuItem extends StatefulWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
+  /// Value the menu route is popped with; the item always closes the menu.
+  final Object? result;
+
   const MyMenuItem({
     super.key,
     required this.title,
     required this.icon,
     this.trailing,
     this.onTap,
+    this.result,
   });
 
   @override
@@ -32,7 +36,7 @@ class _MyMenuItemState extends State<MyMenuItem> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(widget.result);
           widget.onTap?.call();
         },
         child: Container(
