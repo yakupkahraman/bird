@@ -402,7 +402,6 @@ class _DiskConflictBar extends StatelessWidget {
           ),
           MyButton(
             label: 'Reload',
-            width: 96,
             height: 28,
             fontSize: 12,
             variant: MyButtonVariant.outline,
@@ -412,7 +411,6 @@ class _DiskConflictBar extends StatelessWidget {
           const SizedBox(width: 8),
           MyButton(
             label: 'Keep mine',
-            width: 110,
             height: 28,
             fontSize: 12,
             variant: MyButtonVariant.outline,

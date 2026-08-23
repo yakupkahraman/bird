@@ -46,7 +46,6 @@ class AccountView extends StatelessWidget {
                       'Sign in to access remote repositories, Gists, and GitHub integration.',
                   trailing: MyButton.outline(
                     label: 'Sign In',
-                    width: 90,
                     height: 28,
                     fontSize: 11.5,
                     onPressed: () {},
@@ -60,7 +59,6 @@ class AccountView extends StatelessWidget {
                       'Authenticate with pub.dev to publish and manage Dart & Flutter packages.',
                   trailing: MyButton.outline(
                     label: 'Sign In',
-                    width: 90,
                     height: 28,
                     fontSize: 11.5,
                     onPressed: () {},
@@ -74,7 +72,6 @@ class AccountView extends StatelessWidget {
                       'Configure Git commit author details and authentication keys.',
                   trailing: MyButton.secondary(
                     label: 'Configure',
-                    width: 90,
                     height: 28,
                     fontSize: 11.5,
                     onPressed: () {},

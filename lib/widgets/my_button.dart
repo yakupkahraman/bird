@@ -25,7 +25,7 @@ class MyButton extends StatefulWidget {
     this.variant = MyButtonVariant.primary,
     this.backgroundColor,
     this.foregroundColor,
-    this.width = 200,
+    this.width,
     this.height = 36,
     this.borderRadius,
     this.padding,
@@ -41,7 +41,7 @@ class MyButton extends StatefulWidget {
     this.onPressed,
     this.backgroundColor,
     this.foregroundColor,
-    this.width = 200,
+    this.width,
     this.height = 36,
     this.borderRadius,
     this.padding,
@@ -57,7 +57,7 @@ class MyButton extends StatefulWidget {
     this.onPressed,
     this.backgroundColor,
     this.foregroundColor,
-    this.width = 200,
+    this.width,
     this.height = 36,
     this.borderRadius,
     this.padding,
@@ -119,8 +119,8 @@ class _MyButtonState extends State<MyButton> {
           Icon(widget.icon, size: widget.iconSize, color: fg),
           const SizedBox(width: 8),
         ],
-        // Flexible: the button has a fixed width, so a label that does not fit
-        // must ellipsize rather than overflow.
+        // With no width the row hugs the label, so nothing is cut off; a
+        // caller that does pin a width gets an ellipsis instead of an overflow.
         Flexible(
           child: Text(
             widget.label,
@@ -149,7 +149,10 @@ class _MyButtonState extends State<MyButton> {
           width: widget.width,
           height: widget.height,
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
+          // An alignment makes a width-less Container fill whatever it is given,
+          // which would stretch every button across its parent. The row already
+          // centres itself, so this is only needed when a width is pinned.
+          alignment: widget.width == null ? null : Alignment.center,
           decoration: BoxDecoration(
             color: bg,
             borderRadius: radius,
