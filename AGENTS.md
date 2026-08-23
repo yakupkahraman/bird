@@ -17,6 +17,12 @@ lib/
   shell_page.dart      Root layout: bars + panes.
   core/                App-wide tables and wiring, owned by no single feature.
                        bindings.dart (shortcuts), languages.dart (highlighters).
+  models/              Value types and pure functions over them. No I/O, no
+                       state, no Flutter widgets — everything here is testable
+                       by calling it and comparing the answer.
+  services/            The outside world: processes, sockets, the filesystem.
+                       Holds no application state and notifies nobody; it
+                       reports through callbacks its owner passes in.
   providers/           State (ChangeNotifier). No widgets here.
   theme/               ThemeProvider + ThemeData factory.
   ui/bars/             Top, left and bottom chrome.
@@ -28,6 +34,11 @@ test/                  Tests, mirroring the lib/ path.
 
 Put a file where its siblings are. A new pane goes in `ui/panels/`, a new piece
 of shared state goes in `providers/`.
+
+One feature is usually three files, in a line: `models/x.dart` describes what a
+thing is, `services/x_service.dart` does what cannot be done in memory, and
+`providers/x_provider.dart` holds the state and joins the two. The provider
+never spawns a process; the service never calls `notifyListeners()`.
 
 ## Rules
 
