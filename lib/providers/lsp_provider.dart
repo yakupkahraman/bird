@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
 
@@ -10,6 +11,7 @@ import 'package:flutter/foundation.dart';
 class LspProvider extends ChangeNotifier {
   String? _currentWorkspacePath;
   LspConfig? _dartLspConfig;
+  FlutterSdkProvider? _sdk;
   bool _isDisposed = false;
 
   /// Discards results of superseded [updateWorkspace] calls.
@@ -18,6 +20,20 @@ class LspProvider extends ChangeNotifier {
   String? get currentWorkspacePath => _currentWorkspacePath;
   LspConfig? get dartLspConfig => _dartLspConfig;
   bool get isRunning => _dartLspConfig != null;
+
+  /// Called from `ChangeNotifierProxyProvider` to link the active Flutter SDK.
+  void attachSdk(FlutterSdkProvider sdk) {
+    if (identical(_sdk, sdk)) return;
+    _sdk?.removeListener(_onSdkChanged);
+    _sdk = sdk;
+    sdk.addListener(_onSdkChanged);
+  }
+
+  void _onSdkChanged() {
+    if (_currentWorkspacePath != null && _dartLspConfig != null) {
+      restartServer();
+    }
+  }
 
   /// Starts a server for [workspacePath], replacing any running one. Passing
   /// the current workspace again is a no-op unless the last start failed.
@@ -33,8 +49,11 @@ class LspProvider extends ChangeNotifier {
 
     LspConfig? config;
     try {
+      final dartExec =
+          _sdk?.sdkInfo?.dartSdkPath ??
+          (Platform.isWindows ? 'dart.exe' : 'dart');
       config = await LspStdioConfig.start(
-        executable: Platform.isWindows ? 'dart.exe' : 'dart',
+        executable: dartExec,
         args: const ['language-server'],
         workspacePath: path,
         languageId: 'dart',

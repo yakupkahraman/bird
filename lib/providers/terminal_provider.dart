@@ -1,17 +1,25 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:xterm/xterm.dart';
 import 'package:flutter_pty/flutter_pty.dart';
 
 class TerminalProvider extends ChangeNotifier {
   final Terminal terminal = Terminal();
   Pty? _pty;
+  FlutterSdkProvider? _sdk;
   bool _isInitialized = false;
 
   bool get isInitialized => _isInitialized;
   Pty? get pty => _pty;
+
+  /// Called from `ChangeNotifierProxyProvider` to link the active Flutter SDK.
+  void attachSdk(FlutterSdkProvider sdk) {
+    _sdk = sdk;
+  }
 
   String get shell {
     if (Platform.isWindows) {
@@ -35,11 +43,20 @@ class TerminalProvider extends ChangeNotifier {
   void initializePty({String? workingDirectory}) {
     if (_isInitialized) return;
 
+    final env = Map<String, String>.from(Platform.environment);
+    if (_sdk?.sdkInfo?.sdkPath case final sdkPath?) {
+      final flutterBin = p.join(sdkPath, 'bin');
+      final pathSep = Platform.isWindows ? ';' : ':';
+      final currentPath = env['PATH'] ?? '';
+      env['PATH'] = '$flutterBin$pathSep$currentPath';
+    }
+
     _pty = Pty.start(
       shell,
       columns: terminal.viewWidth,
       rows: terminal.viewHeight,
       workingDirectory: workingDirectory,
+      environment: env,
     );
 
     _pty!.output.listen((data) {

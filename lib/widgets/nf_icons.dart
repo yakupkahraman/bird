@@ -51,6 +51,9 @@ class NfIcons {
   /// Save / disk icon
   static const IconData save = IconData(0xeb4b, fontFamily: _fontFamily);
 
+  /// Editor icon
+  static const IconData editor = IconData(0xeb52, fontFamily: _fontFamily);
+
   /// Play / run icon
   static const IconData play = IconData(0xeb2c, fontFamily: _fontFamily);
 
@@ -93,6 +96,9 @@ class NfIcons {
 
   /// Dart programming language logo icon
   static const IconData dart = IconData(0xe64c, fontFamily: _fontFamily);
+
+  /// Flutter logo icon
+  static const IconData flutter = IconData(0xe7dd, fontFamily: _fontFamily);
 
   /// Dot / status point icon
   static const IconData dot = IconData(0xf444, fontFamily: _fontFamily);

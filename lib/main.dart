@@ -1,4 +1,5 @@
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/shell_page.dart';
 import 'package:bird/providers/panes_provider.dart';
@@ -39,7 +40,14 @@ void main() async {
           update: (_, settings, themeProvider) =>
               themeProvider!..attachSettings(settings),
         ),
-        ChangeNotifierProvider(create: (_) => LspProvider()),
+        ChangeNotifierProxyProvider<SettingsProvider, FlutterSdkProvider>(
+          create: (_) => FlutterSdkProvider(),
+          update: (_, settings, sdk) => sdk!..attachSettings(settings),
+        ),
+        ChangeNotifierProxyProvider<FlutterSdkProvider, LspProvider>(
+          create: (_) => LspProvider(),
+          update: (_, sdk, lsp) => lsp!..attachSdk(sdk),
+        ),
         ChangeNotifierProxyProvider2<
           LspProvider,
           SettingsProvider,
@@ -53,7 +61,10 @@ void main() async {
         ProxyProvider<FileProvider, TabOpener>(
           update: (_, files, _) => files.openFile,
         ),
-        ChangeNotifierProvider(create: (_) => TerminalProvider()),
+        ChangeNotifierProxyProvider<FlutterSdkProvider, TerminalProvider>(
+          create: (_) => TerminalProvider(),
+          update: (_, sdk, terminal) => terminal!..attachSdk(sdk),
+        ),
         ChangeNotifierProvider(create: (_) => PanesProvider()),
       ],
       child: const MyApp(),

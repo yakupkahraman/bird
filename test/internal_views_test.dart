@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/services/flutter_sdk_service.dart';
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
 import 'package:bird/providers/settings_provider.dart';
 import 'package:bird/theme/theme_provider.dart';
@@ -17,8 +19,9 @@ import 'package:provider/provider.dart';
 Future<void> pumpWithTab(
   WidgetTester tester,
   Widget child,
-  String openPath,
-) async {
+  String openPath, {
+  FlutterSdkProvider? sdkProvider,
+}) async {
   final fileProvider = FileProvider()..openCustomTab(openPath);
   addTearDown(fileProvider.dispose);
 
@@ -37,6 +40,10 @@ Future<void> pumpWithTab(
         ChangeNotifierProvider(
           create: (_) => ThemeProvider()..attachSettings(settings),
         ),
+        if (sdkProvider case final provider?)
+          ChangeNotifierProvider.value(value: provider)
+        else
+          ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
         ChangeNotifierProvider(create: (_) => LspProvider()),
         ChangeNotifierProvider.value(value: fileProvider),
       ],
@@ -86,6 +93,47 @@ void main() {
       await pumpWithTab(tester, const BottomBar(), InternalViews.themes.path);
 
       expect(find.text('Bird > Themes'), findsOneWidget);
+    });
+
+    testWidgets('its SDK menu starts nothing long-running on the spot', (
+      tester,
+    ) async {
+      final directory = Directory.systemTemp.createTempSync('bird_bar_test');
+      addTearDown(() => directory.deleteSync(recursive: true));
+
+      // A directory detection accepts, so the status bar has an SDK to show.
+      final sdkPath = p.join(directory.path, 'flutter');
+      Directory(p.join(sdkPath, 'bin', 'cache')).createSync(recursive: true);
+      File(getFlutterExecutable(sdkPath)).writeAsStringSync('');
+      File(
+        p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'),
+      ).writeAsStringSync(
+        '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", '
+        '"channel": "beta"}',
+      );
+
+      final sdkProvider = FlutterSdkProvider();
+      addTearDown(sdkProvider.dispose);
+      while (sdkProvider.isDetecting) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+      }
+      await tester.runAsync(() => sdkProvider.setCustomPath(sdkPath));
+
+      await pumpWithTab(
+        tester,
+        const BottomBar(),
+        InternalViews.themes.path,
+        sdkProvider: sdkProvider,
+      );
+      await tester.tap(find.byTooltip('Flutter 3.47.1 (beta) • System'));
+      await tester.pumpAndSettle();
+
+      // Switching channel is a multi-minute download with nothing to watch from
+      // here; it lives in settings, where its progress is on screen.
+      expect(find.textContaining('Channel:'), findsNothing);
+      expect(find.text('Manage Flutter SDK...'), findsOneWidget);
     });
   });
 }

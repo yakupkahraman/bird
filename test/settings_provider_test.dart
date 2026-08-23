@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:bird/providers/settings_provider.dart';
 import 'package:bird/theme/theme_provider.dart';
 import 'package:bird/ui/views/settings_view.dart';
@@ -232,6 +233,7 @@ void main() {
             ChangeNotifierProvider(
               create: (_) => ThemeProvider()..attachSettings(settings),
             ),
+            ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
           ],
           child: const MaterialApp(home: SettingsView()),
         ),
@@ -260,6 +262,7 @@ void main() {
             ChangeNotifierProvider(
               create: (_) => ThemeProvider()..attachSettings(settings),
             ),
+            ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
           ],
           child: const MaterialApp(home: SettingsView()),
         ),
@@ -269,5 +272,80 @@ void main() {
       // No folder is open, so there is nothing to say about a workspace one.
       expect(find.text('Settings: Workspace'), findsNothing);
     });
+
+    testWidgets('searches every category, not just the open one', (
+      tester,
+    ) async {
+      final settings = open();
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: settings),
+            ChangeNotifierProvider(
+              create: (_) => ThemeProvider()..attachSettings(settings),
+            ),
+            ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
+          ],
+          child: const MaterialApp(home: SettingsView()),
+        ),
+      );
+
+      // Editor is open; the font size lives under Appearance.
+      expect(find.text('Editor: Font Size'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'font');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Editor: Font Size'), findsOneWidget);
+      // Results say where each one came from, and drop what did not match.
+      expect(find.text('Appearance > Font & Typography'), findsOneWidget);
+      expect(find.text('Editor: Word Wrap'), findsNothing);
+      expect(find.text('Search results'), findsOneWidget);
+
+      // A word only the SDK page knows offers the way into it.
+      await tester.enterText(find.byType(TextField), 'channel');
+      await tester.pumpAndSettle();
+      expect(find.text('Flutter SDK > Flutter SDK'), findsOneWidget);
+
+      // And a word nothing knows says so.
+      await tester.enterText(find.byType(TextField), 'zzzz');
+      await tester.pumpAndSettle();
+      expect(find.textContaining('No setting matches'), findsOneWidget);
+    });
+
+    testWidgets(
+      'switches categories between Editor, Appearance and Flutter SDK',
+      (tester) async {
+        final settings = open();
+
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider.value(value: settings),
+              ChangeNotifierProvider(
+                create: (_) => ThemeProvider()..attachSettings(settings),
+              ),
+              ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
+            ],
+            child: const MaterialApp(home: SettingsView()),
+          ),
+        );
+
+        // Initially on Editor
+        expect(find.text('Editor: Word Wrap'), findsOneWidget);
+
+        // Switch to Appearance
+        await tester.tap(find.text('Appearance'));
+        await tester.pumpAndSettle();
+        expect(find.text('Workbench Theme'), findsOneWidget);
+        expect(find.text('Editor: Font Size'), findsOneWidget);
+
+        // Switch to Flutter SDK
+        await tester.tap(find.text('Flutter SDK'));
+        await tester.pump();
+        expect(find.text('SDK Source'), findsOneWidget);
+      },
+    );
   });
 }

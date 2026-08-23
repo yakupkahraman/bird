@@ -1,4 +1,5 @@
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/ui/views/settings_view.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,14 @@ Map<ShortcutActivator, VoidCallback> getAppShortcuts(BuildContext context) {
     },
     const SingleActivator(LogicalKeyboardKey.keyO, meta: true): () {
       context.read<FileProvider>().pickFolder();
+    },
+
+    // Settings shortcut (Ctrl+, for Windows/Linux, Cmd+, for macOS)
+    const SingleActivator(LogicalKeyboardKey.comma, control: true): () {
+      SettingsView.show(context);
+    },
+    const SingleActivator(LogicalKeyboardKey.comma, meta: true): () {
+      SettingsView.show(context);
     },
   };
 }

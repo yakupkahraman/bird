@@ -1,5 +1,7 @@
 import 'package:bird/providers/file_provider.dart';
+import 'package:bird/providers/flutter_sdk_provider.dart';
 import 'package:bird/providers/lsp_provider.dart';
+import 'package:bird/ui/views/settings_view.dart';
 import 'package:bird/widgets/file_icon.dart';
 import 'package:bird/widgets/mini_button.dart';
 import 'package:bird/ui/views/internal_views.dart';
@@ -19,8 +21,10 @@ class BottomBar extends StatelessWidget {
     final primary = theme.colorScheme.primary;
     final fileProvider = context.watch<FileProvider>();
     final lspProvider = context.watch<LspProvider>();
+    final sdkProvider = context.watch<FlutterSdkProvider>();
     final selectedPath = fileProvider.selectedFilePath;
     final isLspRunning = lspProvider.isRunning;
+    final sdk = sdkProvider.sdkInfo;
 
     return Container(
       height: bottomBarHeight,
@@ -28,6 +32,48 @@ class BottomBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Row(
         children: [
+          // Flutter SDK button
+          Builder(
+            builder: (btnContext) {
+              if (sdkProvider.isBusy) {
+                return MiniButton(
+                  icon: NfIcons.flutter,
+                  trailingIcon: NfIcons.dot,
+                  trailingIconColor: Colors.amberAccent,
+                  tooltip:
+                      '${sdkProvider.phase.label}: ${sdkProvider.statusMessage}',
+                  onPressed: () => SettingsView.show(
+                    btnContext,
+                    initialCategory: SettingsCategory.flutter,
+                  ),
+                );
+              }
+              if (sdk == null) {
+                return MiniButton(
+                  icon: NfIcons.warning,
+                  tooltip: 'No Flutter SDK detected. Click to install.',
+                  trailingIconColor: Colors.amberAccent,
+                  onPressed: () => SettingsView.show(
+                    btnContext,
+                    initialCategory: SettingsCategory.flutter,
+                  ),
+                );
+              }
+              return MiniButton(
+                icon: NfIcons.flutter,
+                trailingIcon: NfIcons.dot,
+                tooltip:
+                    'Flutter ${sdk.flutterVersion} (${sdk.channel}) • ${sdk.isBundled ? "Bundled" : "System"}',
+                trailingIconColor: sdk.isBundled
+                    ? const Color(0xFF027DFD)
+                    : const Color(0xFF4CAF50),
+                onPressed: () => _showFlutterMenu(btnContext),
+              );
+            },
+          ),
+          const SizedBox(width: 2),
+
+          // Dart LSP button
           Builder(
             builder: (btnContext) {
               return MiniButton(
@@ -57,6 +103,122 @@ class BottomBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showFlutterMenu(BuildContext buttonContext) async {
+    final RenderBox? button = buttonContext.findRenderObject() as RenderBox?;
+    if (button == null) return;
+
+    final RenderBox? overlay =
+        Overlay.of(buttonContext).context.findRenderObject() as RenderBox?;
+    if (overlay == null) return;
+
+    final Offset buttonOffset = button.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
+    final theme = Theme.of(buttonContext);
+    final primary = theme.colorScheme.primary;
+    final sdkProvider = buttonContext.read<FlutterSdkProvider>();
+    final sdk = sdkProvider.sdkInfo;
+    if (sdk == null) return;
+
+    const double menuWidth = 220.0;
+    final double bottom = overlay.size.height - buttonOffset.dy + 4;
+    final double left = buttonOffset.dx;
+
+    final action = await showGeneralDialog<String>(
+      context: buttonContext,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss Flutter Menu',
+      barrierColor: Colors.transparent,
+      transitionDuration: Duration.zero,
+      pageBuilder: (_, _, _) {
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              bottom: bottom,
+              width: menuWidth,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: primary.withValues(alpha: 0.18),
+                      width: 0.8,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyMenuItem(
+                        icon: NfIcons.flutter,
+                        title: 'Flutter ${sdk.flutterVersion}',
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            sdk.channel,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const MyMenuDivider(),
+                      MyMenuItem(
+                        icon: NfIcons.info,
+                        title: 'Run Flutter Doctor',
+                        result: 'doctor',
+                      ),
+                      MyMenuItem(
+                        icon: NfIcons.settings,
+                        title: 'Manage Flutter SDK...',
+                        result: 'manage_sdk',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (action == null || !buttonContext.mounted) return;
+
+    if (action == 'doctor') {
+      SettingsView.show(
+        buttonContext,
+        initialCategory: SettingsCategory.flutter,
+      );
+      buttonContext.read<FlutterSdkProvider>().runDoctor();
+    } else if (action == 'manage_sdk') {
+      SettingsView.show(
+        buttonContext,
+        initialCategory: SettingsCategory.flutter,
+      );
+    }
   }
 
   void _showLspMenu(BuildContext buttonContext) {
@@ -130,7 +292,6 @@ class BottomBar extends StatelessWidget {
                                 : Colors.redAccent,
                           ),
                         ),
-                        onTap: () {},
                       ),
                       const MyMenuDivider(),
                       MyMenuItem(

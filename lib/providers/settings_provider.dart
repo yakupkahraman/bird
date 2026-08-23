@@ -81,6 +81,13 @@ class SettingsProvider extends ChangeNotifier {
   bool get editorWordWrap => _boolean('editor.wordWrap');
   bool get editorLineNumbers => _boolean('editor.lineNumbers');
   String get colorTheme => _string('workbench.colorTheme');
+  String? get flutterSdkPath => _stringOrNull('flutter.sdkPath');
+  String? get flutterPreferredLocation =>
+      _stringOrNull('flutter.preferredLocation');
+
+  /// The Flutter version to use. A project pins its own in `.bird/settings.json`,
+  /// which takes priority over whatever the user picked globally.
+  String? get flutterVersion => _stringOrNull('flutter.version');
 
   /// Called when a folder is opened, so the project's own settings apply.
   void setWorkspace(String? rootPath) {
@@ -136,6 +143,11 @@ class SettingsProvider extends ChangeNotifier {
   String _string(String key) {
     final value = _effective(key);
     return value is String ? value : defaults[key]! as String;
+  }
+
+  String? _stringOrNull(String key) {
+    final value = _effective(key);
+    return value is String && value.isNotEmpty ? value : null;
   }
 
   /// Null means the file could not be read — missing, half-written, or not
