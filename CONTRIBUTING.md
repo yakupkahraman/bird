@@ -51,7 +51,7 @@ flutter run -d macos   # or -d linux / -d windows
 - Wire up a setting in `features/settings/settings_view.dart` — the toggles
   render but do not persist yet. The selected theme does not survive a restart
   either.
-- Fix the folder name in `features/explorer/explorer_panel.dart`: it splits on
+- Fix the folder name in `features/workspace/explorer_panel.dart`: it splits on
   `/`, so it shows the full path on Windows.
 - Extend `FileIcon` and `NfIcons` with missing file types.
 - Add a language to `ProgLangProvider`.

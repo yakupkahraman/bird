@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:bird/features/sdk/flutter_sdk_service.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
@@ -22,8 +23,8 @@ Future<void> pumpWithTab(
   String openPath, {
   FlutterSdkProvider? sdkProvider,
 }) async {
-  final fileProvider = FileProvider()..openCustomTab(openPath);
-  addTearDown(fileProvider.dispose);
+  final editor = EditorProvider()..openCustomTab(openPath);
+  addTearDown(editor.dispose);
 
   // A throwaway path, so a test run never reads or writes the real config.
   final directory = Directory.systemTemp.createTempSync('bird_views_test');
@@ -45,7 +46,8 @@ Future<void> pumpWithTab(
         else
           ChangeNotifierProvider(create: (_) => FlutterSdkProvider()),
         ChangeNotifierProvider(create: (_) => LspProvider()),
-        ChangeNotifierProvider.value(value: fileProvider),
+        ChangeNotifierProvider(create: (_) => WorkspaceProvider()),
+        ChangeNotifierProvider.value(value: editor),
       ],
       child: MaterialApp(home: Scaffold(body: child)),
     ),

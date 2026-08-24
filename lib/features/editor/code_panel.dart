@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:bird/features/internal_views/internal_views.dart';
 import 'package:bird/features/editor/editor_document.dart';
-import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
 import 'package:bird/features/theme/theme_provider.dart';
@@ -25,13 +26,16 @@ class _CodePanelState extends State<CodePanel> {
   Widget build(BuildContext context) {
     // The editors read the theme, settings and LSP state themselves, so a
     // change there rebuilds only the editor subtree, not the whole panel.
-    final fileProvider = context.watch<FileProvider>();
+    final editor = context.watch<EditorProvider>();
 
-    final openPaths = fileProvider.openFilePaths;
-    final selectedPath = fileProvider.selectedFilePath;
+    final openPaths = editor.openFilePaths;
+    final selectedPath = editor.selectedFilePath;
 
     if (openPaths.isEmpty || selectedPath == null) {
       final primary = Theme.of(context).colorScheme.primary;
+      // Watched inside this branch on purpose: once a file is open the editor
+      // must not rebuild every time a folder in the tree is expanded.
+      final hasFolder = context.watch<WorkspaceProvider>().rootPath != null;
 
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -50,7 +54,7 @@ class _CodePanelState extends State<CodePanel> {
               ),
               const SizedBox(height: 16),
               Text(
-                fileProvider.rootPath == null ? 'Bird IDE' : 'No File Open',
+                hasFolder ? 'No File Open' : 'Bird IDE',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -59,20 +63,21 @@ class _CodePanelState extends State<CodePanel> {
               ),
               const SizedBox(height: 6),
               Text(
-                fileProvider.rootPath == null
-                    ? 'Open a folder to start editing'
-                    : 'Select a file from the explorer to start editing',
+                hasFolder
+                    ? 'Select a file from the explorer to start editing'
+                    : 'Open a folder to start editing',
                 style: TextStyle(
                   fontSize: 12,
                   color: primary.withValues(alpha: 0.45),
                 ),
               ),
-              if (fileProvider.rootPath == null) ...[
+              if (!hasFolder) ...[
                 const SizedBox(height: 20),
                 MyButton(
                   label: 'Open Folder',
                   icon: NfIcons.folder,
-                  onPressed: () => context.read<FileProvider>().pickFolder(),
+                  onPressed: () =>
+                      context.read<WorkspaceProvider>().pickFolder(),
                 ),
               ],
             ],
@@ -100,10 +105,10 @@ class _CodePanelState extends State<CodePanel> {
                     path: path,
                     isSelected: path == selectedPath,
                     onTap: () {
-                      context.read<FileProvider>().selectTab(path);
+                      context.read<EditorProvider>().selectTab(path);
                     },
                     onClose: () {
-                      context.read<FileProvider>().closeTab(path);
+                      context.read<EditorProvider>().closeTab(path);
                     },
                   );
                 }).toList(),
@@ -111,7 +116,7 @@ class _CodePanelState extends State<CodePanel> {
             ),
           ),
 
-          if (fileProvider.hasConflict(selectedPath))
+          if (editor.hasConflict(selectedPath))
             _DiskConflictBar(path: selectedPath),
 
           // Every open tab is built and kept alive, and switching tabs only
@@ -128,7 +133,7 @@ class _CodePanelState extends State<CodePanel> {
                 for (final path in openPaths)
                   if (InternalViews.of(path) case final internalView?)
                     KeyedSubtree(key: ValueKey(path), child: internalView.view)
-                  else if (fileProvider.documentFor(path) case final document?)
+                  else if (editor.documentFor(path) case final document?)
                     _FileEditor(key: ValueKey(path), document: document)
                   else
                     SizedBox.shrink(key: ValueKey(path)),
@@ -406,7 +411,8 @@ class _DiskConflictBar extends StatelessWidget {
             fontSize: 12,
             variant: MyButtonVariant.outline,
             tooltip: 'Discard your changes and take the version on disk',
-            onPressed: () => context.read<FileProvider>().reloadFromDisk(path),
+            onPressed: () =>
+                context.read<EditorProvider>().reloadFromDisk(path),
           ),
           const SizedBox(width: 8),
           MyButton(
@@ -415,7 +421,7 @@ class _DiskConflictBar extends StatelessWidget {
             fontSize: 12,
             variant: MyButtonVariant.outline,
             tooltip: 'Keep your version; saving will overwrite the file',
-            onPressed: () => context.read<FileProvider>().keepMine(path),
+            onPressed: () => context.read<EditorProvider>().keepMine(path),
           ),
         ],
       ),

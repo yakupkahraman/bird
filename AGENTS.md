@@ -24,7 +24,7 @@ lib/
                        ui/ (MyButton, MyTile, MySwitch, NfIcons, FileIcon...).
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
-                       explorer, lsp, terminal, sdk, settings, theme, layout,
+                       workspace, lsp, terminal, sdk, settings, theme, layout,
                        extensions, internal_views.
 test/                  Tests.
 ```
@@ -58,7 +58,7 @@ controllers, focus). Providers never import a widget.
 
 **Dispose what you own.** Every provider that owns a process, controller, or
 listener kills it in `dispose()`. `LspProvider` owns the `dart language-server`
-process; `TerminalProvider` owns the PTY; `FileProvider` owns the editor
+process; `TerminalProvider` owns the PTY; `EditorProvider` owns the editor
 controllers. Leaking one leaves an orphan process behind after the app closes.
 
 **Colors come from the theme.** Use `Theme.of(context).colorScheme.primary` /
@@ -76,7 +76,7 @@ new one.
 
 **Comments explain why.** The code already says what it does. Comment the
 non-obvious constraint — a race, an ordering requirement, a library quirk. See
-`file_provider.dart` and `lsp_provider.dart` for the tone.
+`editor_provider.dart` and `lsp_provider.dart` for the tone.
 
 **Internal views go in the registry.** Settings, themes, keymap and account open
 as `bird://<id>` tabs. Register a new one in `InternalViews.menuGroups`

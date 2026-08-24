@@ -1,5 +1,6 @@
-import 'package:bird/features/editor/file_provider.dart';
-import 'package:bird/features/explorer/file_tree_item.dart';
+import 'package:bird/features/editor/tab_opener.dart';
+import 'package:bird/features/workspace/file_tree_item.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,9 +9,13 @@ class ExplorerPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FileProvider>(
-      builder: (context, fileProvider, child) {
-        if (fileProvider.rootPath == null) {
+    // Through the port, not the editor itself: the explorer has no business
+    // knowing what a buffer is, only that a path can be opened as a tab.
+    final openTab = context.read<TabOpener>();
+
+    return Consumer<WorkspaceProvider>(
+      builder: (context, workspace, child) {
+        if (workspace.rootPath == null) {
           return Container(
             width: double.infinity,
             height: double.infinity,
@@ -32,7 +37,7 @@ class ExplorerPanel extends StatelessWidget {
           );
         }
 
-        final folderName = fileProvider.rootPath!.split('/').last;
+        final folderName = workspace.rootPath!.split('/').last;
 
         return Container(
           width: double.infinity,
@@ -62,7 +67,7 @@ class ExplorerPanel extends StatelessWidget {
                 // on every rebuild.
                 child: Builder(
                   builder: (context) {
-                    final rows = fileProvider.visibleRows;
+                    final rows = workspace.visibleRows;
                     return ListView.builder(
                       itemCount: rows.length,
                       itemExtent: FileTreeItem.height,
@@ -71,8 +76,8 @@ class ExplorerPanel extends StatelessWidget {
                         return FileTreeItem(
                           row: row,
                           onTap: () => row.isDirectory
-                              ? fileProvider.toggleExpanded(row.path)
-                              : fileProvider.openFile(row.path),
+                              ? workspace.toggleExpanded(row.path)
+                              : openTab(row.path),
                         );
                       },
                     );

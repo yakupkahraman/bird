@@ -1,4 +1,4 @@
-import 'package:bird/features/editor/file_tree_row.dart';
+import 'package:bird/features/workspace/file_tree_row.dart';
 import 'package:bird/core/ui/file_icon.dart';
 import 'package:bird/core/ui/nf_icons.dart';
 import 'package:flutter/material.dart';

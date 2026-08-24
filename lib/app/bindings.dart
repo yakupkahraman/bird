@@ -1,4 +1,5 @@
-import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:bird/features/settings/settings_view.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -8,18 +9,18 @@ Map<ShortcutActivator, VoidCallback> getAppShortcuts(BuildContext context) {
   return {
     // Save shortcuts (Ctrl+S for Windows/Linux, Cmd+S for macOS)
     const SingleActivator(LogicalKeyboardKey.keyS, control: true): () {
-      context.read<FileProvider>().saveFile();
+      context.read<EditorProvider>().saveFile();
     },
     const SingleActivator(LogicalKeyboardKey.keyS, meta: true): () {
-      context.read<FileProvider>().saveFile();
+      context.read<EditorProvider>().saveFile();
     },
 
     // Open folder shortcuts (Ctrl+O for Windows/Linux, Cmd+O for macOS)
     const SingleActivator(LogicalKeyboardKey.keyO, control: true): () {
-      context.read<FileProvider>().pickFolder();
+      context.read<WorkspaceProvider>().pickFolder();
     },
     const SingleActivator(LogicalKeyboardKey.keyO, meta: true): () {
-      context.read<FileProvider>().pickFolder();
+      context.read<WorkspaceProvider>().pickFolder();
     },
 
     // Settings shortcut (Ctrl+, for Windows/Linux, Cmd+, for macOS)

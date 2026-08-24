@@ -1,6 +1,6 @@
 import 'package:bird/app/bindings.dart';
 import 'package:bird/features/editor/code_panel.dart';
-import 'package:bird/features/explorer/explorer_panel.dart';
+import 'package:bird/features/workspace/explorer_panel.dart';
 import 'package:bird/features/extensions/extensions_panel.dart';
 import 'package:bird/features/terminal/terminal_panel.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
@@ -14,14 +14,14 @@ import 'package:panes/panes.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
-class ShellPage extends StatefulWidget {
-  const ShellPage({super.key});
+class Shell extends StatefulWidget {
+  const Shell({super.key});
 
   @override
-  State<ShellPage> createState() => _ShellPageState();
+  State<Shell> createState() => _ShellState();
 }
 
-class _ShellPageState extends State<ShellPage> with WindowListener {
+class _ShellState extends State<Shell> with WindowListener {
   final List<Widget> _panes = const [ExplorerPanel(), ExtensionsPanel()];
 
   @override

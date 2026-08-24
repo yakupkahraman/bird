@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:bird/features/editor/file_provider.dart';
-import 'package:bird/features/explorer/explorer_panel.dart';
-import 'package:bird/features/explorer/file_tree_item.dart';
+import 'package:bird/features/editor/tab_opener.dart';
+import 'package:bird/features/workspace/explorer_panel.dart';
+import 'package:bird/features/workspace/file_tree_item.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -19,14 +20,19 @@ Directory makeTree(int folders, int perFolder) {
   return root;
 }
 
-Widget explorer(FileProvider files) => ChangeNotifierProvider.value(
-  value: files,
+Future<void> ignoreOpen(String path) async {}
+
+Widget explorer(WorkspaceProvider workspace) => MultiProvider(
+  providers: [
+    ChangeNotifierProvider.value(value: workspace),
+    Provider<TabOpener>.value(value: ignoreOpen),
+  ],
   child: const MaterialApp(home: Scaffold(body: ExplorerPanel())),
 );
 
 void main() {
   late Directory root;
-  late FileProvider files;
+  late WorkspaceProvider files;
 
   Future<void> open(
     int folders,
@@ -34,7 +40,7 @@ void main() {
     bool expandAll = false,
   }) async {
     root = makeTree(folders, perFolder);
-    files = FileProvider();
+    files = WorkspaceProvider();
     await files.openFolder(root.path);
     if (expandAll) {
       for (final entity in Directory(root.path).listSync()) {

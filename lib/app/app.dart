@@ -1,4 +1,4 @@
-import 'package:bird/app/shell_page.dart';
+import 'package:bird/app/shell.dart';
 import 'package:bird/features/theme/theme.dart';
 import 'package:bird/features/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Bird',
       theme: appTheme(themeProvider),
-      home: ShellPage(),
+      home: Shell(),
     );
   }
 }

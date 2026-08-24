@@ -1,23 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bird/features/editor/languages.dart';
 import 'package:bird/features/editor/editor_document.dart';
-import 'package:bird/features/editor/file_tree_row.dart';
+import 'package:bird/features/editor/languages.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
-import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-class FileProvider extends ChangeNotifier {
-  String? _rootPath;
-
-  /// Directory contents, read once when a folder is expanded rather than on
-  /// every build. Collapsing keeps the entry, so re-expanding costs nothing.
-  final Map<String, List<FileSystemEntity>> _listings = {};
-
+/// The open buffers and the tabs above them.
+class EditorProvider extends ChangeNotifier {
   /// Tab order. Holds `bird://` views as well as files, so this is the one
   /// place a tab can exist without a buffer behind it.
   final List<String> _tabs = [];
@@ -29,46 +23,19 @@ class FileProvider extends ChangeNotifier {
 
   String? _selectedFilePath;
 
-  final Set<String> _expandedPaths = {};
-
   /// Watches are per directory, not per file: an editor that saves by writing a
   /// temporary file and renaming it over the original — Bird's own settings do
   /// exactly that — replaces the inode, and a watch on the file dies with it.
   final Map<String, StreamSubscription<FileSystemEvent>> _watchers = {};
 
   LspProvider? _lsp;
-  SettingsProvider? _settings;
+  WorkspaceProvider? _workspace;
 
-  String? get rootPath => _rootPath;
-
-  /// Every row the explorer should draw, in order, already flattened.
+  /// The folder these buffers were opened from.
   ///
-  /// Rebuilt per read rather than cached: it is list walking with no disk in
-  /// it, and a cache here would be one more thing to invalidate.
-  List<FileTreeRow> get visibleRows {
-    final rows = <FileTreeRow>[];
-    if (_rootPath != null) _collectRows(_rootPath!, 0, rows);
-    return rows;
-  }
-
-  void _collectRows(String directory, int depth, List<FileTreeRow> rows) {
-    for (final entity in _listings[directory] ?? const <FileSystemEntity>[]) {
-      final isDirectory = entity is Directory;
-      final isExpanded = isDirectory && _expandedPaths.contains(entity.path);
-
-      rows.add(
-        FileTreeRow(
-          path: entity.path,
-          name: p.basename(entity.path),
-          isDirectory: isDirectory,
-          depth: depth,
-          isExpanded: isExpanded,
-        ),
-      );
-
-      if (isExpanded) _collectRows(entity.path, depth + 1, rows);
-    }
-  }
+  /// Compared on every workspace notification because expanding a folder
+  /// notifies too, and that must not close anything.
+  String? _boundRoot;
 
   List<String> get openFilePaths => List.unmodifiable(_tabs);
   String? get selectedFilePath => _selectedFilePath;
@@ -93,19 +60,45 @@ class FileProvider extends ChangeNotifier {
 
   /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
   /// idempotent.
-  void attachSettings(SettingsProvider settings) {
-    if (identical(_settings, settings)) return;
-    _settings = settings;
-    settings.setWorkspace(_rootPath);
-  }
-
-  /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
-  /// idempotent.
   void attachLsp(LspProvider lsp) {
     if (identical(_lsp, lsp)) return;
     _lsp?.removeListener(_rebindControllers);
     _lsp = lsp;
     lsp.addListener(_rebindControllers);
+  }
+
+  /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
+  /// idempotent.
+  void attachWorkspace(WorkspaceProvider workspace) {
+    if (identical(_workspace, workspace)) return;
+    _workspace?.removeListener(_onWorkspaceChanged);
+    _workspace = workspace;
+    _boundRoot = workspace.rootPath;
+    workspace.addListener(_onWorkspaceChanged);
+  }
+
+  /// Drops everything when the workspace moves.
+  ///
+  /// Tabs belong to the folder they were opened from, and their controllers
+  /// would keep talking to a language server that is about to be replaced.
+  /// Re-opening the same folder is not a move and keeps the tabs.
+  void _onWorkspaceChanged() {
+    final root = _workspace?.rootPath;
+    if (root == _boundRoot) return;
+    _boundRoot = root;
+    _closeAll();
+  }
+
+  void _closeAll() {
+    if (_tabs.isEmpty && _docs.isEmpty) return;
+    for (final doc in _docs.values) {
+      doc.dispose();
+    }
+    _docs.clear();
+    _tabs.clear();
+    _selectedFilePath = null;
+    _pruneWatchers();
+    notifyListeners();
   }
 
   /// Re-creates controllers so files opened before the language server was
@@ -123,72 +116,6 @@ class FileProvider extends ChangeNotifier {
       changed = true;
     }
     if (changed) notifyListeners();
-  }
-
-  bool isExpanded(String path) => _expandedPaths.contains(path);
-
-  void toggleExpanded(String path) {
-    if (!_expandedPaths.remove(path)) {
-      _expandedPaths.add(path);
-      // Read on expand, which is a click, instead of during a build.
-      _readListing(path);
-    }
-    notifyListeners();
-  }
-
-  void _readListing(String directory) {
-    try {
-      final entities = Directory(directory).listSync();
-      _sortFiles(entities);
-      _listings[directory] = entities;
-    } catch (e) {
-      // An unreadable directory shows up empty rather than taking the app down.
-      debugPrint('Failed to list $directory: $e');
-      _listings[directory] = const [];
-    }
-  }
-
-  /// Asks for a folder and opens it.
-  Future<void> pickFolder() async {
-    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    if (selectedDirectory == null) return;
-    await openFolder(selectedDirectory);
-  }
-
-  /// Opens [selectedDirectory] as the workspace. Split from [pickFolder] so
-  /// opening a folder does not require a file dialog to be on screen.
-  Future<void> openFolder(String selectedDirectory) async {
-    if (selectedDirectory != _rootPath) {
-      // Tabs belong to the old workspace, and their controllers would keep
-      // talking to a language server we are about to kill.
-      for (final doc in _docs.values) {
-        doc.dispose();
-      }
-      _docs.clear();
-      _tabs.clear();
-      _selectedFilePath = null;
-      _pruneWatchers();
-    }
-
-    _rootPath = selectedDirectory;
-    _expandedPaths.clear();
-    _settings?.setWorkspace(selectedDirectory);
-
-    _listings.clear();
-    _readListing(selectedDirectory);
-
-    // Show the tree right away; let the language server boot in background.
-    notifyListeners();
-
-    await _lsp?.updateWorkspace(selectedDirectory);
-  }
-
-  void _sortFiles(List<FileSystemEntity> fileList) {
-    fileList.sort((a, b) {
-      if (a is Directory && b is! Directory) return -1;
-      if (a is! Directory && b is Directory) return 1;
-      return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-    });
   }
 
   Future<void> openFile(String path) async {
@@ -370,8 +297,7 @@ class FileProvider extends ChangeNotifier {
       _watchDirectory(p.dirname(path));
 
       // A new file has to show up in the tree it was saved into.
-      final directory = p.dirname(path);
-      if (_listings.containsKey(directory)) _readListing(directory);
+      _workspace?.refreshListing(p.dirname(path));
 
       notifyListeners();
     } catch (e) {
@@ -386,6 +312,7 @@ class FileProvider extends ChangeNotifier {
     }
     _watchers.clear();
     _lsp?.removeListener(_rebindControllers);
+    _workspace?.removeListener(_onWorkspaceChanged);
     for (final doc in _docs.values) {
       doc.dispose();
     }

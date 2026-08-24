@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/editor/editor_provider.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/internal_views/internal_views.dart';
 import 'package:bird/features/settings/settings_view.dart';
@@ -57,7 +57,7 @@ class TopBar extends StatelessWidget {
           MiniButton(
             icon: NfIcons.save,
             tooltip: "Save (Ctrl+S)",
-            onPressed: () => context.read<FileProvider>().saveFile(),
+            onPressed: () => context.read<EditorProvider>().saveFile(),
           ),
 
           Container(
@@ -182,7 +182,7 @@ class TopBar extends StatelessWidget {
     if (selectedPath == 'bird://settings') {
       SettingsView.show(buttonContext);
     } else if (selectedPath != 'bird://help') {
-      buttonContext.read<FileProvider>().openCustomTab(selectedPath);
+      buttonContext.read<EditorProvider>().openCustomTab(selectedPath);
     }
   }
 }

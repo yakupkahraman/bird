@@ -1,4 +1,4 @@
-import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/editor/editor_provider.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/settings/settings_view.dart';
@@ -19,10 +19,10 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
-    final fileProvider = context.watch<FileProvider>();
+    final editor = context.watch<EditorProvider>();
     final lspProvider = context.watch<LspProvider>();
     final sdkProvider = context.watch<FlutterSdkProvider>();
-    final selectedPath = fileProvider.selectedFilePath;
+    final selectedPath = editor.selectedFilePath;
     final isLspRunning = lspProvider.isRunning;
     final sdk = sdkProvider.sdkInfo;
 

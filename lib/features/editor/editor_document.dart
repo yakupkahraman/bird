@@ -4,7 +4,7 @@ import 'package:code_forge/code_forge.dart';
 /// One open file's state.
 ///
 /// Everything that has to outlive a tab switch — or the editor remount that a
-/// theme, font or language change forces — lives here. `FileProvider` owns
+/// theme, font or language change forces — lives here. `EditorProvider` owns
 /// these and notifies for them; the widget keeps only what is genuinely
 /// throwaway, like hover.
 ///
