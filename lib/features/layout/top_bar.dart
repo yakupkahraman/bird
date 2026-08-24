@@ -30,76 +30,81 @@ class TopBar extends StatelessWidget {
     return Container(
       height: titleBarHeight,
       color: Theme.of(context).colorScheme.secondary,
-      child: Row(
+      child: Stack(
         children: [
-          if (Platform.isMacOS) const SizedBox(width: 78),
-
-          Expanded(
+          Positioned.fill(
             child: DragToMoveArea(
-              child: Container(
-                height: titleBarHeight,
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4.0),
-                  child: Text(
-                    'Bird',
-                    style: TextStyle(
-                      color: primary.withAlpha(200),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: Center(
+                child: Text(
+                  'Bird',
+                  style: TextStyle(
+                    color: primary.withAlpha(200),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
           ),
+          Positioned.fill(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (Platform.isMacOS) const SizedBox(width: 78),
 
-          MiniButton(
-            icon: NfIcons.save,
-            tooltip: "Save (Ctrl+S)",
-            onPressed: () => context.read<EditorProvider>().saveFile(),
-          ),
+                MiniButton(
+                  icon: panesProvider.isLeftVisible
+                      ? NfIcons.layoutSidebarLeft
+                      : NfIcons.layoutSidebarLeftOff,
+                  tooltip: 'Toggle Left Panel (Ctrl+B)',
+                  onPressed: () => panesProvider.toggleLeft(),
+                ),
+                MiniButton(
+                  icon: panesProvider.isBottomVisible
+                      ? NfIcons.layoutPanelBottom
+                      : NfIcons.layoutPanelBottomOff,
+                  tooltip: 'Toggle Bottom Panel (Ctrl+J)',
+                  onPressed: () => panesProvider.toggleBottom(),
+                ),
+                MiniButton(
+                  icon: panesProvider.isRightVisible
+                      ? NfIcons.layoutSidebarRight
+                      : NfIcons.layoutSidebarRightOff,
+                  tooltip: 'Toggle Right Panel',
+                  onPressed: () => panesProvider.toggleRight(),
+                ),
 
-          Container(
-            width: 1,
-            height: 14,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            color: primary.withValues(alpha: 0.18),
-          ),
+                const Spacer(),
 
-          MiniButton(
-            icon: NfIcons.layoutSidebarLeft,
-            tooltip: 'Toggle Left Panel (Ctrl+B)',
-            isSelected: panesProvider.isLeftVisible,
-            onPressed: () => panesProvider.toggleLeft(),
-          ),
-          MiniButton(
-            icon: NfIcons.layoutPanelBottom,
-            tooltip: 'Toggle Bottom Panel (Ctrl+J)',
-            isSelected: panesProvider.isBottomVisible,
-            onPressed: () => panesProvider.toggleBottom(),
-          ),
-          MiniButton(
-            icon: NfIcons.layoutSidebarRight,
-            tooltip: 'Toggle Right Panel',
-            isSelected: panesProvider.isRightVisible,
-            onPressed: () => panesProvider.toggleRight(),
-          ),
-          Builder(
-            builder: (btnContext) {
-              return MiniButton(
-                icon: NfIcons.profile,
-                trailingIcon: NfIcons.chevronDown,
-                tooltip: 'Menu',
-                onPressed: () => _showProfileMenu(btnContext),
-              );
-            },
-          ),
+                MiniButton(
+                  icon: NfIcons.save,
+                  tooltip: "Save (Ctrl+S)",
+                  onPressed: () => context.read<EditorProvider>().saveFile(),
+                ),
+                Container(
+                  width: 1,
+                  height: 14,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  color: primary.withValues(alpha: 0.18),
+                ),
+                Builder(
+                  builder: (btnContext) {
+                    return MiniButton(
+                      icon: NfIcons.profile,
+                      trailingIcon: NfIcons.chevronDown,
+                      tooltip: 'Menu',
+                      onPressed: () => _showProfileMenu(btnContext),
+                    );
+                  },
+                ),
 
-          const SizedBox(width: 4),
+                const SizedBox(width: 4),
 
-          if (Platform.isWindows || Platform.isLinux)
-            const WindowCaptionButtons(),
+                if (Platform.isWindows || Platform.isLinux)
+                  const WindowCaptionButtons(),
+              ],
+            ),
+          ),
         ],
       ),
     );

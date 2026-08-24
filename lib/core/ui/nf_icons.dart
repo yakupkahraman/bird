@@ -143,6 +143,34 @@ class NfIcons {
     fontFamily: _fontFamily,
   );
 
+  /// The outlined halves of the three above, shown while that panel is closed.
+  /// Codicon layout-sidebar-left-off
+  static const IconData layoutSidebarLeftOff = IconData(
+    0xec02,
+    fontFamily: _fontFamily,
+  );
+
+  /// Codicon layout-panel-off
+  static const IconData layoutPanelBottomOff = IconData(
+    0xec01,
+    fontFamily: _fontFamily,
+  );
+
+  /// Codicon layout-sidebar-right-off
+  static const IconData layoutSidebarRightOff = IconData(
+    0xec00,
+    fontFamily: _fontFamily,
+  );
+
+  /// Language status, the way VS Code shows it: braces when the language
+  /// server is up, braces with an error badge when it is not.
+  /// Seti less, not Codicon json: the Codicon braces are a thin outline that
+  /// turns to mush at this size.
+  static const IconData braces = IconData(0xe60b, fontFamily: _fontFamily);
+
+  /// Codicon bracket-error
+  static const IconData bracesError = IconData(0xebe6, fontFamily: _fontFamily);
+
   /// Layout grid / panels
   static const IconData layout = IconData(0xea69, fontFamily: _fontFamily);
 

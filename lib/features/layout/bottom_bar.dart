@@ -32,14 +32,48 @@ class BottomBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Row(
         children: [
-          // Flutter SDK button
+          // Everything on the left, in one slot that takes the whole width.
+          // A Spacer beside the path would only get half the free space, and
+          // the SDK button would stop short of the right edge.
+          Expanded(
+            child: Row(
+              children: [
+                // Dart LSP button
+                Builder(
+                  builder: (btnContext) {
+                    // Silence means healthy — the badge only shows up when
+                    // the server is down, which is what VS Code does too.
+                    return MiniButton(
+                      icon: isLspRunning ? NfIcons.braces : NfIcons.bracesError,
+                      label: 'Dart',
+                      tooltip: isLspRunning
+                          ? 'Dart Language Server: Running'
+                          : 'Dart Language Server: Stopped',
+                      onPressed: () => _showLspMenu(btnContext),
+                    );
+                  },
+                ),
+                if (selectedPath != null && selectedPath.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    width: 1,
+                    height: 12,
+                    color: primary.withValues(alpha: 0.15),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(child: _buildPathDisplay(selectedPath, primary)),
+                ],
+              ],
+            ),
+          ),
+
+          // Flutter SDK — far right, showing which version is in use.
           Builder(
             builder: (btnContext) {
               if (sdkProvider.isBusy) {
                 return MiniButton(
                   icon: NfIcons.flutter,
-                  trailingIcon: NfIcons.dot,
-                  trailingIconColor: Colors.amberAccent,
+                  label: sdkProvider.phase.label,
                   tooltip:
                       '${sdkProvider.phase.label}: ${sdkProvider.statusMessage}',
                   onPressed: () => SettingsView.show(
@@ -51,8 +85,8 @@ class BottomBar extends StatelessWidget {
               if (sdk == null) {
                 return MiniButton(
                   icon: NfIcons.warning,
+                  label: 'No SDK',
                   tooltip: 'No Flutter SDK detected. Click to install.',
-                  trailingIconColor: Colors.amberAccent,
                   onPressed: () => SettingsView.show(
                     btnContext,
                     initialCategory: SettingsCategory.flutter,
@@ -61,45 +95,13 @@ class BottomBar extends StatelessWidget {
               }
               return MiniButton(
                 icon: NfIcons.flutter,
-                trailingIcon: NfIcons.dot,
+                label: sdk.flutterVersion,
                 tooltip:
                     'Flutter ${sdk.flutterVersion} (${sdk.channel}) • ${sdk.isBundled ? "Bundled" : "System"}',
-                trailingIconColor: sdk.isBundled
-                    ? const Color(0xFF027DFD)
-                    : const Color(0xFF4CAF50),
                 onPressed: () => _showFlutterMenu(btnContext),
               );
             },
           ),
-          const SizedBox(width: 2),
-
-          // Dart LSP button
-          Builder(
-            builder: (btnContext) {
-              return MiniButton(
-                icon: NfIcons.dart,
-                trailingIcon: NfIcons.dot,
-                tooltip: isLspRunning
-                    ? 'Dart Language Server: Running'
-                    : 'Dart Language Server: Stopped',
-                trailingIconColor: isLspRunning
-                    ? const Color(0xFF4CAF50)
-                    : primary.withValues(alpha: 0.35),
-                onPressed: () => _showLspMenu(btnContext),
-              );
-            },
-          ),
-          if (selectedPath != null && selectedPath.isNotEmpty) ...[
-            const SizedBox(width: 4),
-            Container(
-              width: 1,
-              height: 12,
-              color: primary.withValues(alpha: 0.15),
-            ),
-            const SizedBox(width: 6),
-            Flexible(child: _buildPathDisplay(selectedPath, primary)),
-          ],
-          const Spacer(),
         ],
       ),
     );
@@ -125,7 +127,9 @@ class BottomBar extends StatelessWidget {
 
     const double menuWidth = 220.0;
     final double bottom = overlay.size.height - buttonOffset.dy + 4;
-    final double left = buttonOffset.dx;
+    // Right edges lined up, so the menu opens inwards: this button sits at the
+    // far right and a left-aligned menu would run off the window.
+    final double left = buttonOffset.dx + button.size.width - menuWidth;
 
     final action = await showGeneralDialog<String>(
       context: buttonContext,

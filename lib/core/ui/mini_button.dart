@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 class MiniButton extends StatefulWidget {
   final IconData? icon;
   final IconData? trailingIcon;
+
+  /// Text beside the icon, for a button whose value is worth reading without
+  /// hovering — the active Flutter version, say.
+  final String? label;
   final String tooltip;
   final VoidCallback? onPressed;
   final bool isSelected;
@@ -12,6 +16,7 @@ class MiniButton extends StatefulWidget {
     super.key,
     this.icon,
     this.trailingIcon,
+    this.label,
     required this.tooltip,
     this.onPressed,
     this.isSelected = false,
@@ -50,24 +55,25 @@ class _MiniButtonState extends State<MiniButton> {
 
     final effectiveTrailingColor = widget.trailingIconColor ?? iconColor;
 
-    Widget content;
-    if (widget.icon != null && widget.trailingIcon != null) {
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(widget.icon, size: 14, color: iconColor),
+    // A lone icon sits in a square; anything else grows to fit its content.
+    final isWide = widget.trailingIcon != null || widget.label != null;
+
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (widget.icon != null)
+          Icon(widget.icon, size: isWide ? 14 : 15, color: iconColor),
+        if (widget.label case final label?) ...[
+          const SizedBox(width: 5),
+          Text(label, style: TextStyle(fontSize: 11, color: iconColor)),
+        ],
+        if (widget.trailingIcon != null) ...[
           const SizedBox(width: 2),
           Icon(widget.trailingIcon, size: 11, color: effectiveTrailingColor),
         ],
-      );
-    } else if (widget.icon != null) {
-      content = Icon(widget.icon, size: 15, color: iconColor);
-    } else {
-      content = const SizedBox.shrink();
-    }
-
-    final hasMultipleIcons = widget.icon != null && widget.trailingIcon != null;
+      ],
+    );
 
     return Tooltip(
       message: widget.tooltip,
@@ -94,8 +100,8 @@ class _MiniButtonState extends State<MiniButton> {
           behavior: HitTestBehavior.opaque,
           child: Container(
             height: 24,
-            width: hasMultipleIcons ? null : 24,
-            padding: hasMultipleIcons
+            width: isWide ? null : 24,
+            padding: isWide
                 ? const EdgeInsets.symmetric(horizontal: 4.0)
                 : null,
             margin: const EdgeInsets.symmetric(horizontal: 1.0),
