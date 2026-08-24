@@ -2,6 +2,7 @@ import 'package:bird/features/editor/editor_provider.dart';
 import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
+import 'package:bird/features/notifications/notifications_provider.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
 import 'package:bird/features/terminal/terminal_provider.dart';
@@ -15,6 +16,7 @@ import 'package:provider/single_child_widget.dart';
 /// Order matters: a proxy provider can only read what is already above it.
 List<SingleChildWidget> appProviders() => [
   ChangeNotifierProvider(create: (_) => SettingsProvider()),
+  ChangeNotifierProvider(create: (_) => NotificationsProvider()),
   ChangeNotifierProxyProvider<SettingsProvider, ThemeProvider>(
     create: (_) => ThemeProvider(),
     update: (_, settings, themeProvider) =>
@@ -38,11 +40,17 @@ List<SingleChildWidget> appProviders() => [
       ..attachLsp(lsp)
       ..attachSettings(settings),
   ),
-  ChangeNotifierProxyProvider2<LspProvider, WorkspaceProvider, EditorProvider>(
+  ChangeNotifierProxyProvider3<
+    LspProvider,
+    WorkspaceProvider,
+    NotificationsProvider,
+    EditorProvider
+  >(
     create: (_) => EditorProvider(),
-    update: (_, lsp, workspace, editor) => editor!
+    update: (_, lsp, workspace, notifications, editor) => editor!
       ..attachLsp(lsp)
-      ..attachWorkspace(workspace),
+      ..attachWorkspace(workspace)
+      ..attachNotifications(notifications),
   ),
   ProxyProvider<EditorProvider, TabOpener>(
     update: (_, editor, _) => editor.openFile,

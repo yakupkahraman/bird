@@ -39,49 +39,55 @@ class _CodePanelState extends State<CodePanel> {
 
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/images/bird-mono.svg',
-                width: 52,
-                height: 52,
-                colorFilter: ColorFilter.mode(
-                  primary.withValues(alpha: 0.75),
-                  BlendMode.srcIn,
+        body: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/bird-mono.svg',
+                      width: 52,
+                      height: 52,
+                      colorFilter: ColorFilter.mode(
+                        primary.withValues(alpha: 0.75),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      hasFolder ? 'No File Open' : 'Bird IDE',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: primary.withValues(alpha: 0.85),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      hasFolder
+                          ? 'Select a file from the explorer to start editing'
+                          : 'Open a folder to start editing',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: primary.withValues(alpha: 0.45),
+                      ),
+                    ),
+                    if (!hasFolder) ...[
+                      const SizedBox(height: 20),
+                      MyButton(
+                        label: 'Open Folder',
+                        icon: NfIcons.folder,
+                        onPressed: () =>
+                            context.read<WorkspaceProvider>().pickFolder(),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                hasFolder ? 'No File Open' : 'Bird IDE',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: primary.withValues(alpha: 0.85),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                hasFolder
-                    ? 'Select a file from the explorer to start editing'
-                    : 'Open a folder to start editing',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: primary.withValues(alpha: 0.45),
-                ),
-              ),
-              if (!hasFolder) ...[
-                const SizedBox(height: 20),
-                MyButton(
-                  label: 'Open Folder',
-                  icon: NfIcons.folder,
-                  onPressed: () =>
-                      context.read<WorkspaceProvider>().pickFolder(),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }

@@ -25,7 +25,7 @@ lib/
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
                        workspace, lsp, terminal, sdk, settings, theme, layout,
-                       commands, extensions, internal_views.
+                       commands, notifications, extensions, internal_views.
 test/                  Tests.
 ```
 
@@ -63,6 +63,23 @@ take a `FileSystem` from `package:file` so a test can hand them an in-memory
 one instead of the disk. The one deliberate exception is `top_bar.dart`, where
 `Platform.isMacOS` decides where the window buttons go — that is layout, not
 I/O.
+
+**Errors the user asked for come back as `Result`, and go to
+`NotificationsProvider`.** If someone pressed a key and the thing did not
+happen, the provider posts `error(message, detail: ...)` and returns `Failed` —
+a save that fails quietly is how work gets lost. The notification is what the
+user sees, bottom right; the `Result` is for a caller that has to decide
+something on the back of it. Info messages retire on their own, warnings and
+errors wait to be dismissed.
+
+Everything with a documented fallback stays `debugPrint`: a folder that will
+not list shows empty, a config that will not parse falls back to the defaults,
+a watch that cannot be set up simply does not watch. Not every `catch` is a
+notification.
+
+A state that belongs to one file, and that the user has to answer, stays inline
+in the editor instead — the disk-conflict bar in `code_panel.dart` is the
+example, and it is not a notification.
 
 **Dispose what you own.** Every provider that owns a process, controller, or
 listener kills it in `dispose()`. `LspProvider` owns the `dart language-server`

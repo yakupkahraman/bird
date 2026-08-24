@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:bird/core/result.dart';
 import 'package:bird/features/editor/document_service.dart';
 import 'package:bird/features/editor/editor_document.dart';
 import 'package:bird/features/editor/languages.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
+import 'package:bird/features/notifications/notifications_provider.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class EditorProvider extends ChangeNotifier {
 
   LspProvider? _lsp;
   WorkspaceProvider? _workspace;
+  NotificationsProvider? _notifications;
 
   /// The folder these buffers were opened from.
   ///
@@ -42,6 +45,21 @@ class EditorProvider extends ChangeNotifier {
 
   List<String> get openFilePaths => List.unmodifiable(_tabs);
   String? get selectedFilePath => _selectedFilePath;
+
+  /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
+  /// idempotent.
+  void attachNotifications(NotificationsProvider notifications) =>
+      _notifications = notifications;
+
+  /// Puts [message] in front of the user and hands it back to the caller.
+  ///
+  /// Both, deliberately: the notification is what the user sees, and the
+  /// [Result] is for a caller that has to decide something on the back of it.
+  Result<T> _fail<T>(String message, Object error) {
+    debugPrint('$message: $error');
+    _notifications?.error(message, detail: '$error');
+    return Failed<T>(message);
+  }
 
   /// True while [path] holds edits that are not on disk.
   bool isDirty(String path) => _docs[path]?.isDirty ?? false;
@@ -121,7 +139,7 @@ class EditorProvider extends ChangeNotifier {
     if (changed) notifyListeners();
   }
 
-  Future<void> openFile(String path) async {
+  Future<Result<void>> openFile(String path) async {
     try {
       if (!_tabs.contains(path)) {
         final content = await _documents.read(path);
@@ -141,8 +159,9 @@ class EditorProvider extends ChangeNotifier {
 
       _selectedFilePath = path;
       notifyListeners();
+      return const Ok(null);
     } catch (e) {
-      debugPrint("Failed to read file: $e");
+      return _fail('Could not open ${p.basename(path)}', e);
     }
   }
 
@@ -254,16 +273,17 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveFile() async {
+  Future<Result<void>> saveFile() async {
     // A tab with no document — an internal view — has nothing to write. A null
     // selection is different: that is a new file, handled just below.
     if (_selectedFilePath != null && !_docs.containsKey(_selectedFilePath)) {
-      return;
+      return const Ok(null);
     }
 
     if (_selectedFilePath == null) {
       final outputFile = await _documents.promptForSavePath();
-      if (outputFile == null) return;
+      // Cancelling is not a failure; there is nothing to tell the user.
+      if (outputFile == null) return const Ok(null);
       _selectedFilePath = outputFile;
       _tabs.add(outputFile);
       _docs[outputFile] = EditorDocument(path: outputFile, text: '');
@@ -285,8 +305,11 @@ class EditorProvider extends ChangeNotifier {
       _workspace?.refreshListing(p.dirname(path));
 
       notifyListeners();
+      return const Ok(null);
     } catch (e) {
-      debugPrint("Failed to save file: $e");
+      // The buffer still holds the work; what failed is getting it to disk.
+      // Saying nothing here is how someone closes Bird and loses it.
+      return _fail('Could not save ${p.basename(_selectedFilePath!)}', e);
     }
   }
 

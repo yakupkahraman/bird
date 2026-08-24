@@ -7,6 +7,7 @@ import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/terminal/terminal_provider.dart';
 import 'package:bird/features/layout/bottom_bar.dart';
+import 'package:bird/features/notifications/notification_overlay.dart';
 import 'package:bird/features/layout/left_bar.dart';
 import 'package:bird/features/layout/top_bar.dart';
 import 'package:flutter/material.dart';
@@ -60,82 +61,96 @@ class _ShellState extends State<Shell> with WindowListener {
       bindings: getAppShortcuts(context),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        body: Column(
+        body: Stack(
           children: [
-            const TopBar(),
-            Expanded(
-              child: Row(
-                children: [
-                  const LeftBar(),
-                  Expanded(
-                    child: PaneTheme(
-                      data: const PaneThemeData(
-                        resizerColor: Colors.transparent,
-                        resizerHoverColor: Colors.transparent,
-                        resizerThickness: 0.0,
-                        resizerHitTestThickness: 8.0,
-                      ),
-                      child: IdeLayout(
-                        controller: panesProvider.ideController,
-                        onPaneStateChanged:
-                            panesProvider.onPaneVisibilityChanged,
-                        leftPanelBuilder: (context, animationProgress) =>
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child:
-                                    _panes[panesProvider.selectedSidebarIndex],
-                              ),
-                            ),
-                        centerBuilder: (context, animationProgress) => Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: const CodePanel(),
+            Column(
+              children: [
+                const TopBar(),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const LeftBar(),
+                      Expanded(
+                        child: PaneTheme(
+                          data: const PaneThemeData(
+                            resizerColor: Colors.transparent,
+                            resizerHoverColor: Colors.transparent,
+                            resizerThickness: 0.0,
+                            resizerHitTestThickness: 8.0,
                           ),
-                        ),
-                        bottomPanelBuilder: (context, animationProgress) =>
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: const TerminalPanel(),
-                              ),
-                            ),
-                        rightPanelBuilder: (context, animationProgress) =>
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  color: Theme.of(
-                                    context,
-                                  ).scaffoldBackgroundColor,
-                                  child: Center(
-                                    child: Text(
-                                      'Right Panel',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.5),
+                          child: IdeLayout(
+                            controller: panesProvider.ideController,
+                            onPaneStateChanged:
+                                panesProvider.onPaneVisibilityChanged,
+                            leftPanelBuilder: (context, animationProgress) =>
+                                Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child:
+                                        _panes[panesProvider
+                                            .selectedSidebarIndex],
+                                  ),
+                                ),
+                            centerBuilder: (context, animationProgress) =>
+                                Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: const CodePanel(),
+                                  ),
+                                ),
+                            bottomPanelBuilder: (context, animationProgress) =>
+                                Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: const TerminalPanel(),
+                                  ),
+                                ),
+                            rightPanelBuilder: (context, animationProgress) =>
+                                Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      color: Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor,
+                                      child: Center(
+                                        child: Text(
+                                          'Right Panel',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.5),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const BottomBar(),
+              ],
             ),
-            const BottomBar(),
+            // Above the status bar and clear of the right edge, where VS Code
+            // puts them. Outside the Column so it floats over the panes
+            // instead of taking layout space from them.
+            const Positioned(
+              right: 12,
+              bottom: BottomBar.bottomBarHeight + 12,
+              child: NotificationOverlay(),
+            ),
           ],
         ),
       ),
