@@ -1,13 +1,17 @@
-import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/terminal/pty_service.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 import 'package:xterm/xterm.dart';
 import 'package:flutter_pty/flutter_pty.dart';
 
 class TerminalProvider extends ChangeNotifier {
+  /// [service] is only passed by tests.
+  TerminalProvider({PtyService? service}) : _service = service ?? PtyService();
+
+  final PtyService _service;
+
   final Terminal terminal = Terminal();
   Pty? _pty;
   FlutterSdkProvider? _sdk;
@@ -21,42 +25,14 @@ class TerminalProvider extends ChangeNotifier {
     _sdk = sdk;
   }
 
-  String get shell {
-    if (Platform.isWindows) {
-      return 'cmd.exe';
-    }
-    final envShell = Platform.environment['SHELL'];
-    if (envShell != null &&
-        envShell.isNotEmpty &&
-        File(envShell).existsSync()) {
-      return envShell;
-    }
-    if (File('/bin/bash').existsSync()) {
-      return '/bin/bash';
-    }
-    if (File('/bin/zsh').existsSync()) {
-      return '/bin/zsh';
-    }
-    return '/bin/sh';
-  }
-
   void initializePty({String? workingDirectory}) {
     if (_isInitialized) return;
 
-    final env = Map<String, String>.from(Platform.environment);
-    if (_sdk?.sdkInfo?.sdkPath case final sdkPath?) {
-      final flutterBin = p.join(sdkPath, 'bin');
-      final pathSep = Platform.isWindows ? ';' : ':';
-      final currentPath = env['PATH'] ?? '';
-      env['PATH'] = '$flutterBin$pathSep$currentPath';
-    }
-
-    _pty = Pty.start(
-      shell,
+    _pty = _service.start(
       columns: terminal.viewWidth,
       rows: terminal.viewHeight,
       workingDirectory: workingDirectory,
-      environment: env,
+      sdkPath: _sdk?.sdkInfo?.sdkPath,
     );
 
     _pty!.output.listen((data) {

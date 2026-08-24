@@ -56,6 +56,14 @@ Small, readable diffs are what keep this project contributable.
 with `context.read<T>()`. Widgets hold only ephemeral local state (hover,
 controllers, focus). Providers never import a widget.
 
+**`dart:io` lives in services.** Reading a file, listing a folder, spawning a
+process or asking the OS anything happens in an `x_service.dart` (or
+`settings_store.dart`), never in a provider and never in a widget. Services
+take a `FileSystem` from `package:file` so a test can hand them an in-memory
+one instead of the disk. The one deliberate exception is `top_bar.dart`, where
+`Platform.isMacOS` decides where the window buttons go — that is layout, not
+I/O.
+
 **Dispose what you own.** Every provider that owns a process, controller, or
 listener kills it in `dispose()`. `LspProvider` owns the `dart language-server`
 process; `TerminalProvider` owns the PTY; `EditorProvider` owns the editor

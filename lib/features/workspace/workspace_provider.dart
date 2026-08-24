@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
 import 'package:bird/features/workspace/file_tree_row.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:bird/features/workspace/workspace_service.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
@@ -13,11 +11,17 @@ import 'package:path/path.dart' as p;
 /// buffers for the old one closes them on its own. That is what keeps
 /// expanding a folder from rebuilding the editor.
 class WorkspaceProvider extends ChangeNotifier {
+  /// [service] is only passed by tests, which must not touch the real disk.
+  WorkspaceProvider({WorkspaceService? service})
+    : _service = service ?? WorkspaceService();
+
+  final WorkspaceService _service;
+
   String? _rootPath;
 
   /// Directory contents, read once when a folder is expanded rather than on
   /// every build. Collapsing keeps the entry, so re-expanding costs nothing.
-  final Map<String, List<FileSystemEntity>> _listings = {};
+  final Map<String, List<DirectoryEntry>> _listings = {};
 
   final Set<String> _expandedPaths = {};
 
@@ -37,21 +41,21 @@ class WorkspaceProvider extends ChangeNotifier {
   }
 
   void _collectRows(String directory, int depth, List<FileTreeRow> rows) {
-    for (final entity in _listings[directory] ?? const <FileSystemEntity>[]) {
-      final isDirectory = entity is Directory;
-      final isExpanded = isDirectory && _expandedPaths.contains(entity.path);
+    for (final entry in _listings[directory] ?? const <DirectoryEntry>[]) {
+      final isExpanded =
+          entry.isDirectory && _expandedPaths.contains(entry.path);
 
       rows.add(
         FileTreeRow(
-          path: entity.path,
-          name: p.basename(entity.path),
-          isDirectory: isDirectory,
+          path: entry.path,
+          name: p.basename(entry.path),
+          isDirectory: entry.isDirectory,
           depth: depth,
           isExpanded: isExpanded,
         ),
       );
 
-      if (isExpanded) _collectRows(entity.path, depth + 1, rows);
+      if (isExpanded) _collectRows(entry.path, depth + 1, rows);
     }
   }
 
@@ -91,9 +95,7 @@ class WorkspaceProvider extends ChangeNotifier {
 
   void _readListing(String directory) {
     try {
-      final entities = Directory(directory).listSync();
-      _sortFiles(entities);
-      _listings[directory] = entities;
+      _listings[directory] = _service.list(directory);
     } catch (e) {
       // An unreadable directory shows up empty rather than taking the app down.
       debugPrint('Failed to list $directory: $e');
@@ -103,7 +105,7 @@ class WorkspaceProvider extends ChangeNotifier {
 
   /// Asks for a folder and opens it.
   Future<void> pickFolder() async {
-    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    final selectedDirectory = await _service.promptForFolder();
     if (selectedDirectory == null) return;
     await openFolder(selectedDirectory);
   }
@@ -122,13 +124,5 @@ class WorkspaceProvider extends ChangeNotifier {
     notifyListeners();
 
     await _lsp?.updateWorkspace(selectedDirectory);
-  }
-
-  void _sortFiles(List<FileSystemEntity> fileList) {
-    fileList.sort((a, b) {
-      if (a is Directory && b is! Directory) return -1;
-      if (a is! Directory && b is Directory) return 1;
-      return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-    });
   }
 }

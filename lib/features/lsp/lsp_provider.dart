@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:bird/features/lsp/lsp_service.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +8,11 @@ import 'package:flutter/foundation.dart';
 /// `CodeForgeController` never disposes the config it is given, so killing the
 /// process is this provider's job.
 class LspProvider extends ChangeNotifier {
+  /// [service] is only passed by tests.
+  LspProvider({LspService? service}) : _service = service ?? LspService();
+
+  final LspService _service;
+
   String? _currentWorkspacePath;
   LspConfig? _dartLspConfig;
   FlutterSdkProvider? _sdk;
@@ -49,15 +53,7 @@ class LspProvider extends ChangeNotifier {
 
     LspConfig? config;
     try {
-      final dartExec =
-          _sdk?.sdkInfo?.dartSdkPath ??
-          (Platform.isWindows ? 'dart.exe' : 'dart');
-      config = await LspStdioConfig.start(
-        executable: dartExec,
-        args: const ['language-server'],
-        workspacePath: path,
-        languageId: 'dart',
-      );
+      config = await _service.start(path, dartPath: _sdk?.sdkInfo?.dartSdkPath);
     } catch (e) {
       debugPrint('Failed to start Dart language server: $e');
     }

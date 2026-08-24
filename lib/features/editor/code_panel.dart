@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:bird/features/internal_views/internal_views.dart';
 import 'package:bird/features/editor/editor_document.dart';
 import 'package:bird/features/editor/editor_provider.dart';
@@ -12,6 +11,7 @@ import 'package:bird/core/ui/nf_icons.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
 class CodePanel extends StatefulWidget {
@@ -276,8 +276,7 @@ class _TabItemState extends State<_TabItem> {
     final primary = Theme.of(context).colorScheme.primary;
 
     final internalView = InternalViews.of(widget.path);
-    final title =
-        internalView?.title ?? widget.path.split(Platform.pathSeparator).last;
+    final title = internalView?.title ?? p.basename(widget.path);
     final specialIcon = internalView?.icon;
 
     Color bg;

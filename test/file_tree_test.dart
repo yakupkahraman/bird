@@ -1,20 +1,24 @@
-import 'dart:io';
-
 import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/workspace/explorer_panel.dart';
 import 'package:bird/features/workspace/file_tree_item.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
+import 'package:bird/features/workspace/workspace_service.dart';
+import 'package:file/file.dart';
+import 'package:file/memory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 /// A root holding [folders] folders of [perFolder] files each.
-Directory makeTree(int folders, int perFolder) {
-  final root = Directory.systemTemp.createTempSync('bird_tree');
+///
+/// In memory: the largest tree here is 6200 entries, and creating those for
+/// real spent the test's time on the disk rather than on the question.
+Directory makeTree(FileSystem fs, int folders, int perFolder) {
+  final root = fs.directory('/workspace')..createSync();
   for (var i = 0; i < folders; i++) {
-    final directory = Directory('${root.path}/folder_$i')..createSync();
+    final directory = fs.directory('${root.path}/folder_$i')..createSync();
     for (var j = 0; j < perFolder; j++) {
-      File('${directory.path}/file_$j.dart').writeAsStringSync('// x');
+      fs.file('${directory.path}/file_$j.dart').writeAsStringSync('// x');
     }
   }
   return root;
@@ -31,6 +35,7 @@ Widget explorer(WorkspaceProvider workspace) => MultiProvider(
 );
 
 void main() {
+  late MemoryFileSystem fs;
   late Directory root;
   late WorkspaceProvider files;
 
@@ -39,20 +44,18 @@ void main() {
     int perFolder, {
     bool expandAll = false,
   }) async {
-    root = makeTree(folders, perFolder);
-    files = WorkspaceProvider();
+    fs = MemoryFileSystem();
+    root = makeTree(fs, folders, perFolder);
+    files = WorkspaceProvider(service: WorkspaceService(fileSystem: fs));
     await files.openFolder(root.path);
     if (expandAll) {
-      for (final entity in Directory(root.path).listSync()) {
+      for (final entity in fs.directory(root.path).listSync()) {
         if (entity is Directory) files.toggleExpanded(entity.path);
       }
     }
   }
 
-  tearDown(() {
-    files.dispose();
-    root.deleteSync(recursive: true);
-  });
+  tearDown(() => files.dispose());
 
   test('a collapsed root only contributes its own children', () async {
     await open(3, 5);
@@ -87,6 +90,16 @@ void main() {
     expect(files.visibleRows, hasLength(2));
   });
 
+  test('a folder that cannot be read shows up empty', () async {
+    await open(1, 1);
+
+    files.toggleExpanded('${root.path}/nowhere');
+
+    // The listing throws, and the tree answers with no children rather than
+    // taking the app down with it.
+    expect(files.visibleRows, hasLength(1));
+  });
+
   testWidgets('the work does not grow with the tree', (tester) async {
     await open(20, 30, expandAll: true);
     expect(files.visibleRows, hasLength(620));
@@ -96,7 +109,6 @@ void main() {
 
     // tearDown only sees the last tree, so retire this one by hand.
     files.dispose();
-    root.deleteSync(recursive: true);
 
     await open(200, 30, expandAll: true);
     expect(files.visibleRows, hasLength(6200));

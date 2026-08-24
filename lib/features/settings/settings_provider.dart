@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:bird/features/settings/settings_store.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
@@ -19,12 +19,16 @@ class SettingsProvider extends ChangeNotifier {
   /// first frame is what keeps the app from painting in the wrong theme and
   /// then snapping to the right one.
   ///
-  /// [userFile] is only passed by tests, which must not touch the real config.
-  SettingsProvider({String? userFile})
-    : userFile = userFile ?? p.join(defaultDirectory, fileName) {
-    _userValues = _read(this.userFile) ?? {};
+  /// [userFile] and [store] are only passed by tests, which must not touch the
+  /// real config.
+  SettingsProvider({String? userFile, SettingsStore? store})
+    : _store = store ?? SettingsStore(),
+      userFile = userFile ?? p.join(defaultDirectory, fileName) {
+    _userValues = _store.read(this.userFile) ?? {};
     _watchUserFile();
   }
+
+  final SettingsStore _store;
 
   /// Where this instance keeps the user's own settings.
   final String userFile;
@@ -45,31 +49,10 @@ class SettingsProvider extends ChangeNotifier {
   Map<String, Object?> _userValues = {};
   Map<String, Object?> _workspaceValues = {};
   String? _workspacePath;
-  StreamSubscription<FileSystemEvent>? _watch;
+  StreamSubscription<String>? _watch;
 
-  /// The configuration directory.
-  ///
-  /// macOS shares `~/.config` with Linux rather than using
-  /// `~/Library/Application Support`. This is a file people keep in their
-  /// dotfiles, next to the rest of their tooling, and every developer-first
-  /// editor puts it there. Windows has no such convention, so it keeps
-  /// `%APPDATA%`.
-  static String get defaultDirectory {
-    // Honoured on every platform, not just Linux: setting it is deliberate.
-    // Per the XDG spec an empty value means "unset", so fall through.
-    final xdg = Platform.environment['XDG_CONFIG_HOME'];
-    if (xdg != null && xdg.isNotEmpty) return p.join(xdg, 'bird');
-
-    if (Platform.isWindows) {
-      final appData =
-          Platform.environment['APPDATA'] ??
-          Platform.environment['USERPROFILE'] ??
-          '';
-      return p.join(appData, 'Bird');
-    }
-
-    return p.join(Platform.environment['HOME'] ?? '', '.config', 'bird');
-  }
+  /// Where Bird keeps the user's own settings; see [SettingsStore].
+  static String get defaultDirectory => SettingsStore.defaultDirectory;
 
   /// The workspace settings file, or null while no folder is open.
   String? get workspaceFile => _workspacePath == null
@@ -93,7 +76,9 @@ class SettingsProvider extends ChangeNotifier {
   void setWorkspace(String? rootPath) {
     if (rootPath == _workspacePath) return;
     _workspacePath = rootPath;
-    _workspaceValues = workspaceFile == null ? {} : _read(workspaceFile!) ?? {};
+    _workspaceValues = workspaceFile == null
+        ? {}
+        : _store.read(workspaceFile!) ?? {};
     notifyListeners();
   }
 
@@ -102,7 +87,7 @@ class SettingsProvider extends ChangeNotifier {
   /// the defaults into it would freeze them, and a later Bird could never move
   /// one without silently disagreeing with every file already on disk.
   Future<String> ensureUserFile() async {
-    if (!File(userFile).existsSync()) await _writeFile(userFile, _userValues);
+    if (!_store.exists(userFile)) await _store.write(userFile, _userValues);
     return userFile;
   }
 
@@ -112,7 +97,7 @@ class SettingsProvider extends ChangeNotifier {
   Future<String?> ensureWorkspaceFile() async {
     final path = workspaceFile;
     if (path == null) return null;
-    if (!File(path).existsSync()) await _writeFile(path, _workspaceValues);
+    if (!_store.exists(path)) await _store.write(path, _workspaceValues);
     return path;
   }
 
@@ -122,7 +107,7 @@ class SettingsProvider extends ChangeNotifier {
     if (_effective(key) == value && _userValues[key] == value) return;
     _userValues[key] = value;
     notifyListeners();
-    await _write();
+    await _store.write(userFile, _userValues);
   }
 
   Object? _effective(String key) =>
@@ -150,43 +135,6 @@ class SettingsProvider extends ChangeNotifier {
     return value is String && value.isNotEmpty ? value : null;
   }
 
-  /// Null means the file could not be read — missing, half-written, or not
-  /// valid JSON. That is deliberately different from an empty file: writing is
-  /// a temporary file renamed over this one, and a watch event landing inside
-  /// that window would otherwise report "no settings" and wipe them.
-  Map<String, Object?>? _read(String path) {
-    try {
-      final file = File(path);
-      if (!file.existsSync()) return null;
-      final decoded = jsonDecode(file.readAsStringSync());
-      return decoded is Map<String, dynamic> ? Map.of(decoded) : {};
-    } catch (e) {
-      // A broken file must not stop the app from starting; the defaults win
-      // until the user fixes it.
-      debugPrint('Failed to read settings from $path: $e');
-      return null;
-    }
-  }
-
-  Future<void> _write() => _writeFile(userFile, _userValues);
-
-  /// Writes through a temporary file, so a crash mid-write cannot leave a
-  /// truncated config behind.
-  Future<void> _writeFile(String path, Map<String, Object?> values) async {
-    try {
-      final directory = Directory(p.dirname(path));
-      if (!directory.existsSync()) await directory.create(recursive: true);
-
-      final temporary = File('$path.tmp');
-      await temporary.writeAsString(
-        '${const JsonEncoder.withIndent('  ').convert(values)}\n',
-      );
-      await temporary.rename(path);
-    } catch (e) {
-      debugPrint('Failed to write settings to $path: $e');
-    }
-  }
-
   /// Picks up edits made outside the settings view — including ones made in
   /// Bird itself, since settings.json opens as an ordinary tab.
   ///
@@ -194,27 +142,19 @@ class SettingsProvider extends ChangeNotifier {
   /// creating `.bird/` in a project that never asked for it, or walking the
   /// whole tree; its settings are re-read when the folder is opened instead.
   void _watchUserFile() {
-    try {
-      final directory = Directory(p.dirname(userFile));
-      if (!directory.existsSync()) directory.createSync(recursive: true);
+    _watch = _store.watchDirectory(p.dirname(userFile))?.listen((path) {
+      if (!p.equals(path, userFile)) return;
+      // Keep what is in memory when the file cannot be read: it is more
+      // likely mid-rename than genuinely empty.
+      final reloaded = _store.read(userFile);
+      if (reloaded == null) return;
 
-      _watch = directory.watch().listen((event) {
-        if (!p.equals(event.path, userFile)) return;
-        // Keep what is in memory when the file cannot be read: it is more
-        // likely mid-rename than genuinely empty.
-        final reloaded = _read(userFile);
-        if (reloaded == null) return;
-
-        // Comparing the encoded form keeps this free of package:collection;
-        // our own writes land here too, and must not loop back as a change.
-        if (jsonEncode(reloaded) == jsonEncode(_userValues)) return;
-        _userValues = reloaded;
-        notifyListeners();
-      });
-    } catch (e) {
-      // Watching is a convenience; the app is still usable without it.
-      debugPrint('Failed to watch ${p.dirname(userFile)}: $e');
-    }
+      // Comparing the encoded form keeps this free of package:collection;
+      // our own writes land here too, and must not loop back as a change.
+      if (jsonEncode(reloaded) == jsonEncode(_userValues)) return;
+      _userValues = reloaded;
+      notifyListeners();
+    });
   }
 
   @override
