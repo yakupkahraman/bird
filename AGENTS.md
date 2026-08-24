@@ -103,21 +103,27 @@ new one.
 non-obvious constraint — a race, an ordering requirement, a library quirk. See
 `editor_provider.dart` and `lsp_provider.dart` for the tone.
 
-**Commands go in the registry.** A shortcut is not a binding in one file and
-a table row in another — it is one `Command` in
-`features/commands/commands.dart`, carrying its id, title, category, default
-key and what it does. `bindings.dart` and the keymap view are both built from
-that one list, which is what keeps them from disagreeing. A command with no
-`run` is declared but not built yet: it binds nothing and the keymap shows it
-as "not bound yet" rather than promising a shortcut that does nothing.
+**What the app is made of goes in a registry.** Three lists say what exists,
+and each is the only place its thing is declared:
 
-**Internal views go in the registry.** Settings, themes, keymap and account open
-as `bird://<id>` tabs. Register a new one in `InternalViews.menuGroups`
-(`features/internal_views/internal_views.dart`) — id, title, icon and widget in
-one place — and the menu, tab bar, editor area and status bar pick it up. Look
-a path up with `InternalViews.of(path)`; never compare against a `bird://`
-literal. These tabs have no file on disk, so anything path-based must skip
-them.
+- `features/commands/commands.dart` — every command, with its id, title,
+  category, default key and what it does. `bindings.dart` and the keymap view
+  are both built from it. A command with no `run` is declared but not built: it
+  binds nothing, and the keymap shows it as "not bound yet" rather than
+  promising a shortcut that does nothing.
+- `features/internal_views/internal_views.dart` — every `bird://<id>` tab, with
+  its id, title, icon and widget. The menu, tab bar, editor area and status bar
+  all pick it up. Look a path up with `InternalViews.of(path)`; never compare
+  against a `bird://` literal. These tabs have no file on disk, so anything
+  path-based must skip them.
+- `features/layout/side_panels.dart` — every sidebar panel, with its id, title,
+  icon and widget. The left bar builds its buttons from it and the shell shows
+  whichever is selected.
+
+Registering is how a feature reaches the chrome without editing it. Two lists
+lining up by position is how the keymap came to advertise eight shortcuts
+nobody had bound, and how inserting a sidebar panel would have handed every
+panel after it the wrong icon.
 
 ## Before you finish
 

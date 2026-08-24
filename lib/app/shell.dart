@@ -1,12 +1,11 @@
 import 'package:bird/app/bindings.dart';
 import 'package:bird/features/editor/code_panel.dart';
-import 'package:bird/features/workspace/explorer_panel.dart';
-import 'package:bird/features/extensions/extensions_panel.dart';
 import 'package:bird/features/terminal/terminal_panel.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/terminal/terminal_provider.dart';
 import 'package:bird/features/layout/bottom_bar.dart';
+import 'package:bird/features/layout/side_panels.dart';
 import 'package:bird/features/notifications/notification_overlay.dart';
 import 'package:bird/features/layout/left_bar.dart';
 import 'package:bird/features/layout/top_bar.dart';
@@ -23,8 +22,6 @@ class Shell extends StatefulWidget {
 }
 
 class _ShellState extends State<Shell> with WindowListener {
-  final List<Widget> _panes = const [ExplorerPanel(), ExtensionsPanel()];
-
   @override
   void initState() {
     super.initState();
@@ -87,9 +84,9 @@ class _ShellState extends State<Shell> with WindowListener {
                                   padding: const EdgeInsets.all(2.0),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child:
-                                        _panes[panesProvider
-                                            .selectedSidebarIndex],
+                                    child: SidePanels.at(
+                                      panesProvider.selectedSidebarIndex,
+                                    ).view,
                                   ),
                                 ),
                             centerBuilder: (context, animationProgress) =>

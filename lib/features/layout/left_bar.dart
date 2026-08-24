@@ -1,6 +1,6 @@
-import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/core/ui/my_icon_button.dart';
-import 'package:bird/core/ui/nf_icons.dart';
+import 'package:bird/features/layout/panes_provider.dart';
+import 'package:bird/features/layout/side_panels.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,22 +16,15 @@ class LeftBar extends StatelessWidget {
       child: Column(
         spacing: 4,
         children: [
-          MyIconButton(
-            onPressed: () => panesProvider.onSidebarTabPressed(0),
-            icon: NfIcons.folder,
-            isSelected:
-                panesProvider.isLeftVisible &&
-                panesProvider.selectedSidebarIndex == 0,
-            tooltip: 'Explorer',
-          ),
-          MyIconButton(
-            onPressed: () => panesProvider.onSidebarTabPressed(1),
-            icon: NfIcons.extensions,
-            isSelected:
-                panesProvider.isLeftVisible &&
-                panesProvider.selectedSidebarIndex == 1,
-            tooltip: 'Extensions',
-          ),
+          for (final (index, panel) in SidePanels.all.indexed)
+            MyIconButton(
+              onPressed: () => panesProvider.onSidebarTabPressed(index),
+              icon: panel.icon,
+              isSelected:
+                  panesProvider.isLeftVisible &&
+                  panesProvider.selectedSidebarIndex == index,
+              tooltip: panel.title,
+            ),
         ],
       ),
     );
