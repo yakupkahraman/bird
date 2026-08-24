@@ -1,4 +1,5 @@
 import 'package:bird/core/ui/my_search.dart';
+import 'package:bird/features/commands/commands.dart';
 import 'package:flutter/material.dart';
 
 class KeymapView extends StatefulWidget {
@@ -12,56 +13,6 @@ class _KeymapViewState extends State<KeymapView> {
   final TextEditingController _searchController = TextEditingController();
   String _filter = '';
 
-  final List<Map<String, String>> _shortcuts = const [
-    {'command': 'Save File', 'keys': 'Ctrl+S / Cmd+S', 'category': 'File'},
-    {
-      'command': 'Open Folder / Project',
-      'keys': 'Ctrl+O / Cmd+O',
-      'category': 'File',
-    },
-    {
-      'command': 'Toggle Left Sidebar (Explorer)',
-      'keys': 'Ctrl+B',
-      'category': 'View',
-    },
-    {
-      'command': 'Toggle Bottom Panel (Terminal)',
-      'keys': 'Ctrl+J',
-      'category': 'View',
-    },
-    {
-      'command': 'Toggle Right Sidebar',
-      'keys': 'Ctrl+Alt+B',
-      'category': 'View',
-    },
-    {
-      'command': 'Close Active Editor Tab',
-      'keys': 'Ctrl+W / Cmd+W',
-      'category': 'Editor',
-    },
-    {'command': 'Format Document', 'keys': 'Shift+Alt+F', 'category': 'Editor'},
-    {
-      'command': 'Quick Open / Find File',
-      'keys': 'Ctrl+P / Cmd+P',
-      'category': 'Navigation',
-    },
-    {
-      'command': 'Command Palette',
-      'keys': 'Ctrl+Shift+P / Cmd+Shift+P',
-      'category': 'General',
-    },
-    {
-      'command': 'New Integrated Terminal',
-      'keys': 'Ctrl+Shift+`',
-      'category': 'Terminal',
-    },
-    {
-      'command': 'Zoom In / Out Editor',
-      'keys': 'Ctrl+= / Ctrl+-',
-      'category': 'View',
-    },
-  ];
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -74,11 +25,13 @@ class _KeymapViewState extends State<KeymapView> {
     final primary = theme.colorScheme.primary;
     final secondary = theme.colorScheme.secondary;
 
-    final filteredList = _shortcuts.where((s) {
+    // Straight off the registry, so what is listed here and what is actually
+    // bound cannot disagree.
+    final filteredList = Commands.all.where((command) {
       if (_filter.isEmpty) return true;
-      return s['command']!.toLowerCase().contains(_filter) ||
-          s['keys']!.toLowerCase().contains(_filter) ||
-          s['category']!.toLowerCase().contains(_filter);
+      return command.title.toLowerCase().contains(_filter) ||
+          (command.key?.label.toLowerCase().contains(_filter) ?? false) ||
+          command.category.toLowerCase().contains(_filter);
     }).toList();
 
     return Scaffold(
@@ -104,7 +57,11 @@ class _KeymapViewState extends State<KeymapView> {
               separatorBuilder: (_, _) =>
                   Divider(color: primary.withValues(alpha: 0.06), height: 1),
               itemBuilder: (context, index) {
-                final item = filteredList[index];
+                final command = filteredList[index];
+                // A command with no implementation is listed but dimmed: the
+                // shortcut is documented, not working.
+                final isLive = command.isImplemented;
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -115,42 +72,61 @@ class _KeymapViewState extends State<KeymapView> {
                       Expanded(
                         flex: 3,
                         child: Text(
-                          item['command']!,
+                          command.title,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: primary,
+                            color: primary.withValues(alpha: isLive ? 1 : 0.45),
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 4.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: secondary.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(4.0),
-                          border: Border.all(
-                            color: primary.withValues(alpha: 0.18),
-                            width: 1.0,
+                      if (!isLive)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0),
+                          child: Text(
+                            'not bound yet',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontStyle: FontStyle.italic,
+                              color: primary.withValues(alpha: 0.4),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          item['keys']!,
-                          style: TextStyle(
-                            fontFamily: 'FiraCode',
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: primary.withValues(alpha: 0.85),
+                      if (command.key case final key?)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: secondary.withValues(
+                              alpha: isLive ? 0.6 : 0.3,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                            border: Border.all(
+                              color: primary.withValues(
+                                alpha: isLive ? 0.18 : 0.09,
+                              ),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            key.label,
+                            style: TextStyle(
+                              fontFamily: 'FiraCode',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: primary.withValues(
+                                alpha: isLive ? 0.85 : 0.4,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(width: 24),
                       SizedBox(
                         width: 90,
                         child: Text(
-                          item['category']!,
+                          command.category,
                           textAlign: TextAlign.end,
                           style: TextStyle(
                             fontSize: 11.5,

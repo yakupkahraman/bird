@@ -1,34 +1,15 @@
-import 'package:bird/features/editor/editor_provider.dart';
-import 'package:bird/features/workspace/workspace_provider.dart';
-import 'package:bird/features/settings/settings_view.dart';
-import 'package:flutter/services.dart';
+import 'package:bird/features/commands/commands.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
+/// The key bindings, built from the command catalogue.
+///
+/// Every command declares its own default key, so there is no second list here
+/// to drift out of step with it. A command that is not built yet registers
+/// nothing, which is why the keymap can list it without it silently failing.
 Map<ShortcutActivator, VoidCallback> getAppShortcuts(BuildContext context) {
   return {
-    // Save shortcuts (Ctrl+S for Windows/Linux, Cmd+S for macOS)
-    const SingleActivator(LogicalKeyboardKey.keyS, control: true): () {
-      context.read<EditorProvider>().saveFile();
-    },
-    const SingleActivator(LogicalKeyboardKey.keyS, meta: true): () {
-      context.read<EditorProvider>().saveFile();
-    },
-
-    // Open folder shortcuts (Ctrl+O for Windows/Linux, Cmd+O for macOS)
-    const SingleActivator(LogicalKeyboardKey.keyO, control: true): () {
-      context.read<WorkspaceProvider>().pickFolder();
-    },
-    const SingleActivator(LogicalKeyboardKey.keyO, meta: true): () {
-      context.read<WorkspaceProvider>().pickFolder();
-    },
-
-    // Settings shortcut (Ctrl+, for Windows/Linux, Cmd+, for macOS)
-    const SingleActivator(LogicalKeyboardKey.comma, control: true): () {
-      SettingsView.show(context);
-    },
-    const SingleActivator(LogicalKeyboardKey.comma, meta: true): () {
-      SettingsView.show(context);
-    },
+    for (final command in Commands.bound)
+      for (final activator in command.key!.activators)
+        activator: () => command.run!(context),
   };
 }

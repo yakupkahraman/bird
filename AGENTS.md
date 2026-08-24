@@ -25,7 +25,7 @@ lib/
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
                        workspace, lsp, terminal, sdk, settings, theme, layout,
-                       extensions, internal_views.
+                       commands, extensions, internal_views.
 test/                  Tests.
 ```
 
@@ -85,6 +85,14 @@ new one.
 **Comments explain why.** The code already says what it does. Comment the
 non-obvious constraint — a race, an ordering requirement, a library quirk. See
 `editor_provider.dart` and `lsp_provider.dart` for the tone.
+
+**Commands go in the registry.** A shortcut is not a binding in one file and
+a table row in another — it is one `Command` in
+`features/commands/commands.dart`, carrying its id, title, category, default
+key and what it does. `bindings.dart` and the keymap view are both built from
+that one list, which is what keeps them from disagreeing. A command with no
+`run` is declared but not built yet: it binds nothing and the keymap shows it
+as "not bound yet" rather than promising a shortcut that does nothing.
 
 **Internal views go in the registry.** Settings, themes, keymap and account open
 as `bird://<id>` tabs. Register a new one in `InternalViews.menuGroups`

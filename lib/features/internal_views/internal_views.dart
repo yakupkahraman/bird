@@ -1,5 +1,5 @@
 import 'package:bird/features/internal_views/account_view.dart';
-import 'package:bird/features/internal_views/keymap_view.dart';
+import 'package:bird/features/commands/keymap_view.dart';
 import 'package:bird/features/settings/settings_view.dart';
 import 'package:bird/features/theme/themes_view.dart';
 import 'package:bird/core/ui/nf_icons.dart';

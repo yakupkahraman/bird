@@ -46,8 +46,10 @@ flutter run -d macos   # or -d linux / -d windows
 
 ## Good first contributions
 
-- Implement a shortcut listed in `features/internal_views/keymap_view.dart` —
-  most of them are documented but not bound yet in `bindings.dart`.
+- Implement a shortcut declared in `features/commands/commands.dart` — ten
+  commands have a key but no `run` yet, and the keymap shows them as "not bound
+  yet". Four are one-liners over providers that already exist: the three pane
+  toggles and closing the active tab.
 - Wire up a setting in `features/settings/settings_view.dart` — the toggles
   render but do not persist yet. The selected theme does not survive a restart
   either.
