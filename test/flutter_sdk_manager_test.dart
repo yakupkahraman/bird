@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:bird/models/flutter_sdk.dart';
-import 'package:bird/services/flutter_sdk_service.dart';
-import 'package:bird/providers/flutter_sdk_provider.dart';
-import 'package:bird/providers/settings_provider.dart';
-import 'package:bird/ui/views/settings/flutter_sdk_manager.dart';
+import 'package:bird/features/sdk/flutter_sdk.dart';
+import 'package:bird/features/sdk/flutter_sdk_service.dart';
+import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/sdk/flutter_sdk_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;

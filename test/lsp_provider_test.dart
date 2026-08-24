@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bird/providers/lsp_provider.dart';
+import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Other editors run language servers too, so the tests assert on the change

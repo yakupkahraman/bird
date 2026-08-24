@@ -46,12 +46,13 @@ flutter run -d macos   # or -d linux / -d windows
 
 ## Good first contributions
 
-- Implement a shortcut listed in `ui/views/keymap_view.dart` — most of them are
-  documented but not bound yet in `bindings.dart`.
-- Wire up a setting in `ui/views/settings_view.dart` — the toggles render but do
-  not persist yet. The selected theme does not survive a restart either.
-- Fix the folder name in `ui/panels/explorer_panel.dart`: it splits on `/`, so
-  it shows the full path on Windows.
+- Implement a shortcut listed in `features/internal_views/keymap_view.dart` —
+  most of them are documented but not bound yet in `bindings.dart`.
+- Wire up a setting in `features/settings/settings_view.dart` — the toggles
+  render but do not persist yet. The selected theme does not survive a restart
+  either.
+- Fix the folder name in `features/explorer/explorer_panel.dart`: it splits on
+  `/`, so it shows the full path on Windows.
 - Extend `FileIcon` and `NfIcons` with missing file types.
 - Add a language to `ProgLangProvider`.
 - Write tests — coverage is thin outside `LspProvider`.

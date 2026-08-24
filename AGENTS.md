@@ -13,32 +13,35 @@ change would pull in a web shell or an embedded browser, it does not belong here
 
 ```
 lib/
-  main.dart            App entry: window setup, provider tree.
-  shell_page.dart      Root layout: bars + panes.
-  core/                App-wide tables and wiring, owned by no single feature.
-                       bindings.dart (shortcuts), languages.dart (highlighters).
-  models/              Value types and pure functions over them. No I/O, no
-                       state, no Flutter widgets — everything here is testable
-                       by calling it and comparing the answer.
-  services/            The outside world: processes, sockets, the filesystem.
-                       Holds no application state and notifies nobody; it
-                       reports through callbacks its owner passes in.
-  providers/           State (ChangeNotifier). No widgets here.
-  theme/               ThemeProvider + ThemeData factory.
-  ui/bars/             Top, left and bottom chrome.
-  ui/panels/           Pane contents (explorer, code, terminal, extensions).
-  ui/views/            Full-screen tab contents (settings, themes, keymap...).
-  widgets/             Reusable, feature-agnostic widgets.
-test/                  Tests, mirroring the lib/ path.
+  main.dart            App entry: bindings, window setup, runApp.
+  app/                 Composition root. Knows every feature; nothing in
+                       features/ or core/ may import it.
+                       app.dart (MaterialApp), wiring.dart (the provider
+                       tree), shell_page.dart (bars + panes), bindings.dart
+                       (shortcuts).
+  core/                Feature-agnostic building blocks. Imports nothing from
+                       app/ or features/ — that is what keeps it reusable.
+                       ui/ (MyButton, MyTile, MySwitch, NfIcons, FileIcon...).
+  features/<name>/     Everything one feature is, in one folder: its models,
+                       its state, its I/O and its widgets. Today: editor,
+                       explorer, lsp, terminal, sdk, settings, theme, layout,
+                       extensions, internal_views.
+test/                  Tests.
 ```
 
-Put a file where its siblings are. A new pane goes in `ui/panels/`, a new piece
-of shared state goes in `providers/`.
+A feature is a functional requirement, not a screen — `lsp` is a feature and
+has no screen of its own. Everything it owns lives in its folder, so adding one
+means adding a folder and deleting one means deleting a folder.
 
-One feature is usually three files, in a line: `models/x.dart` describes what a
-thing is, `services/x_service.dart` does what cannot be done in memory, and
-`providers/x_provider.dart` holds the state and joins the two. The provider
-never spawns a process; the service never calls `notifyListeners()`.
+Inside a feature the files are flat and named for their job. One feature is
+usually three of them, in a line: `x.dart` describes what a thing is,
+`x_service.dart` does what cannot be done in memory, and `x_provider.dart`
+holds the state and joins the two. The provider never spawns a process; the
+service never calls `notifyListeners()`. Split a feature into subfolders only
+once it passes six files.
+
+Features import each other sideways where they must, and several do today.
+Nothing imports upwards into `app/`.
 
 ## Rules
 
@@ -51,7 +54,7 @@ Small, readable diffs are what keep this project contributable.
 
 **State lives in providers.** UI reads it with `context.watch<T>()` and writes it
 with `context.read<T>()`. Widgets hold only ephemeral local state (hover,
-controllers, focus). Providers never import from `ui/` or `widgets/`.
+controllers, focus). Providers never import a widget.
 
 **Dispose what you own.** Every provider that owns a process, controller, or
 listener kills it in `dispose()`. `LspProvider` owns the `dart language-server`
@@ -64,7 +67,7 @@ follow the active theme. The editor's syntax palette in `code_panel.dart` is the
 one deliberate exception.
 
 **Icons come from `NfIcons`.** Nerd Font glyphs only, defined in
-`widgets/nf_icons.dart` with a doc comment. File-type icons come from
+`core/ui/nf_icons.dart` with a doc comment. File-type icons come from
 `FileIcon`. Do not use Material icons.
 
 **Reuse the widget set.** `MyButton`, `MyIconButton`, `MiniButton`, `MyTile`,
@@ -77,10 +80,11 @@ non-obvious constraint — a race, an ordering requirement, a library quirk. See
 
 **Internal views go in the registry.** Settings, themes, keymap and account open
 as `bird://<id>` tabs. Register a new one in `InternalViews.menuGroups`
-(`ui/views/internal_views.dart`) — id, title, icon and widget in one place — and
-the menu, tab bar, editor area and status bar pick it up. Look a path up with
-`InternalViews.of(path)`; never compare against a `bird://` literal. These tabs
-have no file on disk, so anything path-based must skip them.
+(`features/internal_views/internal_views.dart`) — id, title, icon and widget in
+one place — and the menu, tab bar, editor area and status bar pick it up. Look
+a path up with `InternalViews.of(path)`; never compare against a `bird://`
+literal. These tabs have no file on disk, so anything path-based must skip
+them.
 
 ## Before you finish
 

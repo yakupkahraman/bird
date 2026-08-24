@@ -1,13 +1,5 @@
-import 'package:bird/providers/file_provider.dart';
-import 'package:bird/providers/flutter_sdk_provider.dart';
-import 'package:bird/providers/lsp_provider.dart';
-import 'package:bird/shell_page.dart';
-import 'package:bird/providers/panes_provider.dart';
-import 'package:bird/providers/settings_provider.dart';
-import 'package:bird/providers/tab_opener.dart';
-import 'package:bird/providers/terminal_provider.dart';
-import 'package:bird/theme/theme.dart';
-import 'package:bird/theme/theme_provider.dart';
+import 'package:bird/app/app.dart';
+import 'package:bird/app/wiring.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,59 +23,5 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
-        ChangeNotifierProxyProvider<SettingsProvider, ThemeProvider>(
-          create: (_) => ThemeProvider(),
-          update: (_, settings, themeProvider) =>
-              themeProvider!..attachSettings(settings),
-        ),
-        ChangeNotifierProxyProvider<SettingsProvider, FlutterSdkProvider>(
-          create: (_) => FlutterSdkProvider(),
-          update: (_, settings, sdk) => sdk!..attachSettings(settings),
-        ),
-        ChangeNotifierProxyProvider<FlutterSdkProvider, LspProvider>(
-          create: (_) => LspProvider(),
-          update: (_, sdk, lsp) => lsp!..attachSdk(sdk),
-        ),
-        ChangeNotifierProxyProvider2<
-          LspProvider,
-          SettingsProvider,
-          FileProvider
-        >(
-          create: (_) => FileProvider(),
-          update: (_, lsp, settings, fileProvider) => fileProvider!
-            ..attachLsp(lsp)
-            ..attachSettings(settings),
-        ),
-        ProxyProvider<FileProvider, TabOpener>(
-          update: (_, files, _) => files.openFile,
-        ),
-        ChangeNotifierProxyProvider<FlutterSdkProvider, TerminalProvider>(
-          create: (_) => TerminalProvider(),
-          update: (_, sdk, terminal) => terminal!..attachSdk(sdk),
-        ),
-        ChangeNotifierProvider(create: (_) => PanesProvider()),
-      ],
-      child: const MyApp(),
-    ),
-  );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Bird',
-      theme: appTheme(themeProvider),
-      home: ShellPage(),
-    );
-  }
+  runApp(MultiProvider(providers: appProviders(), child: const MyApp()));
 }

@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:bird/providers/file_provider.dart';
-import 'package:bird/services/flutter_sdk_service.dart';
-import 'package:bird/providers/flutter_sdk_provider.dart';
-import 'package:bird/providers/lsp_provider.dart';
-import 'package:bird/providers/settings_provider.dart';
-import 'package:bird/theme/theme_provider.dart';
-import 'package:bird/ui/bars/bottom_bar.dart';
-import 'package:bird/ui/panels/code_panel.dart';
-import 'package:bird/ui/views/internal_views.dart';
+import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/sdk/flutter_sdk_service.dart';
+import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/lsp/lsp_provider.dart';
+import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/theme/theme_provider.dart';
+import 'package:bird/features/layout/bottom_bar.dart';
+import 'package:bird/features/editor/code_panel.dart';
+import 'package:bird/features/internal_views/internal_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;

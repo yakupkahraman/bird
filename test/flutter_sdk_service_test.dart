@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bird/services/flutter_sdk_service.dart';
+import 'package:bird/features/sdk/flutter_sdk_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 

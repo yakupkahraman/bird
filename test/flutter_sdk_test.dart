@@ -1,4 +1,4 @@
-import 'package:bird/models/flutter_sdk.dart';
+import 'package:bird/features/sdk/flutter_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

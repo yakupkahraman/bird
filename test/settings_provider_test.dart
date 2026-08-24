@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bird/providers/flutter_sdk_provider.dart';
-import 'package:bird/providers/settings_provider.dart';
-import 'package:bird/theme/theme_provider.dart';
-import 'package:bird/ui/views/settings_view.dart';
-import 'package:bird/widgets/my_switch.dart';
-import 'package:bird/widgets/my_tile.dart';
+import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/theme/theme_provider.dart';
+import 'package:bird/features/settings/settings_view.dart';
+import 'package:bird/core/ui/my_switch.dart';
+import 'package:bird/core/ui/my_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;

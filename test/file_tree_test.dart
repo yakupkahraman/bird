@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:bird/providers/file_provider.dart';
-import 'package:bird/ui/panels/explorer_panel.dart';
-import 'package:bird/widgets/file_tree_item.dart';
+import 'package:bird/features/editor/file_provider.dart';
+import 'package:bird/features/explorer/explorer_panel.dart';
+import 'package:bird/features/explorer/file_tree_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
