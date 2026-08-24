@@ -40,11 +40,6 @@ void main() {
     ]);
   });
 
-  test('a command can be looked up by id', () {
-    expect(Commands.byId('file.save'), same(Commands.save));
-    expect(Commands.byId('nothing.here'), isNull);
-  });
-
   group('key labels', () {
     test('the primary modifier is written for both desktops', () {
       expect(Commands.save.key!.label, 'Ctrl+S / Cmd+S');

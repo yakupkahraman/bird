@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bird/features/notifications/notifications_provider.dart';
 import 'package:bird/features/settings/settings_store.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
@@ -29,6 +30,13 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   final SettingsStore _store;
+
+  NotificationsProvider? _notifications;
+
+  /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
+  /// idempotent.
+  void attachNotifications(NotificationsProvider notifications) =>
+      _notifications = notifications;
 
   /// Where this instance keeps the user's own settings.
   final String userFile;
@@ -87,7 +95,7 @@ class SettingsProvider extends ChangeNotifier {
   /// the defaults into it would freeze them, and a later Bird could never move
   /// one without silently disagreeing with every file already on disk.
   Future<String> ensureUserFile() async {
-    if (!_store.exists(userFile)) await _store.write(userFile, _userValues);
+    if (!_store.exists(userFile)) await _write(userFile, _userValues);
     return userFile;
   }
 
@@ -97,7 +105,7 @@ class SettingsProvider extends ChangeNotifier {
   Future<String?> ensureWorkspaceFile() async {
     final path = workspaceFile;
     if (path == null) return null;
-    if (!_store.exists(path)) await _store.write(path, _workspaceValues);
+    if (!_store.exists(path)) await _write(path, _workspaceValues);
     return path;
   }
 
@@ -107,7 +115,17 @@ class SettingsProvider extends ChangeNotifier {
     if (_effective(key) == value && _userValues[key] == value) return;
     _userValues[key] = value;
     notifyListeners();
-    await _store.write(userFile, _userValues);
+    await _write(userFile, _userValues);
+  }
+
+  /// Writes, and says so when it does not land.
+  Future<void> _write(String path, Map<String, Object?> values) async {
+    try {
+      await _store.write(path, values);
+    } catch (e) {
+      debugPrint('Failed to write settings to $path: $e');
+      _notifications?.error('Could not save your settings', detail: '$e');
+    }
   }
 
   Object? _effective(String key) =>

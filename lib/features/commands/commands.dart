@@ -191,9 +191,6 @@ class Commands {
   /// shortcut map can be made of.
   static Iterable<Command> get bound =>
       all.where((command) => command.isImplemented && command.key != null);
-
-  static Command? byId(String id) =>
-      all.where((command) => command.id == id).firstOrNull;
 }
 
 void _save(BuildContext context) => context.read<EditorProvider>().saveFile();

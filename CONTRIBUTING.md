@@ -50,14 +50,15 @@ flutter run -d macos   # or -d linux / -d windows
   commands have a key but no `run` yet, and the keymap shows them as "not bound
   yet". Four are one-liners over providers that already exist: the three pane
   toggles and closing the active tab.
-- Wire up a setting in `features/settings/settings_view.dart` — the toggles
-  render but do not persist yet. The selected theme does not survive a restart
-  either.
+- Mark unsaved tabs in the tab bar. `EditorProvider.isDirty(path)` already
+  answers it and nothing draws it, so an edited file looks the same as a saved
+  one — see `_TabItem` in `features/editor/code_panel.dart`.
 - Fix the folder name in `features/workspace/explorer_panel.dart`: it splits on
   `/`, so it shows the full path on Windows.
 - Extend `FileIcon` and `NfIcons` with missing file types.
-- Add a language to `ProgLangProvider`.
-- Write tests — coverage is thin outside `LspProvider`.
+- Add a language to `Languages` in `features/editor/languages.dart`.
+- Write tests — the terminal has none at all, and `flutter_sdk_service.dart`
+  is 650 lines behind a 56-line test.
 
 Bigger pieces are listed in the README roadmap: SDK management, pub.dev
 integration, debugger, git pane, device manager, extensions.

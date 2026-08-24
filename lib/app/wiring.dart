@@ -15,8 +15,12 @@ import 'package:provider/single_child_widget.dart';
 ///
 /// Order matters: a proxy provider can only read what is already above it.
 List<SingleChildWidget> appProviders() => [
-  ChangeNotifierProvider(create: (_) => SettingsProvider()),
   ChangeNotifierProvider(create: (_) => NotificationsProvider()),
+  ChangeNotifierProxyProvider<NotificationsProvider, SettingsProvider>(
+    create: (_) => SettingsProvider(),
+    update: (_, notifications, settings) =>
+        settings!..attachNotifications(notifications),
+  ),
   ChangeNotifierProxyProvider<SettingsProvider, ThemeProvider>(
     create: (_) => ThemeProvider(),
     update: (_, settings, themeProvider) =>

@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/notifications/notifications_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/settings/settings_store.dart';
 import 'package:bird/features/theme/theme_provider.dart';
 import 'package:bird/features/settings/settings_view.dart';
 import 'package:bird/core/ui/my_switch.dart';
 import 'package:bird/core/ui/my_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
@@ -347,5 +350,31 @@ void main() {
         expect(find.text('SDK Source'), findsOneWidget);
       },
     );
+  });
+
+  group('a settings write that does not land', () {
+    test('tells the user instead of failing quietly', () async {
+      final fs = MemoryFileSystem();
+      // A file where the config directory should be: nothing can be written
+      // underneath it.
+      fs.file('/config').writeAsStringSync('not a directory');
+
+      final notifications = NotificationsProvider();
+      addTearDown(notifications.dispose);
+      final settings = SettingsProvider(
+        userFile: '/config/settings.json',
+        store: SettingsStore(fileSystem: fs),
+      )..attachNotifications(notifications);
+      addTearDown(settings.dispose);
+
+      await settings.set('editor.fontSize', 15);
+
+      // The value is right in memory, so nothing on screen would say the
+      // setting is gone until the next launch.
+      expect(settings.editorFontSize, 15);
+      final posted = notifications.items.single;
+      expect(posted.severity, NotificationSeverity.error);
+      expect(posted.message, contains('settings'));
+    });
   });
 }

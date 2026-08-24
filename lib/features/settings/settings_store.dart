@@ -63,19 +63,19 @@ class SettingsStore {
 
   /// Writes through a temporary file, so a crash mid-write cannot leave a
   /// truncated config behind.
+  ///
+  /// Throws if it cannot: a setting that looks changed in the window but never
+  /// reached the disk is only discovered on the next launch, so the caller has
+  /// to be able to say so.
   Future<void> write(String path, Map<String, Object?> values) async {
-    try {
-      final directory = _fs.directory(p.dirname(path));
-      if (!directory.existsSync()) await directory.create(recursive: true);
+    final directory = _fs.directory(p.dirname(path));
+    if (!directory.existsSync()) await directory.create(recursive: true);
 
-      final temporary = _fs.file('$path.tmp');
-      await temporary.writeAsString(
-        '${const JsonEncoder.withIndent('  ').convert(values)}\n',
-      );
-      await temporary.rename(path);
-    } catch (e) {
-      debugPrint('Failed to write settings to $path: $e');
-    }
+    final temporary = _fs.file('$path.tmp');
+    await temporary.writeAsString(
+      '${const JsonEncoder.withIndent('  ').convert(values)}\n',
+    );
+    await temporary.rename(path);
   }
 
   /// The paths that change in [directory], as they change. Creates the
