@@ -4,6 +4,7 @@ import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/notifications/notifications_provider.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
+import 'package:bird/features/search/search_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
 import 'package:bird/features/terminal/terminal_provider.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
@@ -53,6 +54,16 @@ List<SingleChildWidget> appProviders() => [
     create: (_) => EditorProvider(),
     update: (_, lsp, workspace, notifications, editor) => editor!
       ..attachLsp(lsp)
+      ..attachWorkspace(workspace)
+      ..attachNotifications(notifications),
+  ),
+  ChangeNotifierProxyProvider2<
+    WorkspaceProvider,
+    NotificationsProvider,
+    SearchProvider
+  >(
+    create: (_) => SearchProvider(),
+    update: (_, workspace, notifications, search) => search!
       ..attachWorkspace(workspace)
       ..attachNotifications(notifications),
   ),

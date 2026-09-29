@@ -248,6 +248,7 @@
 				33CC110E2044A8840003C045 /* Bundle Framework */,
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				655CA3D5A79B80D243E6BB62 /* [CP] Embed Pods Frameworks */,
+				D1A7B16E2E9A000000000001 /* Embed ripgrep */,
 			);
 			buildRules = (
 			);
@@ -333,6 +334,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		D1A7B16E2E9A000000000001 /* Embed ripgrep */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed ripgrep";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$SRCROOT/..\" && \"$FLUTTER_ROOT/bin/dart\" run dart_ripgrep:embed_macos\n";
+		};
 		3399D490228B24CF009A79C7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
