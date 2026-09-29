@@ -54,8 +54,7 @@ class _ShellState extends State<Shell> with WindowListener {
   Widget build(BuildContext context) {
     final panesProvider = context.watch<PanesProvider>();
 
-    return CallbackShortcuts(
-      bindings: getAppShortcuts(context),
+    return AppShortcuts(
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.secondary,
         body: Stack(

@@ -6,6 +6,11 @@ class SearchService {
   // launch.
   late final Ripgrep _rg = Ripgrep();
 
+  /// Every file under [root] that ripgrep would search, `.gitignore` applied.
+  Stream<String> files(String root) async* {
+    yield* _rg.files(root);
+  }
+
   /// Lines under [root] containing [query] literally, capped at [limit].
   ///
   /// Cancelling the subscription kills the ripgrep process.

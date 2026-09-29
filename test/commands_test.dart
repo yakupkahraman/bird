@@ -36,6 +36,7 @@ void main() {
     expect(Commands.bound.map((command) => command.id), [
       'file.save',
       'file.openFolder',
+      'navigation.hawk',
       'workbench.settings',
     ]);
   });
@@ -47,7 +48,6 @@ void main() {
     });
 
     test('extra modifiers come before the key', () {
-      expect(Commands.commandPalette.key!.label, 'Ctrl+Shift+P / Cmd+Shift+P');
       expect(Commands.toggleRightPane.key!.label, 'Ctrl+Alt+B / Cmd+Alt+B');
       expect(Commands.newTerminal.key!.label, 'Ctrl+Shift+` / Cmd+Shift+`');
     });

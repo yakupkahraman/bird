@@ -13,3 +13,21 @@ Map<ShortcutActivator, VoidCallback> getAppShortcuts(BuildContext context) {
         activator: () => command.run!(context),
   };
 }
+
+/// The app's key bindings, live wherever focus is in [child].
+///
+/// Key events travel up from whatever has focus. With no editor focused, focus
+/// sits on the route above the shell, so the bindings never saw the keys and
+/// Cmd+K only worked with a tab open. The [Focus] here holds focus whenever
+/// nothing else does, including after the focused editor's tab is closed.
+class AppShortcuts extends StatelessWidget {
+  const AppShortcuts({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => CallbackShortcuts(
+    bindings: getAppShortcuts(context),
+    child: Focus(autofocus: true, child: child),
+  );
+}

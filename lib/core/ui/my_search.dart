@@ -5,6 +5,7 @@ class MySearch extends StatefulWidget {
   final TextEditingController? controller;
   final String hintText;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
   final EdgeInsetsGeometry padding;
   final double height;
@@ -15,6 +16,7 @@ class MySearch extends StatefulWidget {
     this.controller,
     this.hintText = 'Search...',
     this.onChanged,
+    this.onSubmitted,
     this.onClear,
     this.padding = const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
     this.height = 36.0,
@@ -126,6 +128,7 @@ class _MySearchState extends State<MySearch> {
                       controller: _effectiveController,
                       autofocus: widget.autoFocus,
                       onChanged: widget.onChanged,
+                      onSubmitted: widget.onSubmitted,
                       style: TextStyle(fontSize: 13, color: primary),
                       decoration: InputDecoration(
                         hintText: widget.hintText,

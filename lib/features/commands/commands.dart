@@ -1,4 +1,5 @@
 import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/hawk/hawk_view.dart';
 import 'package:bird/features/settings/settings_view.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:flutter/services.dart';
@@ -149,18 +150,12 @@ class Commands {
     key: CommandKey(LogicalKeyboardKey.minus),
   );
 
-  static const quickOpen = Command(
-    id: 'navigation.quickOpen',
-    title: 'Quick Open / Find File',
+  static const hawk = Command(
+    id: 'navigation.hawk',
+    title: 'Hawk',
     category: 'Navigation',
-    key: CommandKey(LogicalKeyboardKey.keyP),
-  );
-
-  static const commandPalette = Command(
-    id: 'workbench.commandPalette',
-    title: 'Command Palette',
-    category: 'General',
-    key: CommandKey(LogicalKeyboardKey.keyP, shift: true),
+    key: CommandKey(LogicalKeyboardKey.keyK),
+    run: HawkView.show,
   );
 
   static const newTerminal = Command(
@@ -176,8 +171,7 @@ class Commands {
     openFolder,
     closeTab,
     formatDocument,
-    quickOpen,
-    commandPalette,
+    hawk,
     settings,
     toggleLeftPane,
     toggleBottomPane,

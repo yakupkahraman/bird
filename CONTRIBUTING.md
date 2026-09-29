@@ -46,7 +46,7 @@ flutter run -d macos   # or -d linux / -d windows
 
 ## Good first contributions
 
-- Implement a shortcut declared in `features/commands/commands.dart` — ten
+- Implement a shortcut declared in `features/commands/commands.dart` — eight
   commands have a key but no `run` yet, and the keymap shows them as "not bound
   yet". Four are one-liners over providers that already exist: the three pane
   toggles and closing the active tab.
