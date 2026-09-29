@@ -74,7 +74,14 @@ class _SearchPanelState extends State<SearchPanel> {
               itemBuilder: (context, index) {
                 final (path, match) = rows[index];
                 return InkWell(
-                  onTap: () => openTab(path),
+                  onTap: () => openTab(
+                    path,
+                    line: match?.lineNumber,
+                    column: switch (match?.submatches) {
+                      [final first, ...] => first.start + 1,
+                      _ => null,
+                    },
+                  ),
                   child: match == null
                       ? _FileHeader(
                           path: p.relative(path, from: search.root),

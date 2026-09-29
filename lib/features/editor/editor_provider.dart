@@ -139,7 +139,9 @@ class EditorProvider extends ChangeNotifier {
     if (changed) notifyListeners();
   }
 
-  Future<Result<void>> openFile(String path) async {
+  /// Opens [path] as a tab, at [line] and [column] when given (1-based, see
+  /// `TabOpener`).
+  Future<Result<void>> openFile(String path, {int? line, int? column}) async {
     try {
       if (!_tabs.contains(path)) {
         final content = await _documents.read(path);
@@ -158,6 +160,7 @@ class EditorProvider extends ChangeNotifier {
       }
 
       _selectedFilePath = path;
+      if (line != null) _docs[path]?.reveal(line, column: column ?? 1);
       notifyListeners();
       return const Ok(null);
     } catch (e) {

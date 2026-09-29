@@ -1,5 +1,6 @@
 import 'package:bird/features/editor/languages.dart';
 import 'package:code_forge/code_forge.dart';
+import 'package:flutter/widgets.dart';
 
 /// One open file's state.
 ///
@@ -38,6 +39,32 @@ class EditorDocument {
   bool hasConflict = false;
 
   bool get isDirty => controller.text != savedText;
+
+  /// Puts the cursor at [line] and [column], 1-based as in [TabOpener], and
+  /// scrolls it into view. Out-of-range values land on the nearest valid spot.
+  ///
+  /// After the next frame: a tab opened just now has no editor on screen yet,
+  /// and code_forge cannot scroll one it has not laid out.
+  void reveal(int line, {int column = 1}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final index = (line - 1).clamp(0, controller.lineCount - 1);
+      final text = controller.getLineText(index);
+      // code_forge offsets count Unicode scalars, not UTF-16 code units.
+      final character = CodeForgeController.utf16ToScalarOffset(
+        text,
+        (column - 1).clamp(0, text.length),
+      );
+      controller.selection = TextSelection.collapsed(
+        offset: controller.getLineStartOffset(index) + character,
+      );
+      try {
+        controller.scrollToLine(index);
+      } on StateError catch (e) {
+        // The editor was closed before the frame; the cursor still moved.
+        debugPrint('Could not scroll to line $line: $e');
+      }
+    });
+  }
 
   void dispose() {
     // dispose() does not send didClose, so the server would keep the file and

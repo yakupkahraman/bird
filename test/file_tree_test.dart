@@ -24,7 +24,7 @@ Directory makeTree(FileSystem fs, int folders, int perFolder) {
   return root;
 }
 
-Future<void> ignoreOpen(String path) async {}
+Future<void> ignoreOpen(String path, {int? line, int? column}) async {}
 
 Widget explorer(WorkspaceProvider workspace) => MultiProvider(
   providers: [
