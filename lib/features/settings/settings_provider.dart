@@ -59,6 +59,11 @@ class SettingsProvider extends ChangeNotifier {
   String? _workspacePath;
   StreamSubscription<String>? _watch;
 
+  /// Writes in flight. Until one lands the disk still holds the old values, so
+  /// a change event then (a late one from an earlier write, say) would reload
+  /// them over what was just set.
+  int _writing = 0;
+
   /// Where Bird keeps the user's own settings; see [SettingsStore].
   static String get defaultDirectory => SettingsStore.defaultDirectory;
 
@@ -120,11 +125,14 @@ class SettingsProvider extends ChangeNotifier {
 
   /// Writes, and says so when it does not land.
   Future<void> _write(String path, Map<String, Object?> values) async {
+    _writing++;
     try {
       await _store.write(path, values);
     } catch (e) {
       debugPrint('Failed to write settings to $path: $e');
       _notifications?.error('Could not save your settings', detail: '$e');
+    } finally {
+      _writing--;
     }
   }
 
@@ -161,7 +169,7 @@ class SettingsProvider extends ChangeNotifier {
   /// whole tree; its settings are re-read when the folder is opened instead.
   void _watchUserFile() {
     _watch = _store.watchDirectory(p.dirname(userFile))?.listen((path) {
-      if (!p.equals(path, userFile)) return;
+      if (_writing > 0 || !p.equals(path, userFile)) return;
       // Keep what is in memory when the file cannot be read: it is more
       // likely mid-rename than genuinely empty.
       final reloaded = _store.read(userFile);

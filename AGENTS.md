@@ -17,15 +17,17 @@ lib/
   app/                 Composition root. Knows every feature; nothing in
                        features/ or core/ may import it.
                        app.dart (MaterialApp), wiring.dart (the provider
-                       tree), shell_page.dart (bars + panes), bindings.dart
-                       (shortcuts).
+                       tree), shell.dart (bars + panes), bindings.dart
+                       (shortcuts, and the focus that keeps them live).
   core/                Feature-agnostic building blocks. Imports nothing from
                        app/ or features/ — that is what keeps it reusable.
-                       ui/ (MyButton, MyTile, MySwitch, NfIcons, FileIcon...).
+                       ui/ (MyButton, MyTile, MySwitch, NfIcons, FileIcon...),
+                       result.dart (Result), fuzzy.dart (fuzzy matching).
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
-                       workspace, lsp, terminal, sdk, settings, theme, layout,
-                       commands, notifications, extensions, internal_views.
+                       workspace, search, hawk, lsp, terminal, sdk, settings,
+                       theme, layout, commands, notifications, extensions,
+                       internal_views.
 test/                  Tests.
 ```
 
@@ -63,6 +65,16 @@ take a `FileSystem` from `package:file` so a test can hand them an in-memory
 one instead of the disk. The one deliberate exception is `top_bar.dart`, where
 `Platform.isMacOS` decides where the window buttons go — that is layout, not
 I/O.
+
+**Slow work stays off the UI thread.** Anything that can take long — listing a
+folder, searching, a language server, a shell — is asynchronous I/O or its own
+process, owned by a service. Bird already runs `dart language-server`, the PTY,
+ripgrep and `git` this way. A synchronous existence check or a tiny known file
+is fine — settings are read that way so the first frame has the right theme —
+but nothing that grows with the user's project. ripgrep ships inside the app via
+`dart_ripgrep` and is never taken from PATH; on macOS the Xcode project's
+"Embed ripgrep" build phase is what bundles it, so keep that phase. `git` is the
+user's own and optional: without it, the explorer simply dims nothing.
 
 **Errors the user asked for come back as `Result`, and go to
 `NotificationsProvider`.** If someone pressed a key and the thing did not
@@ -103,7 +115,7 @@ new one.
 non-obvious constraint — a race, an ordering requirement, a library quirk. See
 `editor_provider.dart` and `lsp_provider.dart` for the tone.
 
-**What the app is made of goes in a registry.** Three lists say what exists,
+**What the app is made of goes in a registry.** Four lists say what exists,
 and each is the only place its thing is declared:
 
 - `features/commands/commands.dart` — every command, with its id, title,
@@ -119,6 +131,9 @@ and each is the only place its thing is declared:
 - `features/layout/side_panels.dart` — every sidebar panel, with its id, title,
   icon and widget. The left bar builds its buttons from it and the shell shows
   whichever is selected.
+- `features/hawk/hawk_sources.dart` — everything Hawk, the Cmd/Ctrl+K search
+  box, searches. Hawk owns the box, the keyboard and the list; a new kind of
+  result is one `HawkSource` added here, with no change to Hawk itself.
 
 Registering is how a feature reaches the chrome without editing it. Two lists
 lining up by position is how the keymap came to advertise eight shortcuts
@@ -130,7 +145,7 @@ panel after it the wrong icon.
 ```bash
 flutter analyze          # must be clean
 dart format lib test
-flutter test
+flutter test             # one test: flutter test test/x_test.dart --plain-name "name"
 flutter run -d macos     # or -d linux / -d windows
 ```
 

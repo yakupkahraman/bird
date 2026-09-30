@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,6 +15,28 @@ import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
+
+/// A settings file whose writes land and whose change events arrive exactly
+/// when a test says so.
+class ControlledStore extends SettingsStore {
+  Map<String, Object?> disk = {};
+  final events = StreamController<String>();
+  final pendingWrites = <Completer<void>>[];
+
+  @override
+  Map<String, Object?>? read(String path) => Map.of(disk);
+
+  @override
+  Future<void> write(String path, Map<String, Object?> values) async {
+    final landed = Completer<void>();
+    pendingWrites.add(landed);
+    await landed.future;
+    disk = Map.of(values);
+  }
+
+  @override
+  Stream<String>? watchDirectory(String directory) => events.stream;
+}
 
 void main() {
   late Directory temporary;
@@ -137,6 +160,28 @@ void main() {
       expect(notifications, 1);
       expect(settings.editorFontSize, 16);
     });
+  });
+
+  test('a late change event cannot undo a set() still being written', () async {
+    // What made the SDK test flaky: an event from an earlier write arrived
+    // while the next one was in flight, and the watcher reloaded the old file
+    // over the value just set.
+    final store = ControlledStore()..disk = {'flutter.version': '3.44.9'};
+    final settings = SettingsProvider(
+      userFile: '/s/settings.json',
+      store: store,
+    );
+    addTearDown(settings.dispose);
+
+    final writing = settings.set('flutter.version', '3.40.0');
+    store.events.add('/s/settings.json');
+    await pumpEventQueue();
+
+    expect(settings.flutterVersion, '3.40.0');
+
+    store.pendingWrites.single.complete();
+    await writing;
+    expect(store.disk['flutter.version'], '3.40.0');
   });
 
   group('where the file lives', () {
