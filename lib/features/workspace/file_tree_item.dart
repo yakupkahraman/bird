@@ -23,42 +23,45 @@ class FileTreeItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.only(left: 8.0 + row.depth * 12.0),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20,
-              child: row.isDirectory
+      child: Opacity(
+        opacity: row.isIgnored ? 0.45 : 1,
+        child: Padding(
+          padding: EdgeInsets.only(left: 8.0 + row.depth * 12.0),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                child: row.isDirectory
+                    ? Icon(
+                        row.isExpanded
+                            ? NfIcons.chevronDown
+                            : NfIcons.chevronRight,
+                        size: 14,
+                        color: primary.withValues(alpha: 0.54),
+                      )
+                    : null,
+              ),
+              row.isDirectory
                   ? Icon(
-                      row.isExpanded
-                          ? NfIcons.chevronDown
-                          : NfIcons.chevronRight,
-                      size: 14,
-                      color: primary.withValues(alpha: 0.54),
+                      row.isExpanded ? NfIcons.folderOpen : NfIcons.folder,
+                      size: 16,
+                      color: Colors.amber[700],
                     )
-                  : null,
-            ),
-            row.isDirectory
-                ? Icon(
-                    row.isExpanded ? NfIcons.folderOpen : NfIcons.folder,
-                    size: 16,
-                    color: Colors.amber[700],
-                  )
-                : FileIcon(row.name, size: 16),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                row.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: primary.withValues(alpha: 0.85),
+                  : FileIcon(row.name, size: 16),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  row.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: primary.withValues(alpha: 0.85),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

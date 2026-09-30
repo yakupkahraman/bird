@@ -79,7 +79,7 @@ void main() {
       await workspace.openFolder(root.path);
       editor.openCustomTab('bird://settings');
 
-      workspace.toggleExpanded('${root.path}/sub');
+      await workspace.toggleExpanded('${root.path}/sub');
 
       expect(editor.openFilePaths, ['bird://settings']);
     });
@@ -89,7 +89,7 @@ void main() {
 
       var notifications = 0;
       editor.addListener(() => notifications++);
-      workspace.toggleExpanded('${root.path}/sub');
+      await workspace.toggleExpanded('${root.path}/sub');
 
       // The whole point of splitting the two: walking the tree must not
       // rebuild the editor, which used to repaint on every expand.

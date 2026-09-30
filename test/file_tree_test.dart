@@ -50,7 +50,7 @@ void main() {
     await files.openFolder(root.path);
     if (expandAll) {
       for (final entity in fs.directory(root.path).listSync()) {
-        if (entity is Directory) files.toggleExpanded(entity.path);
+        if (entity is Directory) await files.toggleExpanded(entity.path);
       }
     }
   }
@@ -69,7 +69,7 @@ void main() {
     await open(2, 4);
     final folder = files.visibleRows.first;
 
-    files.toggleExpanded(folder.path);
+    await files.toggleExpanded(folder.path);
 
     final rows = files.visibleRows;
     expect(rows, hasLength(2 + 4));
@@ -84,8 +84,8 @@ void main() {
     await open(2, 4);
     final folder = files.visibleRows.first.path;
 
-    files.toggleExpanded(folder);
-    files.toggleExpanded(folder);
+    await files.toggleExpanded(folder);
+    await files.toggleExpanded(folder);
 
     expect(files.visibleRows, hasLength(2));
   });
@@ -93,7 +93,7 @@ void main() {
   test('a folder that cannot be read shows up empty', () async {
     await open(1, 1);
 
-    files.toggleExpanded('${root.path}/nowhere');
+    await files.toggleExpanded('${root.path}/nowhere');
 
     // The listing throws, and the tree answers with no children rather than
     // taking the app down with it.

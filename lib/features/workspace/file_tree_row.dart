@@ -10,6 +10,7 @@ class FileTreeRow {
     required this.isDirectory,
     required this.depth,
     required this.isExpanded,
+    this.isIgnored = false,
   });
 
   final String path;
@@ -21,4 +22,7 @@ class FileTreeRow {
 
   /// Always false for a file.
   final bool isExpanded;
+
+  /// Matched by `.gitignore`, so drawn dimmed.
+  final bool isIgnored;
 }

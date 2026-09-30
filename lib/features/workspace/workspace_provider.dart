@@ -19,8 +19,9 @@ class WorkspaceProvider extends ChangeNotifier {
 
   String? _rootPath;
 
-  /// Directory contents, read once when a folder is expanded rather than on
-  /// every build. Collapsing keeps the entry, so re-expanding costs nothing.
+  /// Directory contents, read when a folder is expanded rather than on every
+  /// build. Collapsing keeps the entry, so re-expanding shows it at once while
+  /// a fresh read happens behind it.
   final Map<String, List<DirectoryEntry>> _listings = {};
 
   final Set<String> _expandedPaths = {};
@@ -52,6 +53,7 @@ class WorkspaceProvider extends ChangeNotifier {
           isDirectory: entry.isDirectory,
           depth: depth,
           isExpanded: isExpanded,
+          isIgnored: entry.isIgnored,
         ),
       );
 
@@ -74,33 +76,42 @@ class WorkspaceProvider extends ChangeNotifier {
 
   bool isExpanded(String path) => _expandedPaths.contains(path);
 
-  void toggleExpanded(String path) {
-    if (!_expandedPaths.remove(path)) {
-      _expandedPaths.add(path);
-      // Read on expand, which is a click, instead of during a build.
-      _readListing(path);
+  /// Completes once an expanded folder's contents are on screen.
+  Future<void> toggleExpanded(String path) async {
+    if (_expandedPaths.remove(path)) {
+      notifyListeners();
+      return;
     }
+    _expandedPaths.add(path);
+    // The chevron turns now; the children follow when the read lands.
     notifyListeners();
+    await _readListing(path);
   }
 
   /// Re-reads [directory], but only if the tree is already showing it.
   ///
   /// Called after a write, so a file saved into an open folder appears without
   /// the user refreshing anything.
-  void refreshListing(String directory) {
+  Future<void> refreshListing(String directory) async {
     if (!_listings.containsKey(directory)) return;
-    _readListing(directory);
-    notifyListeners();
+    await _readListing(directory);
   }
 
-  void _readListing(String directory) {
+  Future<void> _readListing(String directory) async {
+    final root = _rootPath;
+    List<DirectoryEntry> entries;
     try {
-      _listings[directory] = _service.list(directory);
+      entries = await _service.list(directory);
     } catch (e) {
       // An unreadable directory shows up empty rather than taking the app down.
       debugPrint('Failed to list $directory: $e');
-      _listings[directory] = const [];
+      entries = const [];
     }
+    // Another folder opened mid-read: the tree no longer reaches this path,
+    // so storing it would only leave the old folder's entries behind.
+    if (_rootPath != root) return;
+    _listings[directory] = entries;
+    notifyListeners();
   }
 
   /// Asks for a folder and opens it.
@@ -118,11 +129,12 @@ class WorkspaceProvider extends ChangeNotifier {
     _settings?.setWorkspace(selectedDirectory);
 
     _listings.clear();
-    _readListing(selectedDirectory);
-
-    // Show the tree right away; let the language server boot in background.
     notifyListeners();
 
-    await _lsp?.updateWorkspace(selectedDirectory);
+    // The tree and the language server load side by side.
+    await Future.wait([
+      _readListing(selectedDirectory),
+      ?_lsp?.updateWorkspace(selectedDirectory),
+    ]);
   }
 }
