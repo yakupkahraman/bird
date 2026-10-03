@@ -3,14 +3,19 @@ import 'dart:io';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Other editors run language servers too, so the tests assert on the change
-/// in this count rather than its absolute value.
+/// Language servers started by this test process alone. Counting every one on
+/// the machine made the tests flaky: other test files run in parallel with
+/// their own, and so does any editor the developer has open.
 Future<int> serverCount() async {
-  final result = await Process.run('ps', ['-Ao', 'command=']);
+  final result = await Process.run('ps', ['-Ao', 'ppid=,command=']);
   return result.stdout
       .toString()
       .split('\n')
-      .where((line) => line.contains('dart language-server'))
+      .map((line) => line.trim())
+      .where(
+        (line) =>
+            line.startsWith('$pid ') && line.contains('dart language-server'),
+      )
       .length;
 }
 

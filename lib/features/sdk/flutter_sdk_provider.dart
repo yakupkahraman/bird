@@ -114,19 +114,24 @@ class FlutterSdkProvider extends ChangeNotifier {
     _notify();
 
     try {
-      _found.clear();
       await _service.adoptLegacyInstall();
-      for (final version in _service.installedVersions()) {
-        await _record(
-          FlutterSdkLocation.bundled,
-          _service.versionPath(version),
-        );
-      }
-      await _record(
-        FlutterSdkLocation.custom,
-        customPath ?? _settings?.flutterSdkPath,
-      );
-      await _record(FlutterSdkLocation.system, await _service.findSystemSdk());
+      // Every source at once: each may run `flutter --version` or a login
+      // shell, and one after another those add up at startup. Future.wait
+      // keeps the order, so bundled versions stay newest first.
+      final found = await Future.wait([
+        for (final version in _service.installedVersions())
+          _inspect(FlutterSdkLocation.bundled, _service.versionPath(version)),
+        _inspect(
+          FlutterSdkLocation.custom,
+          customPath ?? _settings?.flutterSdkPath,
+        ),
+        _service.findSystemSdk().then(
+          (path) => _inspect(FlutterSdkLocation.system, path),
+        ),
+      ]);
+      _found
+        ..clear()
+        ..addAll(found.nonNulls);
       _activate();
     } finally {
       _isDetecting = false;
@@ -138,11 +143,12 @@ class FlutterSdkProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _record(FlutterSdkLocation location, String? sdkPath) async {
-    if (sdkPath == null || sdkPath.isEmpty) return;
-    final info = await _service.inspect(sdkPath, location);
-    if (info != null) _found.add(info);
-  }
+  Future<FlutterSdkInfo?> _inspect(
+    FlutterSdkLocation location,
+    String? sdkPath,
+  ) async => sdkPath == null || sdkPath.isEmpty
+      ? null
+      : _service.inspect(sdkPath, location);
 
   /// A version named by name wins: it is what a project pins itself to. After
   /// that the user's chosen source, and failing everything, whatever was found.
