@@ -85,6 +85,9 @@ class NfIcons {
   /// Extensions
   static const IconData extensions = IconData(0xeae6, fontFamily: _fontFamily);
 
+  /// pub.dev packages - Codicon package
+  static const IconData package = IconData(0xeb29, fontFamily: _fontFamily);
+
   /// Theme / color palette / color mode (FontAwesome palette)
   static const IconData palette = IconData(0xf0e0c, fontFamily: _fontFamily);
 
@@ -180,8 +183,14 @@ class NfIcons {
   /// Debug / bug icon
   static const IconData debug = IconData(0xea86, fontFamily: _fontFamily);
 
-  /// Check / checkmark
-  static const IconData check = IconData(0xea6e, fontFamily: _fontFamily);
+  /// Check / checkmark - Codicon check
+  static const IconData check = IconData(0xeab2, fontFamily: _fontFamily);
+
+  /// Downloads - Codicon cloud-download
+  static const IconData download = IconData(0xeac2, fontFamily: _fontFamily);
+
+  /// Verified publisher - Codicon verified
+  static const IconData verified = IconData(0xeb77, fontFamily: _fontFamily);
 
   /// Warning / triangle exclamation
   static const IconData warning = IconData(0xea6c, fontFamily: _fontFamily);

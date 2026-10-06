@@ -1,5 +1,6 @@
 import 'package:bird/core/ui/nf_icons.dart';
 import 'package:bird/features/extensions/extensions_panel.dart';
+import 'package:bird/features/pub/pub_panel.dart';
 import 'package:bird/features/search/search_panel.dart';
 import 'package:bird/features/workspace/explorer_panel.dart';
 import 'package:flutter/widgets.dart';
@@ -47,6 +48,13 @@ class SidePanels {
     view: SearchPanel(),
   );
 
+  static const pub = SidePanel(
+    id: 'pub',
+    title: 'Packages (pub.dev)',
+    icon: NfIcons.package,
+    view: PubPanel(),
+  );
+
   static const extensions = SidePanel(
     id: 'extensions',
     title: 'Extensions',
@@ -55,7 +63,7 @@ class SidePanels {
   );
 
   /// Order shown in the left bar.
-  static const all = <SidePanel>[explorer, search, extensions];
+  static const all = <SidePanel>[explorer, search, pub, extensions];
 
   /// The panel at [index], falling back to the nearest real one.
   ///

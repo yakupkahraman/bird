@@ -3,6 +3,7 @@ import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/lsp/lsp_provider.dart';
 import 'package:bird/features/notifications/notifications_provider.dart';
+import 'package:bird/features/pub/pub_provider.dart';
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/search/file_index_provider.dart';
 import 'package:bird/features/search/search_provider.dart';
@@ -76,6 +77,18 @@ List<SingleChildWidget> appProviders() => [
     create: (_) => FileIndexProvider(),
     update: (_, workspace, notifications, index) => index!
       ..attachWorkspace(workspace)
+      ..attachNotifications(notifications),
+  ),
+  ChangeNotifierProxyProvider3<
+    WorkspaceProvider,
+    FlutterSdkProvider,
+    NotificationsProvider,
+    PubProvider
+  >(
+    create: (_) => PubProvider(),
+    update: (_, workspace, sdk, notifications, pub) => pub!
+      ..attachWorkspace(workspace)
+      ..attachSdk(sdk)
       ..attachNotifications(notifications),
   ),
   ProxyProvider<EditorProvider, TabOpener>(

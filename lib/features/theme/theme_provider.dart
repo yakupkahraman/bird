@@ -37,6 +37,11 @@ class ThemeProvider extends ChangeNotifier {
   Color get backgroundColor =>
       editorTheme['root']?.backgroundColor ?? const Color(0xFF1E1E1E);
 
+  /// A colour from the editor's syntax palette, such as `keyword` or `string`:
+  /// the theme's own accents, so anything coloured with them follows a theme
+  /// change.
+  Color syntax(String key) => editorTheme[key]?.color ?? foregroundColor;
+
   Color get foregroundColor => editorTheme['root']?.color ?? Colors.white70;
 
   Color get sidebarColor => HSLColor.fromColor(backgroundColor)

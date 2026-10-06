@@ -17,6 +17,9 @@ ThemeData appTheme(ThemeProvider themeProvider) {
       onPrimary: bgColor,
       secondary: secondaryColor,
       onSecondary: primaryColor,
+      // The accent: the editor theme's keyword colour.
+      tertiary: themeProvider.syntax('keyword'),
+      onTertiary: bgColor,
       surface: bgColor,
       onSurface: primaryColor,
       error: Colors.redAccent,

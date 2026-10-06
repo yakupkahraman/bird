@@ -25,9 +25,9 @@ lib/
                        result.dart (Result), fuzzy.dart (fuzzy matching).
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
-                       workspace, search, hawk, lsp, terminal, sdk, settings,
-                       theme, layout, commands, notifications, extensions,
-                       internal_views.
+                       workspace, search, hawk, pub, lsp, terminal, sdk,
+                       settings, theme, layout, commands, notifications,
+                       extensions, internal_views.
 test/                  Tests.
 ```
 
@@ -99,7 +99,9 @@ process; `TerminalProvider` owns the PTY; `EditorProvider` owns the editor
 controllers. Leaking one leaves an orphan process behind after the app closes.
 
 **Colors come from the theme.** Use `Theme.of(context).colorScheme.primary` /
-`.secondary` / `scaffoldBackgroundColor`. Never hardcode a color that should
+`.secondary` / `scaffoldBackgroundColor`, and `.tertiary` for an accent — it is
+the editor theme's keyword colour. `ThemeProvider.syntax('string')` and friends
+give the rest of that palette when one accent is not enough. Never hardcode a color that should
 follow the active theme. The editor's syntax palette in `code_panel.dart` is the
 one deliberate exception.
 
@@ -126,8 +128,10 @@ and each is the only place its thing is declared:
 - `features/internal_views/internal_views.dart` — every `bird://<id>` tab, with
   its id, title, icon and widget. The menu, tab bar, editor area and status bar
   all pick it up. Look a path up with `InternalViews.of(path)`; never compare
-  against a `bird://` literal. These tabs have no file on disk, so anything
-  path-based must skip them.
+  against a `bird://` literal. A view opened on something, such as a pub.dev
+  package, has a `builder` instead of a `view` and lives at
+  `bird://<id>/<argument>` (see `pathFor`). These tabs have no file on disk, so
+  anything path-based must skip them.
 - `features/layout/side_panels.dart` — every sidebar panel, with its id, title,
   icon and widget. The left bar builds its buttons from it and the shell shows
   whichever is selected.
