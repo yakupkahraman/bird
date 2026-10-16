@@ -46,6 +46,11 @@ class EditorProvider extends ChangeNotifier {
   List<String> get openFilePaths => List.unmodifiable(_tabs);
   String? get selectedFilePath => _selectedFilePath;
 
+  /// Counts tabs opened or selected, re-selecting the same one included, so a
+  /// view can tell such a request from a notification about anything else.
+  int get selections => _selections;
+  int _selections = 0;
+
   /// Called from `ChangeNotifierProxyProvider` on every build, so it must be
   /// idempotent.
   void attachNotifications(NotificationsProvider notifications) =>
@@ -160,6 +165,7 @@ class EditorProvider extends ChangeNotifier {
       }
 
       _selectedFilePath = path;
+      _selections++;
       if (line != null) _docs[path]?.reveal(line, column: column ?? 1);
       notifyListeners();
       return const Ok(null);
@@ -173,12 +179,14 @@ class EditorProvider extends ChangeNotifier {
       _tabs.add(path);
     }
     _selectedFilePath = path;
+    _selections++;
     notifyListeners();
   }
 
   void selectTab(String path) {
     if (_tabs.contains(path)) {
       _selectedFilePath = path;
+      _selections++;
       notifyListeners();
     }
   }
@@ -194,6 +202,7 @@ class EditorProvider extends ChangeNotifier {
         if (_tabs.isNotEmpty) {
           final newIndex = index.clamp(0, _tabs.length - 1);
           _selectedFilePath = _tabs[newIndex];
+          _selections++;
         } else {
           _selectedFilePath = null;
         }

@@ -17,6 +17,7 @@ class SkyNode extends StatelessWidget {
     required this.isDirty,
     required this.scale,
     required this.onFocus,
+    required this.onFrame,
     required this.onMove,
     required this.onResize,
     required this.onClose,
@@ -39,6 +40,9 @@ class SkyNode extends StatelessWidget {
   /// The canvas zoom when asked: a drag arrives in screen pixels.
   final double Function() scale;
   final VoidCallback onFocus;
+
+  /// Double-clicking the header: centre this node and fit it to the view.
+  final VoidCallback onFrame;
   final ValueChanged<Offset> onMove;
   final ValueChanged<Size> onResize;
   final VoidCallback onClose;
@@ -76,48 +80,60 @@ class SkyNode extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                GestureDetector(
-                  onPanUpdate: (d) => onMove(d.delta / scale()),
-                  child: Container(
-                    height: 28,
-                    color: theme.colorScheme.secondary,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      spacing: 6,
-                      children: [
-                        icon,
-                        Expanded(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: primary.withValues(
-                                alpha: isFocused ? 0.9 : 0.6,
+                Container(
+                  height: 28,
+                  color: theme.colorScheme.secondary,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    spacing: 6,
+                    children: [
+                      Expanded(
+                        // The close button stays outside: a double-tap
+                        // listener holds every tap under it until it knows
+                        // no second one is coming.
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onDoubleTap: onFrame,
+                          onPanUpdate: (d) => onMove(d.delta / scale()),
+                          child: Row(
+                            spacing: 6,
+                            children: [
+                              icon,
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: primary.withValues(
+                                      alpha: isFocused ? 0.9 : 0.6,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              if (isDirty)
+                                Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: primary.withValues(alpha: 0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                        if (isDirty)
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                              color: primary.withValues(alpha: 0.6),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        GestureDetector(
-                          onTap: onClose,
-                          child: Icon(
-                            NfIcons.close,
-                            size: 13,
-                            color: primary.withValues(alpha: 0.5),
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: onClose,
+                        child: Icon(
+                          NfIcons.close,
+                          size: 13,
+                          color: primary.withValues(alpha: 0.5),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(

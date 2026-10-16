@@ -1,4 +1,4 @@
-import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/sky/sky_provider.dart';
 import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/workspace/file_tree_item.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
@@ -13,9 +13,9 @@ class ExplorerPanel extends StatelessWidget {
     // Through the port, not the editor itself: the explorer has no business
     // knowing what a buffer is, only that a path can be opened as a tab.
     final openTab = context.read<TabOpener>();
-    final selected = context.select<EditorProvider, String?>(
-      (editor) => editor.selectedFilePath,
-    );
+    // Sky's focus, not the editor's selection: letting go of a node in Sky
+    // keeps its tab selected, and the explorer must not say otherwise.
+    final selected = context.select<SkyProvider, String?>((sky) => sky.focused);
 
     return Consumer<WorkspaceProvider>(
       builder: (context, workspace, child) {

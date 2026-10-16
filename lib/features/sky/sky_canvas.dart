@@ -34,7 +34,8 @@ class SkyCanvas extends StatefulWidget {
   State<SkyCanvas> createState() => _SkyCanvasState();
 }
 
-class _SkyCanvasState extends State<SkyCanvas> {
+class _SkyCanvasState extends State<SkyCanvas>
+    with SingleTickerProviderStateMixin {
   late final SkyProvider _sky = context.read<SkyProvider>();
   late final _view = TransformationController(_matrix(_sky.view));
   final _boundaries = <String, GlobalKey>{};
@@ -84,6 +85,7 @@ class _SkyCanvasState extends State<SkyCanvas> {
     _sky.removeListener(_onSky);
     _view.dispose();
     _keyboard.dispose();
+    _camera.dispose();
     for (final image in _snapshots.values) {
       image.dispose();
     }
@@ -141,23 +143,42 @@ class _SkyCanvasState extends State<SkyCanvas> {
     }
   }
 
+  late final AnimationController _camera =
+      AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 350),
+      )..addListener(
+        () => _view.value = _flight.transform(
+          Curves.easeInOutCubic.transform(_camera.value),
+        ),
+      );
+  var _flight = Matrix4Tween();
+
+  /// Glides the camera until [centre] is mid-view at [scale].
+  void _flyTo(Offset centre, double scale) {
+    _flight = Matrix4Tween(
+      begin: _view.value.clone(),
+      end: Matrix4.identity()
+        ..translateByDouble(
+          _size.width / 2 - centre.dx * scale,
+          _size.height / 2 - centre.dy * scale,
+          0,
+          1,
+        )
+        ..scaleByDouble(scale, scale, 1, 1),
+    );
+    _camera.forward(from: 0);
+  }
+
   /// Centres [path]'s node in view, keeping the zoom.
   void _reveal(String path) {
     if (_size.isEmpty) return;
-    final rect = _sky.rectOf(path, _visible);
-    final scale = _scale;
-    _view.value = Matrix4.identity()
-      ..translateByDouble(
-        _size.width / 2 - rect.center.dx * scale,
-        _size.height / 2 - rect.center.dy * scale,
-        0,
-        1,
-      )
-      ..scaleByDouble(scale, scale, 1, 1);
+    _flyTo(_sky.rectOf(path, _visible).center, _scale);
   }
 
   /// Zooms by [factor] about [focal], a point in the viewport.
   void _zoomAt(Offset focal, double factor) {
+    _camera.stop();
     final scale = _scale;
     final next = (scale * factor).clamp(0.1, 3.0);
     if (next == scale) return;
@@ -182,14 +203,7 @@ class _SkyCanvasState extends State<SkyCanvas> {
     final scale = math
         .min(_size.width / bounds.width, _size.height / bounds.height)
         .clamp(0.1, 1.0);
-    _view.value = Matrix4.identity()
-      ..translateByDouble(
-        _size.width / 2 - bounds.center.dx * scale,
-        _size.height / 2 - bounds.center.dy * scale,
-        0,
-        1,
-      )
-      ..scaleByDouble(scale, scale, 1, 1);
+    _flyTo(bounds.center, scale);
   }
 
   @override
@@ -250,6 +264,8 @@ class _SkyCanvasState extends State<SkyCanvas> {
                   },
                   child: InteractiveViewer(
                     transformationController: _view,
+                    // A pan takes over from a camera still gliding.
+                    onInteractionStart: (_) => _camera.stop(),
                     scaleEnabled: false,
                     constrained: false,
                     boundaryMargin: const EdgeInsets.all(double.infinity),
@@ -348,6 +364,7 @@ class _SkyCanvasState extends State<SkyCanvas> {
       isDirty: editor.isDirty(path),
       scale: () => _scale,
       onFocus: () => _focus(path),
+      onFrame: () => _fitAll([path]),
       onMove: (by) => _sky.move(path, by),
       onResize: (by) => _sky.resize(path, by),
       onClose: () => editor.closeTab(path),

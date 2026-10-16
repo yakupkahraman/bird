@@ -1,4 +1,4 @@
-import 'package:bird/features/editor/editor_provider.dart';
+import 'package:bird/features/sky/sky_provider.dart';
 import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/workspace/explorer_panel.dart';
 import 'package:bird/features/workspace/file_tree_item.dart';
@@ -30,7 +30,7 @@ Future<void> ignoreOpen(String path, {int? line, int? column}) async {}
 Widget explorer(WorkspaceProvider workspace) => MultiProvider(
   providers: [
     ChangeNotifierProvider.value(value: workspace),
-    ChangeNotifierProvider(create: (_) => EditorProvider()),
+    ChangeNotifierProvider(create: (_) => SkyProvider()),
     Provider<TabOpener>.value(value: ignoreOpen),
   ],
   child: const MaterialApp(home: Scaffold(body: ExplorerPanel())),

@@ -54,17 +54,32 @@ void main() {
     expect(first.overlaps(second), isFalse);
   });
 
-  test('focus follows a newly selected tab, but not back after letting go', () {
-    editor.openCustomTab('bird://settings');
+  test('opening a tab focuses it, even the one just let go of', () {
+    editor
+      ..openCustomTab('bird://keymap')
+      ..openCustomTab('bird://settings');
     expect(sky.focused, 'bird://settings');
 
     sky.focus(null);
-    // The editor notifies for plenty besides selection; none of it should
-    // drag focus back.
-    editor.openCustomTab('bird://settings');
+    // The editor notifies for plenty besides opening a tab; closing another
+    // one must not drag focus back.
+    editor.closeTab('bird://keymap');
     expect(sky.focused, isNull);
 
-    editor.openCustomTab('bird://keymap');
+    // Asking for the same file again, from the explorer say, is a request.
+    editor.openCustomTab('bird://settings');
+    expect(sky.focused, 'bird://settings');
+  });
+
+  test('closing the focused tab moves focus with the selection', () {
+    editor
+      ..openCustomTab('bird://keymap')
+      ..openCustomTab('bird://settings');
+
+    editor.closeTab('bird://settings');
+
+    // As the tabs do, so the explorer and the tab bar agree on what is open.
+    expect(editor.selectedFilePath, 'bird://keymap');
     expect(sky.focused, 'bird://keymap');
   });
 

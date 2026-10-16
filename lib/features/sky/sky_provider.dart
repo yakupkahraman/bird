@@ -39,9 +39,9 @@ class SkyProvider extends ChangeNotifier {
 
   String? _focused;
 
-  /// The editor's selection when last seen, so focus follows a newly opened
-  /// file without being forced back after the user let go of it.
-  String? _selected;
+  /// [EditorProvider.selections] when last seen: a new one focuses the
+  /// selected tab, even the one the user just let go of.
+  var _selections = 0;
 
   /// The focused node, the one live editor; null when all are snapshots.
   String? get focused => _focused;
@@ -74,12 +74,12 @@ class SkyProvider extends ChangeNotifier {
   }
 
   void _onEditorChanged() {
-    final selected = _editor!.selectedFilePath;
-    final open = _editor!.openFilePaths;
+    final editor = _editor!;
+    final open = editor.openFilePaths;
     var changed = false;
-    if (selected != _selected) {
-      _selected = selected;
-      _focused = selected;
+    if (editor.selections != _selections) {
+      _selections = editor.selections;
+      _focused = editor.selectedFilePath;
       changed = true;
     }
     if (_focused != null && !open.contains(_focused)) {
