@@ -33,5 +33,7 @@ Operating notes for Claude Code in this repo. The project rules are **not** here
   working with decides what gets committed.
 - Everything written into the repo — code, comments, docs, commit messages — is
   English, whatever language you are talking in.
+- Comment sparingly. A comment that restates the line below it, such as one
+  over `windowManager.maximize()` saying it maximizes, is noise; leave it out.
 - Report honestly: name what was verified, and what was not. "Builds and
   analyzes clean" is not the same claim as "I ran the app and clicked it".
