@@ -8,6 +8,7 @@ import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/search/file_index_provider.dart';
 import 'package:bird/features/search/search_provider.dart';
 import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/sky/sky_provider.dart';
 import 'package:bird/features/terminal/terminal_provider.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:bird/features/theme/theme_provider.dart';
@@ -90,6 +91,12 @@ List<SingleChildWidget> appProviders() => [
       ..attachWorkspace(workspace)
       ..attachSdk(sdk)
       ..attachNotifications(notifications),
+  ),
+  ChangeNotifierProxyProvider2<WorkspaceProvider, EditorProvider, SkyProvider>(
+    create: (_) => SkyProvider(),
+    update: (_, workspace, editor, sky) => sky!
+      ..attachWorkspace(workspace)
+      ..attachEditor(editor),
   ),
   ProxyProvider<EditorProvider, TabOpener>(
     update: (_, editor, _) => editor.openFile,

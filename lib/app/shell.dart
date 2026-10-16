@@ -9,6 +9,8 @@ import 'package:bird/features/layout/side_panels.dart';
 import 'package:bird/features/notifications/notification_overlay.dart';
 import 'package:bird/features/layout/left_bar.dart';
 import 'package:bird/features/layout/top_bar.dart';
+import 'package:bird/features/settings/settings_provider.dart';
+import 'package:bird/features/sky/sky_canvas.dart';
 import 'package:flutter/material.dart';
 import 'package:panes/panes.dart';
 import 'package:provider/provider.dart';
@@ -53,6 +55,7 @@ class _ShellState extends State<Shell> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final panesProvider = context.watch<PanesProvider>();
+    final sky = context.select<SettingsProvider, bool>((s) => s.skyLayout);
 
     return AppShortcuts(
       child: Scaffold(
@@ -67,70 +70,94 @@ class _ShellState extends State<Shell> with WindowListener {
                     children: [
                       const LeftBar(),
                       Expanded(
-                        child: PaneTheme(
-                          data: const PaneThemeData(
-                            resizerColor: Colors.transparent,
-                            resizerHoverColor: Colors.transparent,
-                            resizerThickness: 0.0,
-                            resizerHitTestThickness: 8.0,
-                          ),
-                          child: IdeLayout(
-                            controller: panesProvider.ideController,
-                            onPaneStateChanged:
-                                panesProvider.onPaneVisibilityChanged,
-                            leftPanelBuilder: (context, animationProgress) =>
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
+                        // Sky lies under the panes rather than between them:
+                        // the panels open over the canvas instead of moving
+                        // it, and the centre pane is left empty so presses
+                        // fall through to the canvas behind.
+                        child: Stack(
+                          children: [
+                            if (sky)
+                              const Positioned.fill(
+                                child: Padding(
+                                  padding: EdgeInsets.all(2.0),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: SidePanels.at(
-                                      panesProvider.selectedSidebarIndex,
-                                    ).view,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                    child: SkyCanvas(),
                                   ),
                                 ),
-                            centerBuilder: (context, animationProgress) =>
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: const CodePanel(),
-                                  ),
-                                ),
-                            bottomPanelBuilder: (context, animationProgress) =>
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: const TerminalPanel(),
-                                  ),
-                                ),
-                            rightPanelBuilder: (context, animationProgress) =>
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: Theme.of(
-                                        context,
-                                      ).scaffoldBackgroundColor,
-                                      child: Center(
-                                        child: Text(
-                                          'Right Panel',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                                .withValues(alpha: 0.5),
+                              ),
+                            PaneTheme(
+                              data: const PaneThemeData(
+                                resizerColor: Colors.transparent,
+                                resizerHoverColor: Colors.transparent,
+                                resizerThickness: 0.0,
+                                resizerHitTestThickness: 8.0,
+                              ),
+                              child: IdeLayout(
+                                controller: panesProvider.ideController,
+                                onPaneStateChanged:
+                                    panesProvider.onPaneVisibilityChanged,
+                                leftPanelBuilder:
+                                    (context, animationProgress) => Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SidePanels.at(
+                                          panesProvider.selectedSidebarIndex,
+                                        ).view,
+                                      ),
+                                    ),
+                                centerBuilder: (context, animationProgress) =>
+                                    sky
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                        padding: const EdgeInsets.all(2.0),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: const CodePanel(),
+                                        ),
+                                      ),
+                                bottomPanelBuilder:
+                                    (context, animationProgress) => Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: const TerminalPanel(),
+                                      ),
+                                    ),
+                                rightPanelBuilder:
+                                    (context, animationProgress) => Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          color: Theme.of(
+                                            context,
+                                          ).scaffoldBackgroundColor,
+                                          child: Center(
+                                            child: Text(
+                                              'Right Panel',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.5),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

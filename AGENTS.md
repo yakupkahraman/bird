@@ -25,7 +25,7 @@ lib/
                        result.dart (Result), fuzzy.dart (fuzzy matching).
   features/<name>/     Everything one feature is, in one folder: its models,
                        its state, its I/O and its widgets. Today: editor,
-                       workspace, search, hawk, pub, lsp, terminal, sdk,
+                       workspace, sky, search, hawk, pub, lsp, terminal, sdk,
                        settings, theme, layout, commands, notifications,
                        extensions, internal_views.
 test/                  Tests.
@@ -75,6 +75,14 @@ but nothing that grows with the user's project. ripgrep ships inside the app via
 `dart_ripgrep` and is never taken from PATH; on macOS the Xcode project's
 "Embed ripgrep" build phase is what bundles it, so keep that phase. `git` is the
 user's own and optional: without it, the explorer simply dims nothing.
+
+**Sky draws one live editor.** Sky, the default editor area, is the open tabs
+laid out on a canvas — a view over `EditorProvider`, which still owns the tabs,
+so switching to the traditional tabs (`workbench.layout`) loses nothing. Only
+the focused node is live; every other node shows a snapshot of itself, with its
+editor kept mounted offstage underneath so it keeps its scroll position.
+Panning and zooming must not rebuild nodes. Both layouts build editors with
+`FileEditor`, so a new editor setting goes there once.
 
 **Errors the user asked for come back as `Result`, and go to
 `NotificationsProvider`.** If someone pressed a key and the thing did not

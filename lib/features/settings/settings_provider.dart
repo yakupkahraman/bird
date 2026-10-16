@@ -52,6 +52,7 @@ class SettingsProvider extends ChangeNotifier {
     'editor.wordWrap': false,
     'editor.lineNumbers': true,
     'workbench.colorTheme': 'vs2015',
+    'workbench.layout': 'sky',
   };
 
   Map<String, Object?> _userValues = {};
@@ -77,6 +78,9 @@ class SettingsProvider extends ChangeNotifier {
   bool get editorWordWrap => _boolean('editor.wordWrap');
   bool get editorLineNumbers => _boolean('editor.lineNumbers');
   String get colorTheme => _string('workbench.colorTheme');
+
+  /// Open files as nodes on Sky's canvas; otherwise the traditional tabs.
+  bool get skyLayout => _string('workbench.layout') == 'sky';
   String? get flutterSdkPath => _stringOrNull('flutter.sdkPath');
   String? get flutterPreferredLocation =>
       _stringOrNull('flutter.preferredLocation');

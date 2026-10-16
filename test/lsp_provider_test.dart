@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bird/features/lsp/lsp_provider.dart';
+import 'package:bird/features/lsp/lsp_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Language servers started by this test process alone. Counting every one on
@@ -69,5 +70,23 @@ void main() {
 
     provider.dispose();
     await settle();
+  });
+
+  test('a started server answers before any editor is attached', () async {
+    // Editors used to start the server themselves, so several opened at once
+    // raced: the later ones failed and never opened their file. Started ready
+    // here, it must also have answered the server's configuration question,
+    // or the server holds every request waiting for it.
+    final server = await LspService().start(workspace);
+    addTearDown(server.dispose);
+    final file = '$workspace/lib/main.dart';
+    await server.openDocument(file);
+
+    // Line 9 is `void main() async {`; character 6 is in `main`.
+    final hover = await server
+        .getHover(file, 8, 6)
+        .timeout(const Duration(seconds: 30), onTimeout: () => '');
+
+    expect(hover, isNotEmpty);
   });
 }

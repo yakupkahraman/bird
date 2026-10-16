@@ -468,6 +468,18 @@ class _SettingsViewState extends State<SettingsView> {
         : (themesList.contains('vs2015') ? 'vs2015' : themesList.first);
 
     return [
+      ..._section(category, 'Workbench', [
+        _tile(
+          title: 'Sky',
+          description:
+              'Open files as nodes on an infinite canvas instead of tabs.',
+          trailing: MySwitch(
+            value: settings.skyLayout,
+            onChanged: (sky) =>
+                settings.set('workbench.layout', sky ? 'sky' : 'traditional'),
+          ),
+        ),
+      ]),
       ..._section(category, 'Color Theme', [
         _tile(
           title: 'Workbench Theme',
