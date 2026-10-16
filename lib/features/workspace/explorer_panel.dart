@@ -1,3 +1,4 @@
+import 'package:bird/features/editor/editor_provider.dart';
 import 'package:bird/features/editor/tab_opener.dart';
 import 'package:bird/features/workspace/file_tree_item.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
@@ -12,6 +13,9 @@ class ExplorerPanel extends StatelessWidget {
     // Through the port, not the editor itself: the explorer has no business
     // knowing what a buffer is, only that a path can be opened as a tab.
     final openTab = context.read<TabOpener>();
+    final selected = context.select<EditorProvider, String?>(
+      (editor) => editor.selectedFilePath,
+    );
 
     return Consumer<WorkspaceProvider>(
       builder: (context, workspace, child) {
@@ -68,18 +72,24 @@ class ExplorerPanel extends StatelessWidget {
                 child: Builder(
                   builder: (context) {
                     final rows = workspace.visibleRows;
-                    return ListView.builder(
-                      itemCount: rows.length,
-                      itemExtent: FileTreeItem.height,
-                      itemBuilder: (context, index) {
-                        final row = rows[index];
-                        return FileTreeItem(
-                          row: row,
-                          onTap: () => row.isDirectory
-                              ? workspace.toggleExpanded(row.path)
-                              : openTab(row.path),
-                        );
-                      },
+                    // Ink paints on the nearest Material, which sits under
+                    // this panel's background, hiding every row's hover.
+                    return Material(
+                      type: MaterialType.transparency,
+                      child: ListView.builder(
+                        itemCount: rows.length,
+                        itemExtent: FileTreeItem.height,
+                        itemBuilder: (context, index) {
+                          final row = rows[index];
+                          return FileTreeItem(
+                            row: row,
+                            isSelected: row.path == selected,
+                            onTap: () => row.isDirectory
+                                ? workspace.toggleExpanded(row.path)
+                                : openTab(row.path),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

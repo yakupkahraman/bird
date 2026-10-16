@@ -9,7 +9,12 @@ import 'package:flutter/material.dart';
 /// explorer can build it inside a `ListView.builder` and pay only for the rows
 /// actually on screen.
 class FileTreeItem extends StatelessWidget {
-  const FileTreeItem({super.key, required this.row, required this.onTap});
+  const FileTreeItem({
+    super.key,
+    required this.row,
+    required this.onTap,
+    this.isSelected = false,
+  });
 
   /// Fixed, so the list can place rows without measuring each one.
   static const double height = 24.0;
@@ -17,50 +22,61 @@ class FileTreeItem extends StatelessWidget {
   final FileTreeRow row;
   final VoidCallback onTap;
 
+  /// The file the editor has selected.
+  final bool isSelected;
+
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return InkWell(
       onTap: onTap,
-      child: Opacity(
-        opacity: row.isIgnored ? 0.45 : 1,
-        child: Padding(
-          padding: EdgeInsets.only(left: 8.0 + row.depth * 12.0),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 20,
-                child: row.isDirectory
+      mouseCursor: SystemMouseCursors.click,
+      hoverColor: primary.withValues(alpha: 0.06),
+      child: Container(
+        color: isSelected
+            ? theme.colorScheme.tertiary.withValues(alpha: 0.18)
+            : null,
+        child: Opacity(
+          opacity: row.isIgnored ? 0.45 : 1,
+          child: Padding(
+            padding: EdgeInsets.only(left: 8.0 + row.depth * 12.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  child: row.isDirectory
+                      ? Icon(
+                          row.isExpanded
+                              ? NfIcons.chevronDown
+                              : NfIcons.chevronRight,
+                          size: 14,
+                          color: primary.withValues(alpha: 0.54),
+                        )
+                      : null,
+                ),
+                row.isDirectory
                     ? Icon(
-                        row.isExpanded
-                            ? NfIcons.chevronDown
-                            : NfIcons.chevronRight,
-                        size: 14,
-                        color: primary.withValues(alpha: 0.54),
+                        row.isExpanded ? NfIcons.folderOpen : NfIcons.folder,
+                        size: 16,
+                        color: Colors.amber[700],
                       )
-                    : null,
-              ),
-              row.isDirectory
-                  ? Icon(
-                      row.isExpanded ? NfIcons.folderOpen : NfIcons.folder,
-                      size: 16,
-                      color: Colors.amber[700],
-                    )
-                  : FileIcon(row.name, size: 16),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  row.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: primary.withValues(alpha: 0.85),
+                    : FileIcon(row.name, size: 16),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    row.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: primary.withValues(alpha: 0.85),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
