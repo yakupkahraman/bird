@@ -1,3 +1,5 @@
+import 'package:bird/features/layout/side_panels.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:panes/panes.dart';
 
@@ -21,6 +23,9 @@ class PanesProvider extends ChangeNotifier {
   bool _isLeftVisible = false;
   bool _isRightVisible = false;
   bool _isBottomVisible = false;
+
+  WorkspaceProvider? _workspace;
+  String? _root;
 
   int get selectedSidebarIndex => _selectedSidebarIndex;
   bool get isLeftVisible => _isLeftVisible;
@@ -62,6 +67,33 @@ class PanesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void attachWorkspace(WorkspaceProvider workspace) {
+    if (identical(_workspace, workspace)) return;
+    _workspace?.removeListener(_onWorkspaceChanged);
+    _workspace = workspace..addListener(_onWorkspaceChanged);
+    _onWorkspaceChanged();
+  }
+
+  // A listener rather than the proxy's update, which runs mid-build where
+  // notifying is not allowed.
+  void _onWorkspaceChanged() {
+    final root = _workspace!.rootPath;
+    if (root == _root) return;
+    _root = root;
+    if (root != null) showSidebar(SidePanels.all.indexOf(SidePanels.explorer));
+  }
+
+  /// Opens the sidebar on [index]. Unlike a press on its button, never closes
+  /// it.
+  void showSidebar(int index) {
+    _selectedSidebarIndex = index;
+    if (!ideController.rootController.isVisible(IdePane.left.id)) {
+      ideController.rootController.show(IdePane.left.id);
+      _isLeftVisible = true;
+    }
+    notifyListeners();
+  }
+
   void onPaneVisibilityChanged(IdePane pane, bool visible) {
     if (pane == IdePane.left) {
       _isLeftVisible = visible;
@@ -75,6 +107,7 @@ class PanesProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _workspace?.removeListener(_onWorkspaceChanged);
     ideController.dispose();
     super.dispose();
   }

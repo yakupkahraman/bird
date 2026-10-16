@@ -11,6 +11,7 @@ import 'package:bird/features/internal_views/internal_views.dart';
 import 'package:bird/features/sky/sky.dart';
 import 'package:bird/features/sky/sky_node.dart';
 import 'package:bird/features/sky/sky_provider.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -196,8 +197,10 @@ class _SkyCanvasState extends State<SkyCanvas> {
     final editor = context.watch<EditorProvider>();
     final sky = context.watch<SkyProvider>();
     final paths = editor.openFilePaths;
-    // Nothing open: the same welcome the tabs show.
-    if (paths.isEmpty) return const CodePanel();
+    final hasFolder = context.select<WorkspaceProvider, bool>(
+      (workspace) => workspace.rootPath != null,
+    );
+    if (!hasFolder && paths.isEmpty) return const CodePanel();
 
     _boundaries.removeWhere((path, _) => !paths.contains(path));
     for (final path in [..._snapshots.keys]) {

@@ -2,6 +2,9 @@ import 'package:bird/core/ui/my_icon_button.dart';
 import 'package:bird/features/layout/left_bar.dart';
 import 'package:bird/features/layout/panes_provider.dart';
 import 'package:bird/features/layout/side_panels.dart';
+import 'package:bird/features/workspace/workspace_provider.dart';
+import 'package:bird/features/workspace/workspace_service.dart';
+import 'package:file/memory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -61,5 +64,22 @@ void main() {
     await tester.pump();
 
     expect(SidePanels.at(panes.selectedSidebarIndex), SidePanels.extensions);
+  });
+
+  test('opening a folder opens the explorer, and leaves it open', () async {
+    final fs = MemoryFileSystem();
+    fs.directory('/w').createSync();
+    final workspace = WorkspaceProvider(
+      service: WorkspaceService(fileSystem: fs),
+    );
+    final panes = PanesProvider()..attachWorkspace(workspace);
+    addTearDown(panes.dispose);
+    addTearDown(workspace.dispose);
+    panes.onSidebarTabPressed(SidePanels.all.indexOf(SidePanels.search));
+
+    await workspace.openFolder('/w');
+
+    expect(panes.isLeftVisible, isTrue);
+    expect(SidePanels.at(panes.selectedSidebarIndex), SidePanels.explorer);
   });
 }

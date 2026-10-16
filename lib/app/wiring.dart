@@ -105,5 +105,8 @@ List<SingleChildWidget> appProviders() => [
     create: (_) => TerminalProvider(),
     update: (_, sdk, terminal) => terminal!..attachSdk(sdk),
   ),
-  ChangeNotifierProvider(create: (_) => PanesProvider()),
+  ChangeNotifierProxyProvider<WorkspaceProvider, PanesProvider>(
+    create: (_) => PanesProvider(),
+    update: (_, workspace, panes) => panes!..attachWorkspace(workspace),
+  ),
 ];

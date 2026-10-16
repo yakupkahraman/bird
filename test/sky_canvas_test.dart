@@ -8,6 +8,7 @@ import 'package:bird/features/sky/sky_provider.dart';
 import 'package:bird/features/sky/sky_service.dart';
 import 'package:bird/features/theme/theme_provider.dart';
 import 'package:bird/features/workspace/workspace_provider.dart';
+import 'package:bird/features/workspace/workspace_service.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,11 @@ void main() {
       userFile: '/config/settings.json',
       store: SettingsStore(fileSystem: fs),
     );
-    final workspace = WorkspaceProvider();
+    fs.directory('/w').createSync();
+    final workspace = WorkspaceProvider(
+      service: WorkspaceService(fileSystem: fs),
+    );
+    await workspace.openFolder('/w');
     editor = EditorProvider()
       ..openCustomTab(account)
       ..openCustomTab(keymap);
@@ -39,6 +44,7 @@ void main() {
               store: SettingsStore(fileSystem: fs),
               directory: '/config/sky',
             ),
+            saveDelay: Duration.zero,
           )
           ..attachWorkspace(workspace)
           ..attachEditor(editor);
@@ -59,6 +65,7 @@ void main() {
           ChangeNotifierProvider(
             create: (_) => ThemeProvider()..attachSettings(settings),
           ),
+          ChangeNotifierProvider.value(value: workspace),
           ChangeNotifierProvider.value(value: editor),
           ChangeNotifierProvider.value(value: sky),
         ],
@@ -156,5 +163,19 @@ void main() {
     await tester.pump();
 
     expect(tester.widget<Text>(find.textContaining('%')).data, '150%');
+  });
+
+  testWidgets('with a folder open and no tabs, the canvas shows, empty', (
+    tester,
+  ) async {
+    await pumpCanvas(tester);
+    editor
+      ..closeTab(account)
+      ..closeTab(keymap);
+    await tester.pump();
+
+    // The welcome ("Open a folder") is only for when there is no folder yet.
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(find.byType(SkyNode), findsNothing);
   });
 }

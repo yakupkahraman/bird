@@ -175,6 +175,7 @@ class SkyProvider extends ChangeNotifier {
     if (_root == null) return;
     _dirty = true;
     _save?.cancel();
+    if (saveDelay == Duration.zero) return _flush();
     _save = Timer(saveDelay, _flush);
   }
 
@@ -185,11 +186,18 @@ class SkyProvider extends ChangeNotifier {
     final root = _root;
     if (!_dirty || root == null) return;
     _dirty = false;
-    _service.save(root, _layout).catchError((Object e) {
-      // A layout that does not save just opens fresh next time.
-      debugPrint('Could not save the Sky layout: $e');
-    });
+    // One after another: two writes in flight share a temporary file, and the
+    // older one finishing last would put the older layout back.
+    final layout = _layout;
+    _writing = _writing.then(
+      (_) => _service.save(root, layout).catchError((Object e) {
+        // A layout that does not save just opens fresh next time.
+        debugPrint('Could not save the Sky layout: $e');
+      }),
+    );
   }
+
+  Future<void> _writing = Future.value();
 
   @override
   void dispose() {
