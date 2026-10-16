@@ -12,10 +12,10 @@ that ignores it will need a second round.
 
 ## Setup
 
-Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
-`>=3.44.0` (Dart `^3.12.0`) and desktop build tools — Xcode on macOS, Visual
-Studio with the C++ workload on Windows, `clang` + `cmake` + `ninja` +
-`libgtk-3-dev` on Linux.
+Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install) — a
+stable release with Dart `3.13.2` or newer — and desktop build tools: Xcode on
+macOS, Visual Studio with the C++ workload on Windows, `clang` + `cmake` +
+`ninja` + `libgtk-3-dev` on Linux.
 
 ```bash
 git clone https://github.com/yakupkahraman/bird.git

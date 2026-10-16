@@ -15,7 +15,7 @@ Operating notes for Claude Code in this repo. The project rules are **not** here
 - Prefer the `dart-flutter` MCP tools over shelling out: `analyze_files` instead
   of `flutter analyze`, `hot_reload` / `hot_restart` against a running app,
   `get_runtime_errors` for live exceptions, `pub` for dependency changes.
-- `flutter test` takes ~15s because `test/lsp_provider_test.dart` starts real
+- `flutter test` takes ~20s because `test/lsp_provider_test.dart` starts real
   `dart language-server` processes and counts them with `ps`. Nothing is mocked;
   a failure there means a process really leaked.
 - Widget tests run without code_forge's native library. Constructing a

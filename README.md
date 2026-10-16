@@ -18,7 +18,7 @@
   </p>
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-%3E%3D3.44.0-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-%3E%3D3.13.2-0175C2?logo=dart)](https://dart.dev)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -49,14 +49,17 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 ## ✨ Key Features
 
 - 🏎️ **100% Native Performance**: Built natively with Flutter desktop without Electron, WebViews, or DOM overhead.
+- 🌌 **Sky**: Open files as nodes on an infinite canvas — pan, pinch to zoom, double-click a header to frame a node. Only the focused node is a live editor, so a canvas full of files stays smooth. Prefer tabs? Switch to the traditional layout in Settings.
+- 🦅 **Hawk**: One search box at the top of the window, on `Cmd/Ctrl+K`. Fuzzy file search today, built to take more kinds of results.
+- 🔎 **Project Search**: Full-text search across the project, powered by a bundled [ripgrep](https://github.com/BurntSushi/ripgrep) via [`dart_ripgrep`](https://pub.dev/packages/dart_ripgrep). Results open at the matching line.
+- 📦 **pub.dev Packages**: Search pub.dev, read a package's README, changelog, example and versions, and add, upgrade or remove dependencies without leaving the IDE.
 - ⚡ **Dart Language Server Protocol (LSP)**: Full integration with `dart language-server` for real-time code completion, signature help, hover documentation popups, and diagnostics.
-- 📝 **Advanced Code Editor**: Powered by [`code_forge`](https://pub.dev/packages/code_forge) and [`re_highlight`](https://pub.dev/packages/re_highlight) with Fira Code font, VSCode Dark+ theme.
-- 🗂️ **Multi-Tab Workspace**: Effortlessly open, manage, and switch between multiple source files with real-time state synchronization.
+- 📝 **Advanced Code Editor**: Powered by [`code_forge`](https://pub.dev/packages/code_forge) and [`re_highlight`](https://pub.dev/packages/re_highlight) with the Fira Code font and re_highlight's themes (`vs2015` by default).
 - 💻 **Integrated Terminal**: Embedded PTY terminal (`xterm` + `flutter_pty`) allowing native shell execution, running `flutter run`, and executing CLI commands directly inside the IDE.
-- 📁 **Interactive File Explorer**: Full directory navigation, dynamic file type icons, and intuitive workspace management.
+- 📁 **File Explorer**: A lazily loaded tree with file type icons; files matched by `.gitignore` are dimmed.
 - 🎨 **Theme Engine & Dynamic Layouts**: Customizable dark/light UI themes, flexible pane splitters (`panes`), and custom titlebars.
 - 🔌 **Extensible Design**: Architecture prepared for plugins and community extensions.
-- ⌨️ **Native Shortcuts**: Built-in hotkeys for fast file opening, saving, tab switching, and editor operations.
+- ⌨️ **Shortcuts**: `Cmd/Ctrl+K` for Hawk, `Cmd/Ctrl+S` to save, `Cmd/Ctrl+O` to open a folder and `Cmd/Ctrl+,` for settings — all declared in one registry and listed in the Keymap.
 
 ---
 
@@ -64,15 +67,17 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 
 | Component            | Technology / Library                                                                                                                                                  |
 | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Framework**        | [Flutter Desktop](https://flutter.dev) (`>=3.44.0`)                                                                                                                   |
-| **Language**         | [Dart](https://dart.dev) (`^3.12.0`)                                                                                                                                  |
+| **Framework**        | [Flutter Desktop](https://flutter.dev) (stable)                                                                                                                       |
+| **Language**         | [Dart](https://dart.dev) (`^3.13.2`)                                                                                                                                  |
 | **Language Server**  | [Dart LSP](https://dart.dev) (`dart language-server`) via `LspStdioConfig`                                                                                            |
 | **Editor Core**      | [`code_forge`](https://pub.dev/packages/code_forge) & [`re_highlight`](https://pub.dev/packages/re_highlight)                                                         |
 | **Typography**       | [Fira Code](https://github.com/tonsky/FiraCode)                                                                                                                       |
 | **Terminal**         | [`xterm`](https://pub.dev/packages/xterm) & [`flutter_pty`](https://pub.dev/packages/flutter_pty)                                                                     |
 | **State Management** | [`provider`](https://pub.dev/packages/provider) (`ChangeNotifierProxyProvider`)                                                                                       |
 | **Window & Layout**  | [`window_manager`](https://pub.dev/packages/window_manager) & [`panes`](https://pub.dev/packages/panes)                                                               |
-| **Icons & Media**    | [`reicon_flutter`](https://pub.dev/packages/reicon_flutter), [`file_icon`](https://pub.dev/packages/file_icon), [`flutter_svg`](https://pub.dev/packages/flutter_svg) |
+| **Search**           | [`dart_ripgrep`](https://pub.dev/packages/dart_ripgrep) (a bundled [ripgrep](https://github.com/BurntSushi/ripgrep))                                                 |
+| **Package pages**    | [`flutter_markdown_plus`](https://pub.dev/packages/flutter_markdown_plus), [`markdown`](https://pub.dev/packages/markdown), [`html`](https://pub.dev/packages/html), [`url_launcher`](https://pub.dev/packages/url_launcher) |
+| **Icons & Media**    | Nerd Font glyphs, [`flutter_svg`](https://pub.dev/packages/flutter_svg)                                                                                               |
 
 ---
 
@@ -82,7 +87,7 @@ Unlike traditional IDEs that rely on memory-heavy web shells (Electron), web cod
 
 Ensure you have the following installed on your machine:
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (`>=3.44.0` / Dart `^3.12.0`)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install), a stable release with Dart `3.13.2` or newer
 - Desktop build tools (Xcode for macOS, Visual Studio C++ for Windows, or build essentials / `clang` / `cmake` for Linux)
 
 ### Installation & Execution
