@@ -42,8 +42,7 @@ class AccountView extends StatelessWidget {
                 MyTile(
                   icon: NfIcons.github,
                   title: 'GitHub',
-                  subtitle:
-                      'Sign in to access remote repositories, Gists, and GitHub integration.',
+                  subtitle: 'Sign in to access remote repositories, Gists, and GitHub integration.',
                   trailing: MyButton.outline(
                     label: 'Sign In',
                     height: 28,
@@ -55,8 +54,7 @@ class AccountView extends StatelessWidget {
                 MyTile(
                   icon: NfIcons.dart,
                   title: 'pub.dev',
-                  subtitle:
-                      'Authenticate with pub.dev to publish and manage Dart & Flutter packages.',
+                  subtitle: 'Authenticate with pub.dev to publish and manage Dart & Flutter packages.',
                   trailing: MyButton.outline(
                     label: 'Sign In',
                     height: 28,
@@ -68,8 +66,7 @@ class AccountView extends StatelessWidget {
                 MyTile(
                   icon: NfIcons.gitBranch,
                   title: 'Git Credentials & Author Identity',
-                  subtitle:
-                      'Configure Git commit author details and authentication keys.',
+                  subtitle: 'Configure Git commit author details and authentication keys.',
                   trailing: MyButton.secondary(
                     label: 'Configure',
                     height: 28,

@@ -18,12 +18,11 @@ Future<void> settled(FlutterSdkProvider provider) async {
 void writeFakeSdk(String sdkPath, String version, {String channel = 'stable'}) {
   Directory(p.join(sdkPath, 'bin', 'cache')).createSync(recursive: true);
   File(getFlutterExecutable(sdkPath)).writeAsStringSync('');
-  File(
-    p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'),
-  ).writeAsStringSync(
-    '{"flutterVersion": "$version", "dartSdkVersion": "3.13.1", '
-    '"channel": "$channel"}',
-  );
+  File(p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'))
+      .writeAsStringSync(
+        '{"flutterVersion": "$version", "dartSdkVersion": "3.13.1", '
+        '"channel": "$channel"}',
+      );
 }
 
 void main() {
@@ -37,11 +36,10 @@ void main() {
       final sdkPath = p.join(directory.path, 'flutter');
       Directory(p.join(sdkPath, 'bin', 'cache')).createSync(recursive: true);
       File(getFlutterExecutable(sdkPath)).writeAsStringSync('');
-      File(
-        p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'),
-      ).writeAsStringSync(
-        '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", "channel": "beta"}',
-      );
+      File(p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'))
+          .writeAsStringSync(
+            '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", "channel": "beta"}',
+          );
 
       final settings = SettingsProvider(
         userFile: p.join(directory.path, SettingsProvider.fileName),
@@ -129,56 +127,53 @@ void main() {
       expect(provider.isBusy, isFalse);
     });
 
-    test(
-      'keeps several versions side by side and switches between them',
-      () async {
-        final directory = Directory.systemTemp.createTempSync('bird_versions');
-        addTearDown(() => directory.deleteSync(recursive: true));
-        final root = p.join(directory.path, 'flutter-sdk');
-        writeFakeSdk(p.join(root, '3.44.9'), '3.44.9');
-        writeFakeSdk(p.join(root, '3.47.1'), '3.47.1');
+    test('keeps several versions side by side and switches between them', () async {
+      final directory = Directory.systemTemp.createTempSync('bird_versions');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final root = p.join(directory.path, 'flutter-sdk');
+      writeFakeSdk(p.join(root, '3.44.9'), '3.44.9');
+      writeFakeSdk(p.join(root, '3.47.1'), '3.47.1');
 
-        final settings = SettingsProvider(
-          userFile: p.join(directory.path, SettingsProvider.fileName),
-        );
-        addTearDown(settings.dispose);
+      final settings = SettingsProvider(
+        userFile: p.join(directory.path, SettingsProvider.fileName),
+      );
+      addTearDown(settings.dispose);
 
-        final provider = FlutterSdkProvider(bundledRoot: root);
-        addTearDown(provider.dispose);
-        provider.attachSettings(settings);
-        await settled(provider);
+      final provider = FlutterSdkProvider(bundledRoot: root);
+      addTearDown(provider.dispose);
+      provider.attachSettings(settings);
+      await settled(provider);
 
-        // Newest first, and the newest is in charge until told otherwise.
-        expect(provider.bundledSdks.map((sdk) => sdk.flutterVersion), [
-          '3.47.1',
-          '3.44.9',
-        ]);
-        expect(provider.sdkInfo?.flutterVersion, '3.47.1');
+      // Newest first, and the newest is in charge until told otherwise.
+      expect(provider.bundledSdks.map((sdk) => sdk.flutterVersion), [
+        '3.47.1',
+        '3.44.9',
+      ]);
+      expect(provider.sdkInfo?.flutterVersion, '3.47.1');
 
-        await provider.selectVersion('3.44.9');
-        expect(provider.sdkInfo?.flutterVersion, '3.44.9');
-        expect(settings.flutterVersion, '3.44.9');
-        expect(settings.flutterPreferredLocation, 'bundled');
+      await provider.selectVersion('3.44.9');
+      expect(provider.sdkInfo?.flutterVersion, '3.44.9');
+      expect(settings.flutterVersion, '3.44.9');
+      expect(settings.flutterPreferredLocation, 'bundled');
 
-        // The choice survives a restart, since it is read back from settings.
-        final restarted = FlutterSdkProvider(bundledRoot: root);
-        addTearDown(restarted.dispose);
-        restarted.attachSettings(settings);
-        await settled(restarted);
-        expect(restarted.sdkInfo?.flutterVersion, '3.44.9');
+      // The choice survives a restart, since it is read back from settings.
+      final restarted = FlutterSdkProvider(bundledRoot: root);
+      addTearDown(restarted.dispose);
+      restarted.attachSettings(settings);
+      await settled(restarted);
+      expect(restarted.sdkInfo?.flutterVersion, '3.44.9');
 
-        // A version that is pinned but missing is reported, not silently ignored.
-        await settings.set('flutter.version', '3.40.0');
-        await restarted.detectSdk();
-        expect(restarted.missingPinnedVersion, '3.40.0');
+      // A version that is pinned but missing is reported, not silently ignored.
+      await settings.set('flutter.version', '3.40.0');
+      await restarted.detectSdk();
+      expect(restarted.missingPinnedVersion, '3.40.0');
 
-        await restarted.deleteBundledSdk('3.44.9');
-        expect(restarted.bundledSdks.map((sdk) => sdk.flutterVersion), [
-          '3.47.1',
-        ]);
-        expect(Directory(p.join(root, '3.44.9')).existsSync(), isFalse);
-      },
-    );
+      await restarted.deleteBundledSdk('3.44.9');
+      expect(restarted.bundledSdks.map((sdk) => sdk.flutterVersion), [
+        '3.47.1',
+      ]);
+      expect(Directory(p.join(root, '3.44.9')).existsSync(), isFalse);
+    });
 
     test(
       'moves an SDK installed under the old layout into a version folder',

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:bird/features/sdk/flutter_sdk_provider.dart';
 import 'package:bird/features/terminal/pty_service.dart';
 import 'package:flutter/material.dart';

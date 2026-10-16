@@ -9,14 +9,6 @@ import 'package:bird/features/workspace/workspace_provider.dart';
 import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Coverage here stops at the point a buffer would be built.
-///
-/// `EditorDocument` creates a `CodeForgeController`, which throws
-/// `flutter_rust_bridge has not been initialized` outside a running app. So
-/// every path that succeeds in opening or saving a real file is out of reach,
-/// and what is tested is the tab bookkeeping and the failure paths — which
-/// return before a controller is ever needed.
-
 /// A folder with one subfolder in it, so the tree has something to expand.
 Directory makeFolder() {
   final root = Directory.systemTemp.createTempSync('bird_editor');

@@ -344,9 +344,8 @@ class _SettingsViewState extends State<SettingsView> {
                   'No setting matches "${_searchController.text.trim()}".',
                   style: TextStyle(
                     fontSize: 13,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.primary
+                        .withValues(alpha: 0.6),
                   ),
                 ),
               ),

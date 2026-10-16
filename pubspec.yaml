@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   #Editor Core
-  code_forge: ^10.14.0
+  code_forge: ^11.1.1
   re_highlight: ^0.0.3
 
   #Terminal

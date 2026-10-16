@@ -486,9 +486,9 @@ class FlutterSdkService {
       if (response.statusCode != 200) {
         throw Exception('Release manifest: HTTP ${response.statusCode}');
       }
-      final manifest =
-          jsonDecode(await response.transform(utf8.decoder).join())
-              as Map<String, dynamic>;
+      final manifest = jsonDecode(
+        await response.transform(utf8.decoder).join(),
+      ) as Map<String, dynamic>;
       return _releases = listReleases(manifest, arch: hostArch);
     } finally {
       client.close(force: true);
@@ -562,9 +562,8 @@ class FlutterSdkService {
 
       final flutterBin = getFlutterExecutable(target.path);
       if (!File(flutterBin).existsSync() ||
-          !File(
-            p.join(target.path, 'packages', 'flutter', 'pubspec.yaml'),
-          ).existsSync()) {
+          !File(p.join(target.path, 'packages', 'flutter', 'pubspec.yaml'))
+              .existsSync()) {
         throw Exception(
           'The archive only unpacked in part — ${target.path} is missing '
           'files the SDK needs. Install again to start over.',
@@ -597,18 +596,17 @@ class FlutterSdkService {
   /// Fetches the release manifest for this OS and picks a build from it.
   Future<({String downloadUrl, String archivePath, String version})>
   _resolveRelease(HttpClient client, String channel, String? version) async {
-    final response = await (await client.getUrl(
-      Uri.parse(releaseManifestUrl),
-    )).close();
+    final response = await (await client.getUrl(Uri.parse(releaseManifestUrl)))
+        .close();
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to fetch release manifest: HTTP ${response.statusCode}',
       );
     }
 
-    final manifest =
-        jsonDecode(await response.transform(utf8.decoder).join())
-            as Map<String, dynamic>;
+    final manifest = jsonDecode(
+      await response.transform(utf8.decoder).join(),
+    ) as Map<String, dynamic>;
     return pickRelease(manifest, channel, arch: hostArch, version: version);
   }
 

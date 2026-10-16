@@ -137,9 +137,8 @@ class _ShellState extends State<Shell> with WindowListener {
                                         child: Container(
                                           width: double.infinity,
                                           height: double.infinity,
-                                          color: Theme.of(
-                                            context,
-                                          ).scaffoldBackgroundColor,
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
                                           child: Center(
                                             child: Text(
                                               'Right Panel',

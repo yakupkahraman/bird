@@ -68,9 +68,10 @@ final _alert = RegExp(
 /// The markdown an HTML fragment means, as far as markdown can say it.
 /// Alignment is lost; an image keeps its width as a `#<width>` fragment, which
 /// the image builder reads back.
-String htmlToMarkdown(String fragment) => _markdown(
-  html.parseFragment(fragment),
-).replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
+String htmlToMarkdown(String fragment) =>
+    _markdown(html.parseFragment(fragment))
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
 
 String _markdown(dom.Node node) {
   if (node is dom.Text) return node.text.replaceAll(RegExp(r'\s+'), ' ');

@@ -370,9 +370,8 @@ class FileIcon extends StatelessWidget {
     if (color != null) {
       displayColor = color!;
     } else if (isMonochrome) {
-      displayColor = Theme.of(
-        context,
-      ).colorScheme.primary.withValues(alpha: 0.7);
+      displayColor = Theme.of(context).colorScheme.primary
+          .withValues(alpha: 0.7);
     } else {
       displayColor = iconData.color;
     }

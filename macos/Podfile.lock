@@ -1,25 +1,19 @@
 PODS:
-  - code_forge (10.12.0):
-    - FlutterMacOS
   - flutter_pty (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
 
 DEPENDENCIES:
-  - code_forge (from `Flutter/ephemeral/.symlinks/plugins/code_forge/macos`)
   - flutter_pty (from `Flutter/ephemeral/.symlinks/plugins/flutter_pty/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
 
 EXTERNAL SOURCES:
-  code_forge:
-    :path: Flutter/ephemeral/.symlinks/plugins/code_forge/macos
   flutter_pty:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_pty/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  code_forge: af53ecf524f9cd221e7070eca8087cac1f893f16
   flutter_pty: 1e360feaf8b1a213d2d50da3c076005b8eef1eee
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
 

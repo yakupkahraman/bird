@@ -39,9 +39,9 @@ class PubPackage {
       description: (pubspec['description'] as String? ?? '').trim(),
       publisher: tagged('publisher:').firstOrNull,
       // fsf-libre and osi-approved are classifications, not a licence.
-      license: tagged(
-        'license:',
-      ).where((l) => l != 'fsf-libre' && l != 'osi-approved').firstOrNull,
+      license: tagged('license:')
+          .where((l) => l != 'fsf-libre' && l != 'osi-approved')
+          .firstOrNull,
       repository: pubspec['repository'] as String?,
       homepage: pubspec['homepage'] as String?,
       platforms: tagged('platform:').toList(),

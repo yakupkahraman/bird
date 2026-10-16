@@ -72,9 +72,8 @@ void main() {
     final directory = Directory(
       p.join(root.path, SettingsProvider.workspaceDirectory),
     )..createSync(recursive: true);
-    File(
-      p.join(directory.path, SettingsProvider.fileName),
-    ).writeAsStringSync(jsonEncode(values));
+    File(p.join(directory.path, SettingsProvider.fileName))
+        .writeAsStringSync(jsonEncode(values));
     return root.path;
   }
 
@@ -237,9 +236,8 @@ void main() {
 
       // Opening a folder must not litter it with a .bird directory.
       expect(
-        Directory(
-          p.join(root.path, SettingsProvider.workspaceDirectory),
-        ).existsSync(),
+        Directory(p.join(root.path, SettingsProvider.workspaceDirectory))
+            .existsSync(),
         isFalse,
       );
 

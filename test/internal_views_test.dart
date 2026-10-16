@@ -107,12 +107,11 @@ void main() {
       final sdkPath = p.join(directory.path, 'flutter');
       Directory(p.join(sdkPath, 'bin', 'cache')).createSync(recursive: true);
       File(getFlutterExecutable(sdkPath)).writeAsStringSync('');
-      File(
-        p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'),
-      ).writeAsStringSync(
-        '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", '
-        '"channel": "beta"}',
-      );
+      File(p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'))
+          .writeAsStringSync(
+            '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", '
+            '"channel": "beta"}',
+          );
 
       final sdkProvider = FlutterSdkProvider();
       addTearDown(sdkProvider.dispose);

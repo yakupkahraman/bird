@@ -18,10 +18,6 @@ Operating notes for Claude Code in this repo. The project rules are **not** here
 - `flutter test` takes ~20s because `test/lsp_provider_test.dart` starts real
   `dart language-server` processes and counts them with `ps`. Nothing is mocked;
   a failure there means a process really leaked.
-- Widget tests run without code_forge's native library. Constructing a
-  `CodeForgeController` throws `flutter_rust_bridge has not been initialized`,
-  so keep tests off the editor path — `test/internal_views_test.dart` shows the
-  pattern.
 - A debug build for your own platform (`flutter build macos|linux|windows
   --debug`) is the cheapest proof the app still compiles. CI builds all three on
   every PR, so leave the other two to it.

@@ -14,5 +14,8 @@
 /// A function rather than an interface on purpose: the implementation is a
 /// `ChangeNotifier`, and `Provider` rejects a `Listenable` value because it
 /// cannot rebuild dependents from it. A tear-off is neither.
-typedef TabOpener =
-    Future<void> Function(String path, {int? line, int? column});
+typedef TabOpener = Future<void> Function(
+  String path, {
+  int? line,
+  int? column,
+});

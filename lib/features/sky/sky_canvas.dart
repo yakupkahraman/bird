@@ -307,9 +307,8 @@ class _SkyCanvasState extends State<SkyCanvas>
                           '${(_scale * 100).round()}%',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.5),
+                            color: Theme.of(context).colorScheme.primary
+                                .withValues(alpha: 0.5),
                           ),
                         ),
                       ),

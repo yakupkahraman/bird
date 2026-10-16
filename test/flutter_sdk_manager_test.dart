@@ -24,11 +24,10 @@ String fakeSdk(Directory parent) {
     executable.writeAsStringSync('#!/bin/sh\necho "[ok] Flutter is fine"\n');
     Process.runSync('chmod', ['+x', executable.path]);
   }
-  File(
-    p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'),
-  ).writeAsStringSync(
-    '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", "channel": "beta"}',
-  );
+  File(p.join(sdkPath, 'bin', 'cache', 'flutter.version.json'))
+      .writeAsStringSync(
+        '{"flutterVersion": "3.47.1", "dartSdkVersion": "3.13.1", "channel": "beta"}',
+      );
   return sdkPath;
 }
 
