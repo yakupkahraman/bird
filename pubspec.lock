@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: code_forge
-      sha256: "673daf67300fcd602a44ea7cba66e05a3e91a634b5fab454e08d54d331a1f04d"
+      sha256: "0749080e497c3ce527e8aac141a3bfd2ede2d7b7ca3292d3e3175e5070909e9e"
       url: "https://pub.dev"
     source: hosted
-    version: "11.1.1"
+    version: "11.2.0"
   collection:
     dependency: transitive
     description:
